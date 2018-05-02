@@ -6,7 +6,7 @@ java -jar HMMRATAC_V1.0_exe.jar <options>
 
 Version number may change.
 
-Please download the executable file from the release tab (suffix _exe.jar) to run the program. Source files do not contain manifest file 
+Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain manifest file 
 needed to run.  
 
 Section 1:  Creating required files
