@@ -137,7 +137,7 @@ Section 2:  Overview of Options
 	-u  ,  --upper <int>  Upper limit on fold change range for choosing training 
 	regions.  HMMR chooses training regions by finding genomic loci whose 
 	fold change above genomic background is within a certain range.  This 
-	option sets the upper limit of this range.  Default is 10.  Generally speaking, 
+	option sets the upper limit of this range.  Default is 20.  Generally speaking, 
 	the higher this range is, the more stringent the resulting model, and the 
 	lower the range, the less stringent the model.  If recall (sensitivity) is 
 	important for you, it is recommended to set lower ranges, while if 
@@ -149,7 +149,7 @@ Section 2:  Overview of Options
 	-l  ,  --lower <int>  Lower limit on fold change range for choosing training 
 	regions.  HMMR chooses training regions by finding genomic loci whose 
 	fold change above genomic background is within a certain range.  This 
-	option sets the lower limit of this range.  Default is 2.  Generally speaking, 
+	option sets the lower limit of this range.  Default is 10.  Generally speaking, 
 	the higher this range is, the more stringent the resulting model, and the 
 	lower the range, the less stringent the model.  If recall (sensitivity) is 
 	important for you, it is recommended to set lower ranges, while if 
