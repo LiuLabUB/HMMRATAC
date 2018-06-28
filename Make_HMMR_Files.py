@@ -35,11 +35,11 @@ cm.getoutput(command3)
 command4 = bedtools+" genomecov -i TEMP_BED.bed -g "+genomefile+" -bga > TEMP_BEDGRAPH.bg"
 cm.getoutput(command4)
 
-#cm.getoutput("rm TEMP_BED.bed")
+cm.getoutput("rm TEMP_BED.bed")
 
 command5 = bedgraphtobigwig+" TEMP_BEDGRAPH.bg "+genomefile+" "+prefix+".bw"
 cm.getoutput(command5)
 
-#cm.getoutput("rm TEMP_BEDGRAPH.bg")
+cm.getoutput("rm TEMP_BEDGRAPH.bg")
 
 
