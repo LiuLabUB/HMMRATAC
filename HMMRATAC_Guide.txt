@@ -6,8 +6,8 @@ java -jar HMMRATAC_V1.0_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile
 
 Version number may change.
 
-Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain manifest file 
-needed to run.  
+Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain
+manifest file needed to run.  
 
 Outline:
 Section 1) Creating required files
