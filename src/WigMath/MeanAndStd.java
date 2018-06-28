@@ -16,14 +16,30 @@ public class MeanAndStd {
 	private double mean;
 	private double std;
 
+	/**
+	 * Constructor
+	 * @param w a String representing the bigwig file
+	 * @throws IOException
+	 */
 	public MeanAndStd(String w) throws IOException{
 		wigFile = w;
 		SetMeanAndStd();
 	}
+	/**
+	 * Constructor
+	 * @param w a String representing the bigwig file
+	 * @param node a TagNode representing a region to calculate the mean and stddev
+	 * @throws IOException
+	 */
 	public MeanAndStd(String w, TagNode node) throws IOException{
 		wigFile = w;
 		SetMeanAndStd2(node);
 	}
+	/**
+	 * Set the data across a specific region
+	 * @param node a TagNode representing a specific region for calculation
+	 * @throws IOException
+	 */
 	private void SetMeanAndStd2(TagNode node) throws IOException{
 		BBFileReader wigReader = new BBFileReader(wigFile);
 		String chrom = node.getChrom();
@@ -34,7 +50,6 @@ public class MeanAndStd {
 		StandardDeviation dev = new StandardDeviation();
 		while(iter.hasNext()){
 			WigItem item = iter.next();
-			String chr = item.getChromosome();
 			int start = item.getStartBase();
 			int stop = item.getEndBase();
 			double value = item.getWigValue();
@@ -48,8 +63,20 @@ public class MeanAndStd {
 		std = dev.getResult();
 		
 	}
+	/**
+	 * Access the mean
+	 * @return a double representing the mean
+	 */
 	public double getMean(){return mean;}
+	/**
+	 * Access the standard deviation
+	 * @return a double representing the stddev
+	 */
 	public double getStd(){return std;}
+	/**
+	 * Set the data across the entire genome
+	 * @throws IOException
+	 */
 	private void SetMeanAndStd() throws IOException{
 		BBFileReader wigReader = new BBFileReader(wigFile);
 		BigWigIterator iter = wigReader.getBigWigIterator();
@@ -57,7 +84,6 @@ public class MeanAndStd {
 		StandardDeviation dev = new StandardDeviation();
 		while(iter.hasNext()){
 			WigItem item = iter.next();
-			String chr = item.getChromosome();
 			int start = item.getStartBase();
 			int stop = item.getEndBase();
 			double value = item.getWigValue();

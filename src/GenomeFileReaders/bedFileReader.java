@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.util.CloseableIterator;
 import Node.TagNode;
 
 public class bedFileReader {
@@ -19,29 +17,28 @@ public class bedFileReader {
 	private ArrayList<TagNode> data;
 	private int minQ=0;
 	private boolean rmDup = false;
-	public bedFileReader(){
-		
-	}
+	
+	
+	/**
+	 * Constructor which reads data
+	 * @param f a BED File containing the data
+	 */
 	public bedFileReader(File f){
 		file = f;
 		setData();
 	}
+	/**
+	 * Constructor that reads data. Uses name of file
+	 * @param f String that represents the name of the BED File
+	 */
 	public bedFileReader(String f){
 		file = new File(f);
 		setData();
 	}
-	public bedFileReader(File f,int m, boolean rm){
-		file = f;
-		minQ = m;
-		rmDup = rm;
-		setData();
-	}
-	public bedFileReader(String f,int m, boolean rm){
-		file = new File(f);
-		minQ = m;
-		rmDup = rm;
-		setData();
-	}
+	/**
+	 * Method for determining which regions of the genome are mappable 
+	 * @return an ArrayList of TagNode's representing the mappable regions
+	 */
 	public ArrayList<TagNode> getMappable(){
 		ArrayList<TagNode> mappable = new ArrayList<TagNode>();
 		
@@ -80,13 +77,24 @@ public class bedFileReader {
 		}	
 		return mappable;
 	}
+	/**
+	 * Access the data
+	 * @return an ArrayList of TagNode representing the data 
+	 */
 	public ArrayList<TagNode> getData(){
 		return data;
 	}
+	/**
+	 * Access the accepted BED File formats
+	 * @return a String that represents the BED File formats that can be parsed
+	 */
 	public String bedFormats(){
 		return "BED3: <chr> <start> <stop>"+"\n"+"BED6: <chr> <start> <stop> <name> <mapQualScore> <strand>"+"\n"+
 				"BEDPE: <chr1> <start1> <stop1> <chr2> <start2> <stop2> <name> <mapQ> <strand1> <strand2>";
 	}
+	/**
+	 * Read the input file and set the data
+	 */
 	private void setData(){
 		data = new ArrayList<TagNode>();
 		TagNode temp = null;
@@ -126,6 +134,11 @@ public class bedFileReader {
 			data = removeDup();
 		}
 	}
+	/**
+	 * Method for reading BED-six formatted files
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return	a TagNode representing the BED data
+	 */
 	private TagNode readBEDSix(String[] line){
 		TagNode temp = null;
 		String chr = line[0];
@@ -139,24 +152,31 @@ public class bedFileReader {
 		}
 		return temp;
 	}
+	/**
+	 * Method for reading BEDPE formatted files
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return	a TagNode representing the BED data
+	 */
 	private TagNode readBEDPE(String[] line){
 		TagNode temp = null;
 		String chr = line[0];
 		int start = Integer.parseInt(line[1]);
 		int stop = Integer.parseInt(line[2]);
-		String chr2 = line[3];
 		int start2 = Integer.parseInt(line[4]);
 		int stop2 = Integer.parseInt(line[5]);
-		String name = line[6];
 		int mapQ = Integer.parseInt(line[7]);
-		String s1 = line[8];
-		String s2 = line[9];
+		
 		if (mapQ >= minQ){
 			temp = new TagNode(chr,Math.min(start, start2),Math.max(stop, stop2));
 		}
 		return temp;
 		
 	}
+	/**
+	 * Method for reading BED-three formatted files
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return	a TagNode representing the BED data
+	 */
 	private TagNode readMinBED(String[] line){
 		String chr = line[0];
 		int start = Integer.parseInt(line[1]);
@@ -165,7 +185,10 @@ public class bedFileReader {
 		return temp;
 	}
 	
-	
+	/**
+	 * Method to remove duplicate entries in BED file
+	 * @return an ArrayList of TagNode representing the data with duplicates removed
+	 */
 	private ArrayList<TagNode> removeDup(){
 		if (rmDup == true){
 			HashSet<String> map = new HashSet<String>();
@@ -190,7 +213,11 @@ public class bedFileReader {
 		else{return null;}
 	}
 	
-	
+	/**
+	 * Determine if the file is in BEDPE format
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return a boolean representing whether the data is in BEDPE format
+	 */
 	private boolean bedpe(String[] line){
 		try {
 			if (isBED(line)){
@@ -209,6 +236,11 @@ public class bedFileReader {
 			return false;
 		}
 	}
+	/**
+	 * Determine if the file is in BED-six format
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return a boolean representing whether the data is in BED-six format
+	 */
 	private boolean bedSix(String[] line){
 		try {
 			if (isBED(line) && Math.round(Integer.parseInt(line[4])) == Integer.parseInt(line[4]) && (line[5].equals("+"))
@@ -222,7 +254,11 @@ public class bedFileReader {
 		}
 	}
 	
-	 
+	/**
+	 * Determine if the file is in BED format
+	 * @param line an Array of Strings representing a line in the BED File
+	 * @return a boolean representing whether the data is in BED format
+	 */
 	private boolean isBED(String[] line){
 		try{
 			if (line[0].startsWith("chr") || line[0].contains("X") || line[0].contains("Y") || line[0].contains("M")
@@ -241,18 +277,5 @@ public class bedFileReader {
 	
 	
 
-	/*
-	 * For testing
-	 */
-	
-	/*
-	public static void main(String[] args){
-		bedFileReader r = new bedFileReader("TestBEDFiles/test.bed");
-		for (int i = 0; i < r.getData().size();i++){
-			System.out.println(r.getData().get(i).getChrom()+"\t"+r.getData().get(i).getStart()+"\t"+
-					r.getData().get(i).getStop());
-		}
-	}
-	*/
 	
 }

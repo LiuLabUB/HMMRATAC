@@ -5,7 +5,6 @@
 
 package JAHMMTest;
 
-import java.awt.Point;
 import java.util.*;
 
 import be.ac.ulg.montefiore.run.jahmm.*;
@@ -26,8 +25,6 @@ extends BaumWelchLearner
 	 * Initializes a Baum-Welch algorithm implementation.
 	 */
 	private int scaledConstant = 1;
-	private ArrayList<Double> pts = new ArrayList<Double>();
-	
 	public BaumWelchScaledLearner()
 	{
 	}
@@ -61,7 +58,7 @@ extends BaumWelchLearner
 		
 		double xi[][][] = 
 			new double[sequence.size() - 1][hmm.nbStates()][hmm.nbStates()];
-		System.out.println("Scaled Xi method");
+		//System.out.println("Scaled Xi method");
 		Iterator<? extends O> seqIterator = sequence.iterator();
 		seqIterator.next();
 		

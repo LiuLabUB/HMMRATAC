@@ -15,15 +15,32 @@ public class HMMR_EM {
 	private int maxIter=20;
 	private double jump = 1.5;
 
-	
+	/**
+	 * Constructor for generating new HMMR_EM object
+	 * @param w an Array of doubles representing the weights of the distribution
+	 * @param m an Array of doubles representing the means of the distribution
+	 * @param l an Array of doubles representing the standard deviations of the distribution
+	 * @param d an Array of doubles representing the read length data
+	 */
 	public HMMR_EM(double[] w, double[] m,double[] l,double[] d){
 		weights=w;
 		mu=m;
 		lamda=l;
 		data=d;
 	}
+	/**
+	 * Access the means
+	 * @return an Array of doubles representing the means
+	 */
 	public double[] getMeans(){return mu;}
+	/**
+	 * Access the standard deviations
+	 * @return an Array of doubles representing the standard deviations
+	 */
 	public double[] getLamda(){return lamda;}
+	/**
+	 * Perform one iteration of the EM algorithm
+	 */
 	public void iterate(){
 		
 		double[] temp = new double[mu.length];
@@ -58,7 +75,9 @@ public class HMMR_EM {
 		
 		
 	}
-	
+	/**
+	 * Iterate through the EM algorithm until data convergence
+	 */
 	public void learn(){
 		
 		double[] oldMu = new double[mu.length];
@@ -93,10 +112,17 @@ public class HMMR_EM {
 			if (iter >= maxIter){
 				break;
 			}
-			System.out.println(iter);
+			//System.out.println(iter);
 		}
 		
 	}
+	/**
+	 * Determine if the EM algorithm has converged
+	 * @param value1 a double representing the value before EM algorithm
+	 * @param value2 a double representing the value after EM algorithm
+	 * @param epsilon a double representing the maximum difference allowed to be considered converged
+	 * @return a boolean indicating whether the values have converged
+	 */
 	private boolean converges(double value1,double value2, double epsilon){
 		if (Math.abs(value1 - value2) <= epsilon){
 			return true;
@@ -105,12 +131,25 @@ public class HMMR_EM {
 			return false;
 		}
 	}
+	/**
+	 * Access the weighted density of the multi-variate distribution
+	 * @param x a double representing the read length
+	 * @param mean a double representing the distribution mean
+	 * @param lamda	a double representing the distribution standard deviation
+	 * @param weight a double representing the distribution weight
+	 * @return a double representing the weighted density
+	 */
 	private double getWeightedDensity(double x, double mean, double lamda,double weight){
 		
 		NormalDistribution dis = new NormalDistribution(mean,lamda);
 		return weight * dis.density(x);
 		
 	}
+	/**
+	 * Return the index of the largest value in an array of doubles
+	 * @param data an Array of doubles 
+	 * @return an integer representing thre index of the largest value in the inputted array
+	 */
 	private int returnGreater(double[] data){
 		int largest = -1;
 		double greatest = -1.0;

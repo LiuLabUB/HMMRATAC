@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import Node.TagNode;
@@ -12,10 +11,15 @@ import Node.TagNode;
 public class GenomeFileReader {
 
 	private ArrayList<TagNode> _genMap;
-	
+	/**
+	 * Constructor for creating Object and reading the data
+	 * @param input a File representing the genome data
+	 * @throws FileNotFoundException
+	 */
 	public GenomeFileReader(File input) throws FileNotFoundException{
 		_genMap = new ArrayList<TagNode>();
 		TagNode temp = null;
+		@SuppressWarnings("resource")
 		Scanner inFile =new Scanner ((Readable) new FileReader(input));
 		
 		while(inFile.hasNext()){
@@ -28,9 +32,15 @@ public class GenomeFileReader {
 		}
 		
 	}
+	/**
+	 * Constructor for creating Object and reading the data
+	 * @param input a String representing the name of the file containing the genome data
+	 * @throws FileNotFoundException
+	 */
 	public GenomeFileReader(String input) throws FileNotFoundException{
 		_genMap = new ArrayList<TagNode>();
 		TagNode temp = null;
+		@SuppressWarnings("resource")
 		Scanner inFile =new Scanner ((Readable) new FileReader(input));
 		
 		while(inFile.hasNext()){
@@ -43,25 +53,12 @@ public class GenomeFileReader {
 		}
 		
 	}
-	
+	/**
+	 * Access the data
+	 * @return an ArrayList of TagNode representing the data
+	 */
 	public ArrayList<TagNode> getMap(){
 		return _genMap;
 	}
 	
-	public ArrayList<TagNode> getFilteredMap(){
-		ArrayList<TagNode> filteredMap = new ArrayList<TagNode>();
-		TagNode temp = null;
-		for (int i = 0;i < _genMap.size();i++){
-			String chr = _genMap.get(i).getChrom();
-			int start = _genMap.get(i).getStart();
-			int stop = _genMap.get(i).getStop();
-			int newStart = start + 20000;
-			int newStop = stop - 20000;
-			temp = new TagNode(chr,newStart,newStop);
-			filteredMap.add(temp);
-		}
-		
-		return filteredMap;
-		
-	}
 }

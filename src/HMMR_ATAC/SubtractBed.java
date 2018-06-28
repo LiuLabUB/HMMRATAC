@@ -12,13 +12,25 @@ public class SubtractBed {
 	private ArrayList<TagNode> exclude;
 	private ArrayList<TagNode> output;
 	
+	/**
+	 * Constructor for creating a SubtractBed object and subtracting the data
+	 * @param i an ArrayList of TagNode representing the data to be subtracted from
+	 * @param e an ArrayList of TagNode representing the data to be subtracted by
+	 */
 	public SubtractBed(ArrayList<TagNode> i, ArrayList<TagNode> e){
 		input = i;
 		exclude = e;
 		output = new ArrayList<TagNode>();
 		subtract();
 	}
+	/**
+	 * Access the subtracted data
+	 * @return an ArrayList of TagNode representing the subtracted data
+	 */
 	public ArrayList<TagNode> getResults(){return output;}
+	/**
+	 * Subtract the data
+	 */
 	private void subtract(){
 		HashMap<String,ArrayList<TagNode>> in = toMap(input);
 		HashMap<String,ArrayList<TagNode>> ex = toMap(exclude);
@@ -122,6 +134,12 @@ public class SubtractBed {
 		}
 		
 	}
+	/**
+	 * Determine if two entries overlap each other
+	 * @param node1 a TagNode representing one entry
+	 * @param node2 a TagNode representing a seconfd entry
+	 * @return a OverlapNode representing the overlap between the two TagNode
+	 */
 	public static OverlapNode overlap(TagNode node1,TagNode node2){
 		if(node1.getChrom().equals(node2.getChrom())){
 			int start1 = node1.getStart();
@@ -170,7 +188,11 @@ public class SubtractBed {
 			return new OverlapNode(null,false,false);
 		}
 	}
-	
+	/**
+	 * Split the data by chromosome for calculation efficiency
+	 * @param i an ArrayList of TagNode to split
+	 * @return a HashMap of String and ArrayList of TagNode where the key String is the chromosome and the value ArrayList is all TagNode on that chromosome
+	 */
 	private HashMap<String,ArrayList<TagNode>> toMap(ArrayList<TagNode> i){
 		HashMap<String,ArrayList<TagNode>> map = new HashMap<String,ArrayList<TagNode>>();
 		for (int x = 0;x < i.size();x++){

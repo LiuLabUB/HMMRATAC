@@ -1,11 +1,12 @@
 package HMMR_ATAC;
 
 /*
- * Written by: Evan Tarbell
+ * Written by: Evan Tarbell 
  * evantarb@buffalo.edu
  */
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -14,11 +15,12 @@ import java.util.ArrayList;
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussian;
+import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryReader;
 import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryWriter;
 import ATACFragments.FragPileupGen;
 import FormatConverters.PileupToBedGraph;
-
 import GEMM.HMMR_EM;
+import GenomeFileReaders.GenomeFileReader;
 import GenomeFileReaders.bedFileReader;
 import Node.PileupNode2;
 import Node.TagNode;
@@ -26,7 +28,6 @@ import RobustHMM.KMeansToHMM;
 import RobustHMM.RobustHMM;
 import WigMath.FoldChange;
 import WigMath.PullWigAboveCutoff;
-
 
 public class Main_HMMR_Driver {
 
@@ -42,8 +43,8 @@ public class Main_HMMR_Driver {
 	private static boolean fragEM = true; //whether or not to perform fragment dist em
 	private static int minMapQ = 30; //minimum mapping quality of reads to keep
 	
-	private static int lower = 2; //lower bound for fold change range for choosing training sites
-	private static int upper = 10; //upper bound for fold change range for choosing training sites
+	private static int lower = 10; //lower bound for fold change range for choosing training sites
+	private static int upper = 20; //upper bound for fold change range for choosing training sites
 	private static int zscore = 100; //zscored read coverage to exclude from viterbi decoding
 	private static String output; //output name 
 	private static boolean peaks; // whether to print peaks
@@ -51,8 +52,16 @@ public class Main_HMMR_Driver {
 	private static String blacklist = null;
 	private static int minLength;
 	private static String scoreSys;
-	private static String BGScore;
+	private static boolean BGScore;
 	private static int k = 4;
+	private static int trim = 0;
+	private static int vitWindow = 25000000;
+	private static File modelFile;
+	private static boolean stopAfterModel = false;
+	
+	private static String trainingRegions;
+	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
 		
 		ArgParser p = new ArgParser(args);
@@ -75,6 +84,10 @@ public class Main_HMMR_Driver {
 		scoreSys = p.getScore();
 		BGScore = p.getBGScore();
 		k = p.getK();
+		trim=p.getTrim();
+		trainingRegions = p.getTrainingRegions();
+		vitWindow = p.getWindow();
+		modelFile = p.getModelFile();
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
 		
@@ -83,10 +96,17 @@ public class Main_HMMR_Driver {
 			output = "NA";
 		}
 		PrintStream log = new PrintStream(output+".log");
+		
 		//Exit program if BAM file or Index file not given
-		if (bam == null || index == null || genomeFile == null){
+		if (bam == null || index == null || genomeFile == null || bigWig == null){
 			p.printUsage();
+			System.exit(1);
 		}
+		log.println("Arguments Used:");
+		for (int i = 0; i < args.length-1;i+=2){
+			log.println(args[i]+"\t"+args[i+1]);
+		}
+		
 		//Read in genome size stats
 		GenomeFileReader gReader = new GenomeFileReader(genomeFile);
 		ArrayList<TagNode> genomeStats = gReader.getMap();
@@ -162,7 +182,9 @@ public class Main_HMMR_Driver {
 					fragStddevs[i+1] = tempLam[i];
 				}
 			}
+			em = null;lengths = null;tempMeans=null;tempLam=null;
 		}
+		
 		log.println("Fragment Expectation Maximum Done");
 		for (int i = 0;i < fragMeans.length;i++){
 			log.println("Mean\t"+fragMeans[i]+"\tStdDevs\t"+fragStddevs[i]);
@@ -182,16 +204,16 @@ public class Main_HMMR_Driver {
 		
 		/*
 		 * Below is method to use BigWig input file
-		 */
-		
-		/*
 		 * Find regions with fold change within determined range to use as training sites.
 		 * Find regions with zscore values above certain cutoff to exclude from viterbi.
 		 */
+		Hmm<ObservationVector> hmm=null;
 		
+		//
 		FoldChange fc = new FoldChange(bigWig,upper,lower,genomeStats);
 		PullWigAboveCutoff z = new PullWigAboveCutoff(bigWig,zscore,genomeStats);
-		
+		double genomeMean = fc.getMean();
+		double genomeStd = fc.getSTD();
 		
 		ArrayList<TagNode> train = new MergeBed(fc.getResults()).getResults();
 		
@@ -235,9 +257,13 @@ public class Main_HMMR_Driver {
 		
 		train = newTrain;
 		
-		
-		
-		
+		//Below added on 12/13/16
+		// Allows user to use training set for model generation
+		if (trainingRegions != null){
+			bedFileReader trainReader = new bedFileReader(trainingRegions);
+			train = trainReader.getData();
+		}
+		//Above added 12/13/16
 		
 		log.println("Training Regions found and Zscore regions for exclusion found");
 		
@@ -245,9 +271,10 @@ public class Main_HMMR_Driver {
 		/*
 		 * Create the fragment pileup tracks using the training set and the fragment distribution parameters
 		 */
+		if (modelFile == null){
 		
 		FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ);
-		TrackHolder holder = new TrackHolder(gen.transformTracks(gen.getAverageTracks()));// 8/30/16 transformed tracks
+		TrackHolder holder = new TrackHolder(gen.transformTracks(gen.getAverageTracks()),trim);// 8/30/16 transformed tracks
 		
 		gen = null;
 		
@@ -257,10 +284,22 @@ public class Main_HMMR_Driver {
 		 * Create the initial model using KMeans and then refine it using Baum-Welch
 		 */
 		
-		KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(),k,100,true,true,true);
+		KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(),k,Integer.MAX_VALUE,true,true,true);
+		//System.out.println(kmeans.getHMM().toString());
 		
-		Hmm<ObservationVector> hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs()).build();
+		hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs(),1000).build();
+		//System.out.println(hmm.toString());
 		kmeans = null; holder=null;
+		
+		}
+		/*
+		 * Use input model if available
+		 */
+		
+		if (modelFile != null){
+			hmm = (Hmm<ObservationVector>) HmmBinaryReader.read(new FileInputStream(modelFile));
+		}
+
 		
 		/*
 		 * Identify peak state as the state with the highest short read signal.
@@ -277,18 +316,18 @@ public class Main_HMMR_Driver {
 				max = sh;
 			}
 		}
-		int nuc = -1;
 		max = 0.0;
 		for (int i = 0; i < hmm.nbStates();i++){
 			if (i != peak){
 				OpdfMultiGaussian pdf = (OpdfMultiGaussian) hmm.getOpdf(i);
 				double mono = pdf.mean()[1];
 				if (mono > max){
-					nuc = i;
 					max = mono;
 				}
 			}
 		}
+		
+		
 		
 		/*
 		 * Output binary model file
@@ -298,12 +337,23 @@ public class Main_HMMR_Driver {
 		HmmBinaryWriter.write(outModel, hmm);
 		outModel.close();
 		log.println("Model created and refined. See "+output+".model");
+		log.println("Model:\n"+hmm.toString());
 		
 		/*
-		 * Split the genome file into smaller 25MB chunks
+		 * Stop program if only model is desired
 		 */
 		
-		ArrayList<TagNode> split = new SplitBed(genomeStats).getResult();
+		if(stopAfterModel){
+			System.exit(0);
+		}
+		
+		/*
+		 * Split the genome file into smaller 25MB chunks 
+		 * Can also split into whatever sized chunks the users prefers
+		 * May be necessary to split into smaller chunks for machines with less memory
+		 */
+		
+		ArrayList<TagNode> split = new SplitBed(genomeStats,vitWindow).getResult();
 		genomeStats = null;
 		
 		
@@ -327,12 +377,14 @@ public class Main_HMMR_Driver {
 				ArrayList<TagNode> tempBed = new ArrayList<TagNode>();
 				tempBed.add(vitBed.get(i));
 				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ);
-				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()));// 8/30/16 transformed tracks
-			
+				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()),trim);// 8/30/16 transformed tracks
+				//Reverse the tracks as a test 11/15/17
 				vGen = null;
 			
 				RobustHMM HMM = new RobustHMM(vHolder.getObs(),null,hmm,false,0,"Vector",0);
 				int[] states = HMM.getStates();
+				//Reverse the states for creating peaks
+				//ArrayUtils.reverse(states);
 				
 				int start = vitBed.get(i).getStart();
 				
@@ -350,6 +402,11 @@ public class Main_HMMR_Driver {
 			}
 		}
 		//out.close();
+		
+		/*
+		 * Print Genome-wide bedgraph of state annotations if desired
+		 */
+		
 		if (bg){
 			PrintStream bedgraph = new PrintStream(output+".bedgraph");
 		
@@ -358,7 +415,7 @@ public class Main_HMMR_Driver {
 				int start = genomeAnnotation.get(i).getStart();
 				int stop = genomeAnnotation.get(i).getStop();
 				double score = genomeAnnotation.get(i).getScore2();
-				if (BGScore.contains("true")){
+				if (BGScore){
 					GetSignal sig = new GetSignal(bigWig,chr,start,stop);
 					bedgraph.println(chr+"\t"+start+"\t"+stop+"\t"+"E"+(int)score+"\t"+sig.getMax());
 				}
@@ -368,15 +425,15 @@ public class Main_HMMR_Driver {
 			}
 			bedgraph.close();
 		}
+		
+		/*
+		 * Print Peak file and summit file if desired
+		 */
+		
 		if (peaks){
-			PrintStream pks = new PrintStream(output+"_peaks.bed");
-			String reportScore;
-			if (!scoreSys.equals("all")){
-				 reportScore = scoreSys;
-			}
-			else{
-				reportScore = "ave\tmax\tmed";
-			}
+			PrintStream pks = new PrintStream(output+"_peaks.gappedPeak");
+			@SuppressWarnings("resource")
+			PrintStream summits = new PrintStream(output+"_summits.bed");
 			pks.println("track name="+output+"_peaks.gappedPeak type=gappedPeak");
 			int counter=0;
 			for (int i = 1; i < genomeAnnotation.size()-1;i++){
@@ -390,25 +447,68 @@ public class Main_HMMR_Driver {
 							if(genomeAnnotation.get(i-1).getStop() == start && 
 									genomeAnnotation.get(i+1).getStart() == stop){
 								counter+=1;
-								GetSignal sig = new GetSignal(bigWig,chr,start,stop);
+								GetSignal sig = new GetSignal(bigWig,chr,start-60,stop+60);
 								String value = Double.toString(sig.getMax());
 								if (scoreSys.equals("ave")){
 									value = Double.toString(sig.getScore());
+								}
+								else if (scoreSys.equals("fc")){
+									value = Double.toString(sig.getScore()/genomeMean);
+								}
+								else if (scoreSys.equals("zscore")){
+									value = Double.toString((sig.getScore()-genomeMean)/genomeStd);
 								}
 								else if (scoreSys.equals("med")){
 									value = Double.toString(sig.getMedian());
 								}
 								else if (scoreSys.equals("all")){
-									value = sig.getScore()+"\t"+sig.getMax()+"\t"+sig.getMedian();
+									value = Double.toString(sig.getScore())+"_"+
+											Double.toString(sig.getMax())+"_"+Double.toString(sig.getMedian())+
+											"_"+Double.toString(sig.getScore()/genomeMean)+"_"+
+											Double.toString((sig.getScore()-genomeMean)/genomeStd);
 								}
-								pks.println(chr+"\t"+genomeAnnotation.get(i-1).getStart()+"\t"+
-									genomeAnnotation.get(i+1).getStop()+"\t"+"Peak_"+counter+"\t"+"."+"\t"+genomeAnnotation.get(i).getStart()+"\t"+
-										genomeAnnotation.get(i).getStop()+"\t"+"255,0,0"+"\t"+"3"+"\t"+
-									genomeAnnotation.get(i-1).getLength()+","+genomeAnnotation.get(i).getLength()+","+
-										genomeAnnotation.get(i+1).getLength()+"\t"+"0,"+
+								
+								// Find summits
+								//New Way 1/24/17 - Report Position where gaussian-smoothed max score is found
+								if (sig.getMaxPos() != null){
+									
+									sig.findSmooth(20);
+									TagNode best = sig.getMaxPos();
+									summits.println(best.toString()+"\t"+"Peak_"+counter+"\t"+value);
+								}
+								//End report summits
+								
+								int peakStart=genomeAnnotation.get(i-1).getStart();
+								int peakStop= genomeAnnotation.get(i+1).getStop();
+								String middleValues = "3"+"\t"+
+									"1"+","+genomeAnnotation.get(i).getLength()+","+
+										"1"+"\t"+"0,"+
 									(genomeAnnotation.get(i).getStart()-genomeAnnotation.get(i-1).getStart())+","+
-										(genomeAnnotation.get(i+1).getStart()-genomeAnnotation.get(i-1).getStart())
-									+"\t"+value+"\t"+"-1\t-1");
+										((genomeAnnotation.get(i+1).getStop()-genomeAnnotation.get(i-1).getStart())-1);
+								/*
+								if (genomeAnnotation.get(i-1).getScore2()== 0 && genomeAnnotation.get(i+1).getScore2()!=0){
+									//non-standard peak, only downstream nuc
+									peakStart = genomeAnnotation.get(i).getStart();
+									peakStop = genomeAnnotation.get(i+1).getStop();
+									middleValues = "2\t"+genomeAnnotation.get(i).getLength()+","+"1"+"\t"+"0"+","+((genomeAnnotation.get(i+1).getStop()-genomeAnnotation.get(i).getStart())-1);
+								}
+								else if (genomeAnnotation.get(i-1).getScore2()!= 0 && genomeAnnotation.get(i+1).getScore2()==0){
+									//non-standard peak, only upstream nuc
+									peakStart = genomeAnnotation.get(i-1).getStart();
+									peakStop = genomeAnnotation.get(i).getStop();
+									middleValues = "2\t"+"1"+","+genomeAnnotation.get(i).getLength()+"\t"+"0"+","+(genomeAnnotation.get(i).getStart()-genomeAnnotation.get(i-1).getStart());
+
+								}
+								else if (genomeAnnotation.get(i-1).getScore2()== 0 && genomeAnnotation.get(i+1).getScore2()==0){
+									//non-standard peak, no nucs
+									peakStart = genomeAnnotation.get(i).getStart();
+									peakStop = genomeAnnotation.get(i).getStop();
+									middleValues = "1\t"+genomeAnnotation.get(i).getLength()+"\t"+"0";
+								}
+								*/
+								pks.println(chr+"\t"+peakStart+"\t"+
+									peakStop+"\t"+"Peak_"+counter+"\t"+".\t."+"\t"+genomeAnnotation.get(i).getStart()+"\t"+
+										genomeAnnotation.get(i).getStop()+"\t"+"255,0,0"+"\t"+middleValues+"\t"+value+"\t"+"-1\t-1");
 							}
 						}
 					}
@@ -430,10 +530,10 @@ public class Main_HMMR_Driver {
 					value = Double.toString(sig.getMedian());
 				}
 				else if (scoreSys.equals("all")){
-					value = sig.getScore()+"\t"+sig.getMax()+"\t"+sig.getMedian();
+					value = sig.getScore()+"_"+sig.getMax()+"_"+sig.getMedian();
 				}
-				pks.println(chrom+"\t"+start+"\t"+stop+"\t"+"HighCoveragePeak_"+counter+".\t.0\t0\t255,0,0\t0\t"+
-				addBack.get(i).getLength()+"\t0\t-1\t-1\t-1");
+				pks.println(chrom+"\t"+start+"\t"+stop+"\t"+"HighCoveragePeak_"+counter+"\t.\t.\t0\t0\t255,0,0\t1\t"+
+				addBack.get(i).getLength()+"\t0\t"+value+"\t-1\t-1");
 			}
 			pks.close();
 		}

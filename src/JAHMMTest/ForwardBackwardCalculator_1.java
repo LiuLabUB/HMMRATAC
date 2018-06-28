@@ -131,7 +131,8 @@ public class ForwardBackwardCalculator_1
 
                 alpha[t][j] = sum * hmm.getOpdf(j).probability(o);
                 //TEST OUT STATEMENT
-               if (Double.isNaN(alpha[t][j])){System.out.println("Alpha"+"\t"+alpha[t][j]);}
+              // if (Double.isNaN(alpha[t][j])){System.out.println("Alpha"+"\t"+alpha[t][j]+"\tprobability\t"+hmm.getOpdf(j).probability(o)
+            	//	   +"\tstate\t"+j+"\tobservation\t"+o.toString()+"\t"+o);}
                 //System.out.println(hmm.getOpdf(j).probability(o));
                 //System.out.println(sum);
         }

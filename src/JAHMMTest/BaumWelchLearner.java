@@ -1,13 +1,8 @@
 package JAHMMTest;
 
-import java.awt.Point;
 import java.util.*;
 
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
-
 import be.ac.ulg.montefiore.run.jahmm.*;
-import be.ac.ulg.montefiore.run.jahmm.learn.KMeansLearner;
 
 
 /**
@@ -20,7 +15,8 @@ public class BaumWelchLearner
          * Number of iterations performed by the {@link #learn} method.
          */
         private int nbIterations = 9;
-        private int constant = 1;
+        @SuppressWarnings("unused")
+		private int constant = 1;
         
         /**
          * Initializes a Baum-Welch instance. 
@@ -226,11 +222,13 @@ public class BaumWelchLearner
                                         		hmm.getOpdf(j).probability(o) *
                                         		fbc.betaElement(t+1, j);
                                        if (Double.isNaN(value)){
+                                    	   /*
                                     	   System.out.println("xi[t][i][j]"+"\t"+value);
                                     	   System.out.println("aplha"+"\t"+fbc.alphaElement(t, i));
                                     	   System.out.println("beta"+"\t"+fbc.betaElement(t+1, j));
                                     	   System.out.println("transition"+"\t"+hmm.getAij(i, j));
                                     	   System.out.println("emission\t"+hmm.getOpdf(j).probability(o));
+                                    	   */
                                        }
                                         xi[t][i][j] = value;
                                        // pts[t][i] = fbc.alphaElement(t, i)

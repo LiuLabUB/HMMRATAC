@@ -2,8 +2,6 @@ package RobustHMM;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.ObservationInteger;
 import be.ac.ulg.montefiore.run.jahmm.ObservationReal;
@@ -36,7 +34,16 @@ public class RobustHMM {
 	private Hmm<?> outHmm;
 	private double prob;
 	private double prob2;
-	
+	/**
+	 * Constructor
+	 * @param o a List of Observations representing data to be decoded
+	 * @param t a List of List of Observation representing training data
+	 * @param h an initial hmm
+	 * @param w a boolean to determine whether to perform baum welch training
+	 * @param K an integer representing the number of states in the model
+	 * @param m a String representing the type of data
+	 * @param n an integer representing the number of distributions in the Observation data
+	 */
 	public RobustHMM(List<?> o,List<List<?>> t,Hmm<?> h,boolean w,int K,String m,int n){
 		train = t;
 		obs = o;
@@ -49,18 +56,40 @@ public class RobustHMM {
 		sbw = new BaumWelchScaledLearner();
 		run();
 	}
+	/**
+	 * Set the number of baum welch iterations
+	 * @param n
+	 */
 	public void setBaumWelchMaxIter(int n){
 		BWIter = n;
 	}
+	/**
+	 * Access the state annotations
+	 * @return an Array of integers representing the state assignments after decoding
+	 */
 	public int[] getStates(){
 		return states;
 	}
+	/**
+	 * Access state probability
+	 * @return a double representing the state probability
+	 */
 	public double getProb(){
 		return prob;
 	}
+	/**
+	 * Access state probability
+	 * @return a double representing the state probability
+	 */
 	public double getProb2(){return prob2;}
-	
+	/**
+	 * Access the final hmm
+	 * @return the final hmm
+	 */
 	public Hmm<?> getHmm(){return outHmm;}
+	/**
+	 * Run the data
+	 */
 	private void run(){
 		if (isInt()){
 			runInt();
@@ -75,6 +104,9 @@ public class RobustHMM {
 			runMixture();
 		}
 	}
+	/**
+	 * Run a mixture style dataset
+	 */
 	@SuppressWarnings("unchecked")
 	private void runMixture(){
 		List<List<ObservationReal>> newTrain = formatMixtureTrain();
@@ -113,6 +145,9 @@ public class RobustHMM {
 			outHmm = newHmm;
 		}
 	}
+	/**
+	 * Run a multivariate gaussian style dataset
+	 */
 	@SuppressWarnings("unchecked")
 	private void runVector(){
 		List<List<ObservationVector>> newTrain = formatVectorTrain();
@@ -156,6 +191,9 @@ public class RobustHMM {
 			outHmm = newHmm;
 		}
 	}
+	/**
+	 * Run a double style dataset
+	 */
 	@SuppressWarnings("unchecked")
 	private void runReal(){
 		List<List<ObservationReal>> newTrain = formatRealTrain();
@@ -194,6 +232,9 @@ public class RobustHMM {
 			outHmm = newHmm;
 		}
 	}
+	/**
+	 * Run a integer style dataset
+	 */
 	@SuppressWarnings("unchecked")
 	private void runInt(){
 		List<List<ObservationInteger>> newTrain = formatIntTrain();
@@ -232,6 +273,12 @@ public class RobustHMM {
 			outHmm = newHmm;
 		}
 	}
+	/**
+	 * Run viterbi on integer data
+	 * @param h a hmm
+	 * @param l a List of ObservationInteger representing the data
+	 * @return an Array of integers representing the state assignments
+	 */
 	private int[] viterbiInt(Hmm<ObservationInteger> h,List<ObservationInteger> l){
 		ViterbiCalculator vit = new ViterbiCalculator(l,h);
 		int[] states = vit.stateSequence();
@@ -239,6 +286,12 @@ public class RobustHMM {
 		prob2 = h.probability(l);
 		return states;
 	}
+	/**
+	 * Run viterbi on double data
+	 * @param h a hmm
+	 * @param l a List of ObservationReal representing the data
+	 * @return an Array of integers representing the state assignments
+	 */
 	private int[] viterbiReal(Hmm<ObservationReal> h,List<ObservationReal> l){
 		ViterbiCalculator vit = new ViterbiCalculator(l,h);
 		int[] states = vit.stateSequence();
@@ -246,6 +299,12 @@ public class RobustHMM {
 		prob2 = h.probability(l);
 		return states;
 	}
+	/**
+	 * Run viterbi on multivariate gaussian data
+	 * @param h a hmm
+	 * @param l a List of ObservationVector representing the data
+	 * @return an Array of integers representing the state assignments
+	 */
 	private int[] viterbiVector(Hmm<ObservationVector> h,List<ObservationVector> l){
 		ViterbiCalculator vit = new ViterbiCalculator(l,h);
 		int[] states = vit.stateSequence();
@@ -253,7 +312,10 @@ public class RobustHMM {
 		prob2 = h.probability(l);
 		return states;
 	}
-	
+	/**
+	 * Format the data as multivariate gaussian data
+	 * @return a List of List of ObservationVector representing the data for baum welch training
+	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationVector>> formatVectorTrain(){
 		if (train != null){
@@ -302,18 +364,19 @@ public class RobustHMM {
 			return newList;
 		}
 	}
-	private boolean inBetween(int start,int stop,int value){
-		if ((value >= start && value <= stop) ||  ((value+15000) >= start && (value+15000)<=stop)){
-			return true;
-		}
-		else{return false;}
-	}
-	
+	/**
+	 * Format the data as multivariate gaussian data
+	 * @return a List of ObservationVector representing the data for viterbi decoding
+	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationVector> formatVectorObs(){
 		List<ObservationVector> newObs = (ArrayList<ObservationVector>) obs;
 		return newObs;
 	}
+	/**
+	 * Format hmm for multicariate gaussian data
+	 * @return a hmm
+	 */
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationVector> formatVectorHmm(){
 		if (hmm != null){
@@ -321,6 +384,10 @@ public class RobustHMM {
 		return newHmm;}
 		else {return null;}
 	}
+	/**
+	 * Format the data as mixture data
+	 * @return a List of List of ObservationReal representing the data for baum welch training
+	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationReal>> formatMixtureTrain(){
 		if (train != null){
@@ -350,7 +417,10 @@ public class RobustHMM {
 			return newList;
 		}
 	}
-	
+	/**
+	 * Format the data as double data
+	 * @return a List of List of ObservationReal representing the data for baum welch training
+	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationReal>> formatRealTrain(){
 		if (train != null){
@@ -380,11 +450,19 @@ public class RobustHMM {
 			return newList;
 		}
 	}
+	/**
+	 * Format the data as double data
+	 * @return a List of ObservationReal representing the data for viterbi decoding
+	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationReal> formatRealObs(){
 		List<ObservationReal> newObs = (ArrayList<ObservationReal>) obs;
 		return newObs;
 	}
+	/**
+	 * Format hmm for double data
+	 * @return a hmm
+	 */
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationReal> formatRealHmm(){
 		if (hmm!=null){
@@ -392,6 +470,10 @@ public class RobustHMM {
 		return newHmm;}
 		else{return null;}
 	}
+	/**
+	 * Format the data as integer data
+	 * @return a List of List of ObservationInteger representing the data for baum welch training
+	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationInteger>> formatIntTrain(){
 		if (train != null){
@@ -422,6 +504,10 @@ public class RobustHMM {
 			return newList;
 		}
 	}
+	/**
+	 * Format hmm for integer data
+	 * @return a hmm
+	 */
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationInteger> formatIntHmm(){
 		if (hmm!=null){
@@ -429,27 +515,52 @@ public class RobustHMM {
 		return newHmm;}
 		else{return null;}
 	}
+	/**
+	 * Format the data as integer data
+	 * @return a List of ObservationInteger representing the data for viterbi decoding
+	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationInteger> formatIntObs(){
 		List<ObservationInteger> newObs = (ArrayList<ObservationInteger>) obs;
 		return newObs;
 	}
+	/**
+	 * Access whether the data is in integer form
+	 * @return a boolean to determine if data is in integer form
+	 */
 	private boolean isInt(){
 		if (method.equals("Integer")){return true;}
 		else{return false;}
 	}
+	/**
+	 * Access whether the data is in double form
+	 * @return a boolean to determine if data is in double form
+	 */
 	private boolean isReal(){
 		if (method.equals("Real")){return true;}
 		else{return false;}
 	}
+	/**
+	 * Access whether the data is in multivariate gaussian form
+	 * @return a boolean to determine if data is in multivariate gaussian form
+	 */
 	private boolean isVector(){
 		if(method.equals("Vector")){return true;}
 		else{return false;}
 	}
+	/**
+	 * Access whether the data is in mixture form
+	 * @return a boolean to determine if data is in mixture form
+	 */
 	private boolean isMixture(){
 		if(method.equals("Mixture")){return true;}
 		else{return false;}
 	}
+	/**
+	 * Access whether the model is valid
+	 * @param h a hmm
+	 * @return a boolean to determine if the model is valid
+	 */
 	private boolean bwConverge(Hmm<?> h){
 		double pi = h.getPi(0);
 		if (Double.isNaN(pi)){
