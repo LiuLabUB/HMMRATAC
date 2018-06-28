@@ -1,15 +1,23 @@
-HMMR Quick Start:
+HMMRATAC Guide:
 
 Running the program:
 
-java -jar HMMRATAC_V1.0_exe.jar <options>
+java -jar HMMRATAC_V1.0_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> -w <GenomeWideBigWig> <options>
 
 Version number may change.
 
 Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain manifest file 
 needed to run.  
 
+Outline:
+Section 1) Creating required files
+Section 2) Overview of parameters
+Section 3) Overview of output files
+Section 4) Troubleshooting
+
 Section 1:  Creating required files
+
+**Note: We include a python script to create the required input files for HMMRATAC, called Make_HMMR_Files.py. This code will take a unsorted BAM file and a genome stats file (see section 1.3) and will create a sorted BAM file, BAM index file and bigWig file. The bigWig file is created using the bedtools approach described in section 1.4.  This script requires bedtools, samtools and the UCSC tool bedGraphToBigWig.**
 
 1)	The first file that is necessary is a sorted BAM file containing the pair-end ATAC-seq
 reads.  Typically, an alignment algorithm (such as bowtie/bowtie2) will output a SAM file
@@ -367,4 +375,16 @@ Column 4:  Summit Name.  This is the same name as the corresponding Peak name us
 peak file (column 4 of the Name_peaks.gappedPeak file).
 
 Column 5: Peak Score. Same score as in the .gappedPeak file. (See section 3.4)
+
+
+Section 4) Troubleshooting - Common issues
+
+1) Java heap space error
+The most likely cause of this error is that the genome "blocks" are too large. In order to save memory, HMMRATAC splits the genome into "blocks" and then annotates each position within the block as one of the states of the model. The default size of these blocks is 25MB. We have found, that on personal computers, this may be too large to handle, resulting in the heap space error. The best fix to this issue is to reduce the size of the block, using the --window option (See section 2).  It is recommended to reduce this value to 1/10 of the default, ie 2.5MB, for personal computers.  If the error continues, you can lower it further. 
+
+2) HMMRATAC produces very large peaks (> 25KB) or results in large gaps with no peaks.
+This isssue is related to the Viterbi algorithm.  In our experience, Viterbi has difficulty when encountering very high coverage regions. When it does, one of two things can happen. Either viterbi will call every position, from the high coverage region to the end of the block (see section 4.1) as a peak (thereby resulting in extremely large peaks) or as some other state (resulting in large gaps with no called peaks).  HMMRATAC corrects for this behavior by skipping over high coverage regions, allowing viterbi to continue correctly.  HMMRATAC determines what is or isn't a high coverage region based on the -z option (see section 2).  Lowering the -z option, will make HMMRATAC skip more high coverage regions (by lowering the threshold to identify such regions). It should be noted that all skipped high coverage regions are added back to the gappedPeak output file and are annotated as "High Coverge Peaks".  
+
+3) HMMRATAC produces very few peaks (< 1000) or doesn't identify any peaks
+This is almost always due to a faulty model.  Check the log file (see section 3.1) and see if the model is valid. A non-valid model will have NaN as the values of the initial, transition and emission probabilities.  This typically occurs when there is not enough separation in the values between states. 
 
