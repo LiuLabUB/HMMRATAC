@@ -13,7 +13,7 @@ Make_HMMR_Files.py.
 $ java -jar HMMRATAC_V1.0_exe.jar -b ExampleFile.processed.bam -i ExampleFile.processed.bam.bai -g hg19.genome -w ExampleFile.processed_fromMACS2.bw
 
 To use Make_HMMR_Files.py, you must have samtools, UCSC's bedGraphToBigWig and either bedtools or macs2 installed. Please open the file
-and insert the correct path to each required tool. Alternatively, you can manually create the required input files (See section 1 of HMMRATAC_Guide.txt).
+and insert the correct path to each required tool. Alternatively, you can manually create the required input files (See section 1 of HMMRATAC_Guide.txt). Make_HMMR_Files.py uses python2 and the "commands" module, which is not available in python3. 
 
 Be sure to run HMMRATAC using the executable file, found here: 
 https://github.com/LiuLabUB/HMMRATAC/releases
