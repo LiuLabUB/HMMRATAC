@@ -129,7 +129,7 @@ public class Main_HMMR_Driver {
 		double[] fragStddevs = new double[4];
 		double[] mode = new double[4];
 		mode[1] = mode[2] = mode[3] = 2;
-		mode[0]=0.5;
+		mode[0]=1;//changed 8-07-2018
 		
 		if (means != null){
 			String[] mu = means.split(",");
@@ -237,8 +237,12 @@ public class Main_HMMR_Driver {
 		
 		if (blacklist != null){
 			exclude.addAll(black);
+			exclude = new MergeBed(exclude).getResults();//added 8-3-18
 		}
 			
+		for (int c = 0;c < exclude.size();c++){
+			System.out.println(exclude.get(c).toString()+"\t"+"exclude");
+		}
 		newTrain = new ArrayList<TagNode>();
 		for (int i = 0;i < train.size();i++){
 			int counter = 0;
@@ -274,7 +278,9 @@ public class Main_HMMR_Driver {
 		if (modelFile == null){
 		
 		FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ);
-		TrackHolder holder = new TrackHolder(gen.transformTracks(gen.getAverageTracks()),trim);// 8/30/16 transformed tracks
+		TrackHolder holder = new TrackHolder((gen.transformTracks(gen.getAverageTracks())),trim);// 8/30/16 transformed tracks 
+		//	7/16/18 transformation removed after testing showed it has little effect with new weighted procedure 
+		
 		
 		gen = null;
 		
@@ -285,9 +291,11 @@ public class Main_HMMR_Driver {
 		 */
 		
 		KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(),k,Integer.MAX_VALUE,true,true,true);
+		log.println("Kmeans Model:\n"+kmeans.getHMM().toString()); // added 7-13-18
 		//System.out.println(kmeans.getHMM().toString());
 		
 		hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs(),1000).build();
+	
 		//System.out.println(hmm.toString());
 		kmeans = null; holder=null;
 		
@@ -378,7 +386,8 @@ public class Main_HMMR_Driver {
 				tempBed.add(vitBed.get(i));
 				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ);
 				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()),trim);// 8/30/16 transformed tracks
-				//Reverse the tracks as a test 11/15/17
+				
+				System.out.println(vitBed.get(i).toString()+"\t"+"viterbi bed");
 				vGen = null;
 			
 				RobustHMM HMM = new RobustHMM(vHolder.getObs(),null,hmm,false,0,"Vector",0);
@@ -387,15 +396,19 @@ public class Main_HMMR_Driver {
 				//ArrayUtils.reverse(states);
 				
 				int start = vitBed.get(i).getStart();
-				
+				int remainder = vitBed.get(i).getLength() % 10;
 				ArrayList<PileupNode2> pile = new ArrayList<PileupNode2>();
-				for (int a = 0;a < states.length;a++){
+				int a;
+				for (a = 0;a < states.length-1;a++){
+					//PileupNode2 pNode = new PileupNode2(start+(a*10),(double)states[a],vitBed.get(i).getChrom());
 					PileupNode2 pNode = new PileupNode2(start+(a*10),(double)states[a],vitBed.get(i).getChrom());
 					pile.add(pNode);
 					
 					
 					//out.println(pNode.getChrom()+"\t"+pNode.getBase()+"\t"+(pNode.getBase()+10)+"\t"+"E"+(int)pNode.getScore());
 				}
+				PileupNode2 pNode = new PileupNode2(start+(((a)*10)-remainder),(double)states[a],vitBed.get(i).getChrom());
+				pile.add(pNode);
 				genomeAnnotation.addAll(new PileupToBedGraph(pile,10).getBedGraph());
 				
 				log.println(i+" round viterbi done");

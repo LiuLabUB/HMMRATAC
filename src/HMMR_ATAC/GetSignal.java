@@ -100,6 +100,7 @@ public class GetSignal {
 		else{
 			score=0;max=0;median=0;
 		}
+		wigReader = null;
 	}
 	/**
 	 * Find max positions and extend toward second highest position
@@ -129,6 +130,7 @@ public class GetSignal {
 			int start = ((right.getStop() - left.getStart())/2) + left.getStart();
 			node = new TagNode(left.getChrom(),start,start+1);
 		}
+		wigReader=null;
 		}
 	}
 	/**
@@ -171,7 +173,7 @@ public class GetSignal {
     			}
     			
     		}
-           
+    		wigReader=null;
     		
             // Convolve the data with the filter
             double[] smoothed = new double[stop-start];

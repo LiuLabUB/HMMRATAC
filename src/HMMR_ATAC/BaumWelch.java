@@ -55,8 +55,8 @@ public class BaumWelch {
 	 * Build the model
 	 * @return a refined model after Baum Welch training
 	 */
+	@SuppressWarnings("unchecked")
 	public Hmm<ObservationVector> build(){
-		@SuppressWarnings("unchecked")
 		Hmm<ObservationVector> firstHmm = (Hmm<ObservationVector>) h;
 		firstHmm = checkModel(firstHmm);
 		BaumWelchScaledLearner sbw = new BaumWelchScaledLearner();
@@ -73,9 +73,14 @@ public class BaumWelch {
 		}
 		//Set proportional initial probabilities
 		for (int i = 0; i < scaled.nbStates();i++){
-			scaled.setPi(i, 0.25);
+			scaled.setPi(i,(double) 1/scaled.nbStates()); //bug. originally hardcoded at 0.25, but should be flexable to other K's
 		}
-		return scaled;
+		if (!Double.isNaN(scaled.getAij(0, 0))){
+			return scaled;
+		}
+		else{
+			return (Hmm<ObservationVector>) h;
+		}
 	}
 	/**
 	 * Check the model 

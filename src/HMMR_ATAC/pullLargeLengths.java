@@ -1,14 +1,21 @@
 package HMMR_ATAC;
-
+/*
+import htsjdk.samtools.SAMFileReader;
+import htsjdk.samtools.SAMFormatException;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.util.CloseableIterator;
+*/
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
 import Node.TagNode;
+
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
+
 
 public class pullLargeLengths {
 	

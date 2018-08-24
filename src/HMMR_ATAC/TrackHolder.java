@@ -3,6 +3,7 @@ package HMMR_ATAC;
 import java.util.ArrayList;
 import java.util.List;
 
+import Node.TagNode;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
@@ -11,6 +12,7 @@ import net.sf.javaml.core.DenseInstance;
 public class TrackHolder {
 	
 	private ArrayList<double[]> tracks;
+	private ArrayList<TagNode> positions;
 	
 	/**
 	 * Constructor for creating a TrackHolder object
@@ -19,7 +21,12 @@ public class TrackHolder {
 	 */
 	public TrackHolder(ArrayList<double[]> t,int trim){
 		tracks = trim(t,trim);
+		//positions = pos;
 	}
+	/**
+	 * Access the positions
+	 */
+	public ArrayList<TagNode> getPositions() {return positions;}
 	/**
 	 * Trim the data
 	 * @param t an ArrayList of doubles representing the original data

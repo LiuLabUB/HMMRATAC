@@ -1,9 +1,12 @@
 package HMMR_ATAC;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
+import FormatConverters.PileupToBedGraph;
 import Node.OverlapNode;
+import Node.PileupNode2;
 import Node.TagNode;
 
 public class SubtractBed {
@@ -103,26 +106,61 @@ public class SubtractBed {
 				}
 				//More than one overlap
 				else if (results.size() > 1){
+					
+					
 					//Scan the hits to look for which bases in A survive. Then report contiguous intervals that survive
+					ArrayList<TagNode> res = new ArrayList<TagNode>();
+					for (int y = 0;y< results.size();y++){
+						res.add(results.get(y).getHit());
+					}
+					Collections.sort(res,  TagNode.basepairComparator);
+					//Added above. changed below from results.get(i).getHit() to res.get(i) as tag node
+					
 					int index;
-					if (results.get(0).getHit().getStart() < inTemp.get(i).getStart()){
-						output.add(new TagNode(inTemp.get(i).getChrom(),results.get(0).getHit().getStop(),
-								results.get(1).getHit().getStart()));
+					if (res.get(0).getStart() < inTemp.get(i).getStart()){
+						output.add(new TagNode(inTemp.get(i).getChrom(),res.get(0).getStop(),
+								res.get(1).getStart()));
 						index = 1;
 					}
 					else{
 						output.add(new TagNode(inTemp.get(i).getChrom(),inTemp.get(i).getStart(),
-								results.get(0).getHit().getStart()));
+								res.get(0).getStart()));
 						index = 0;
 					}
-					for (int x = index;x < results.size()-1;x++){
-						output.add(new TagNode(inTemp.get(i).getChrom(),results.get(x).getHit().getStop()
-								,results.get(x+1).getHit().getStart()));
+					for (int x = index;x < res.size()-1;x++){
+						output.add(new TagNode(inTemp.get(i).getChrom(),res.get(x).getStop()
+								,res.get(x+1).getStart()));
 					}
-					if (results.get(results.size()-1).getHit().getStop() < inTemp.get(i).getStop()){
-						output.add(new TagNode(inTemp.get(i).getChrom(),results.get(results.size()-1).getHit().getStop(),
+					if (res.get(res.size()-1).getStop() < inTemp.get(i).getStop()){
+						output.add(new TagNode(inTemp.get(i).getChrom(),res.get(res.size()-1).getStop(),
 								inTemp.get(i).getStop()));
 					}
+					
+					/**
+					//New Approach. Use an array 
+					int[] keep = new int[inTemp.get(i).getLength()];
+					//String chr = inTemp.get(i).getChrom();
+					int bedStart = inTemp.get(i).getStart();
+					//int bedStop = inTemp.get(i).getStop();
+					for (int x = 0;x < results.size();x++){
+						int start = results.get(x).getHit().getStart();
+						int stop = results.get(x).getHit().getStop();
+						for (int y = start;y < stop;y++){
+							if ((y-bedStart) >= 0 && (y-bedStart) < keep.length){
+								keep[y-bedStart]++;
+							}
+						}
+					}
+					
+					ArrayList<PileupNode2> pile = new ArrayList<PileupNode2>();
+					for (int x = 0;x < keep.length;x++){
+						if(keep[i] == 0){
+							PileupNode2 pnode = new PileupNode2(i+bedStart,0,chr);
+							pile.add(pnode);
+						}
+					}
+					output.addAll((new PileupToBedGraph(pile,1).getBedGraph()));
+					**/
 				}
 				
 			}
