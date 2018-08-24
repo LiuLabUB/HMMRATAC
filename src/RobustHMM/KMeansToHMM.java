@@ -81,7 +81,8 @@ public class KMeansToHMM {
 	private void build(Dataset data,int K,int numIter,boolean diag,boolean equal,boolean equal2){
 		int numFeatures = data.noAttributes();
 		
-		KMeans k = new KMeans(K,numIter);
+		KMeans k = new KMeans(K,numIter);//changed to Kmeans (modified version with uniform centroids)
+		//k.setUniformInitialCentroids();//added this line when changed to modified version
 		Dataset[] clustered = k.cluster(data);
 		int[] assignments = new int[data.size()];
 		List<OpdfMultiGaussian> opdf = new ArrayList<OpdfMultiGaussian>();

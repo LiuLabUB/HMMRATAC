@@ -2,7 +2,6 @@ package JAHMMTest;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 import net.sf.javaml.clustering.Clusterer;
@@ -26,7 +25,7 @@ import net.sf.javaml.tools.DatasetTools;
  * @author Thomas Abeel
  * 
  */
-public class KMeans implements Clusterer {
+public class Kmeans implements Clusterer {
     /**
      * The number of clusters.
      */
@@ -67,7 +66,7 @@ public class KMeans implements Clusterer {
      * Constuct a default K-means clusterer with 100 iterations, 4 clusters, a
      * default random generator and using the Euclidean distance.
      */
-    public KMeans() {
+    public Kmeans() {
         this(4);
     }
 
@@ -78,7 +77,7 @@ public class KMeans implements Clusterer {
      * 
      * @param k the number of clusters to create
      */
-    public KMeans(int k) {
+    public Kmeans(int k) {
         this(k, 100);
     }
 
@@ -93,7 +92,7 @@ public class KMeans implements Clusterer {
      * @param iterations
      *            the number of iterations
      */
-    public KMeans(int clusters, int iterations) {
+    public Kmeans(int clusters, int iterations) {
         this(clusters, iterations, new EuclideanDistance());
     }
 
@@ -110,7 +109,7 @@ public class KMeans implements Clusterer {
      * @param dm
      *            the distance measure to use
      */
-    public KMeans(int clusters, int iterations, DistanceMeasure dm) {
+    public Kmeans(int clusters, int iterations, DistanceMeasure dm) {
         this.numberOfClusters = clusters;
         this.numberOfIterations = iterations;
         this.dm = dm;
@@ -143,7 +142,7 @@ public class KMeans implements Clusterer {
         Instance max = DatasetTools.maxAttributes(data);
         this.centroids = new Instance[numberOfClusters];
         int instanceLength = data.instance(0).noAttributes();
-       // if (!uniform){
+        if (!uniform){
         	for (int j = 0; j < numberOfClusters; j++) {
 //            	double[] randomInstance = new double[instanceLength];
 //            	for (int i = 0; i < instanceLength; i++) {
@@ -154,8 +153,8 @@ public class KMeans implements Clusterer {
         		double[] randomInstance = DatasetTools.getRandomInstance(data, rg);
             	this.centroids[j] = new DenseInstance(randomInstance);
         	}
-      //  }
-        	/**
+        }
+        	
         else if(uniform){
         	DenseInstance average = (DenseInstance) DatasetTools.average(data);
         	DenseInstance stddev = (DenseInstance) DatasetTools.standardDeviation(data, average);
@@ -176,11 +175,14 @@ public class KMeans implements Clusterer {
         			this.centroids[i] = new DenseInstance(newMeans[i]);
         		}
         	
-        }**/
+        }
         int iterationCount = 0;
         boolean centroidsChanged = true;
         boolean randomCentroids = true;
         while (randomCentroids || (iterationCount < this.numberOfIterations && centroidsChanged)) {
+        	//System.out.println("Kmeans iteration:\t"+iterationCount);
+        	//System.out.println("RandomCentroids:\t"+randomCentroids);
+        	//System.out.println("CentroidsChanged:\t"+centroidsChanged);
             iterationCount++;
             // Assign each object to the group that has the closest centroid.
             int[] assignment = new int[data.size()];

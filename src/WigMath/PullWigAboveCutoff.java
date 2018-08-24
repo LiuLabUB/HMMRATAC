@@ -64,6 +64,7 @@ public class PullWigAboveCutoff {
 				}
 			
 			}
+			reader=null;
 		}
 		
 	}

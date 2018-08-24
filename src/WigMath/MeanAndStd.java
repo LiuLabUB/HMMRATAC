@@ -61,7 +61,7 @@ public class MeanAndStd {
 		}
 		mean = mu.getResult();
 		std = dev.getResult();
-		
+		wigReader=null;
 	}
 	/**
 	 * Access the mean
