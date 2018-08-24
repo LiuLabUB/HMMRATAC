@@ -1,15 +1,26 @@
-HMMR Quick Start:
+HMMRATAC Guide:
 
 Running the program:
 
-java -jar HMMRATAC_V1.0_exe.jar <options>
+java -jar HMMRATAC_V1.0_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> -w <GenomeWideBigWig> <options>
 
 Version number may change.
 
-Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain manifest file 
-needed to run.  
+Please download the executable file from https://github.com/LiuLabUB/HMMRATAC/releases to run the program. Source files do not contain
+manifest file needed to run.  
+
+Outline:
+Section 1) Creating required files
+Section 2) Overview of parameters
+Section 3) Overview of output files
+Section 4) Troubleshooting
 
 Section 1:  Creating required files
+
+**Note: We include a python script to create the required input files for HMMRATAC, called Make_HMMR_Files.py. 
+This code will take a unsorted BAM file and a genome stats file (see section 1.3) and will create a sorted BAM file, BAM index file and
+bigWig file. The bigWig file is created using the bedtools approach described in section 1.4.  This script requires bedtools, samtools
+and the UCSC tool bedGraphToBigWig.**
 
 1)	The first file that is necessary is a sorted BAM file containing the pair-end ATAC-seq
 reads.  Typically, an alignment algorithm (such as bowtie/bowtie2) will output a SAM file
@@ -367,4 +378,45 @@ Column 4:  Summit Name.  This is the same name as the corresponding Peak name us
 peak file (column 4 of the Name_peaks.gappedPeak file).
 
 Column 5: Peak Score. Same score as in the .gappedPeak file. (See section 3.4)
+
+
+Section 4) Troubleshooting - Common issues
+
+1) Java heap space error:
+The most likely cause of this error is that the genome "blocks" are too large. In order to save memory, HMMRATAC splits the genome into 
+"blocks" and then annotates each position within the block as one of the states of the model. The default size of these blocks is 25MB.
+We have found, that on personal computers, this may be too large to handle, resulting in the heap space error. The best fix to this
+issue is to reduce the size of the block, using the --window option (See section 2).  It is recommended to reduce this value to 1/10 of
+the default, ie 2.5MB, for personal computers.  If the error continues, you can lower it further. 
+
+2) HMMRATAC produces very large peaks (> 25KB) or results in large gaps with no peaks:
+This isssue is related to the Viterbi algorithm.  In our experience, Viterbi has difficulty when encountering very high coverage
+regions. When it does, one of two things can happen. Either viterbi will call every position, from the high coverage region to the end
+of the block (see section 4.1) as a peak (thereby resulting in extremely large peaks) or as some other state (resulting in large gaps
+with no called peaks).  HMMRATAC corrects for this behavior by skipping over high coverage regions, allowing viterbi to continue
+correctly.  HMMRATAC determines what is or isn't a high coverage region based on the -z option (see section 2).  Lowering the -z option,
+will make HMMRATAC skip more high coverage regions (by lowering the threshold to identify such regions). It should be noted that all
+skipped high coverage regions are added back to the gappedPeak output file and are annotated as "High Coverge Peaks".  
+
+3) HMMRATAC produces very few peaks (< 1000) or doesn't identify any peaks or the model shows NaN for all values:
+This is almost always due to a faulty model.  Check the log file (see section 3.1) and see if the model is valid. A non-valid model will
+have NaN as the values of the initial, transition and emission probabilities.  This typically occurs when there is not enough separation
+in the values between states. As an example (using a simplified model), say you had a model with 3 states and a single observation
+value.  The average value for state 1 is 1, the average for state 2 is 2 and the average for state 3 is 3.  If a value of 2.5 occurred,
+then there is an equal chance that the value is assigned to state 2 or state 3.  When this happens, HMMRATAC (or really any model based
+algorithm) won’t be able to decide which state to assign it to.  Now we remake the model with a more conservative training set and the
+values become 1, 5 and 10.  Now 2.5 clearly can be assigned to state 1. Therefore, an easy way to correct this is to use more stringent
+settings in creating the model. This is accomplished with the -l and -u options (see section 2). The default setting for -u is 20 and
+for -l is 10. A common fix is to increase the -u to 30 or 40. This will allow stronger peaks into the training set, thereby changing the
+emission values of each state and correcting the problem (not enough separation between states).  This is the most common error with
+HMMRATAC.
+
+4) The dataset should not be empty ERROR. This error has been encountered on occasion, and is almost always the result of user error.
+This is saying that the data matrix created by HMMRATAC, containing the values for nucleosome free and nucleosome enriched fragments,
+was empty. If you set the upper and lower fold change bounds for choosing training regions (-u and -l option) to values that prevent ANY
+training sites from being identified (ie -u 10 -l 20), or if you provide an empty BED file of training regions, then the data matrix
+will be empty and this error will occur. Alternatively, if the BAM files use one type of chromsome annotation (ie. chr1) while the
+genome file or bigwig file use a different chromosome annotation (ie. 1) or vice versa, then this discrepancy will also result in an
+empty data matrix. Finally, it may be that there were no identified training regions even with reasonable settings, than it may be
+neccessary to choose a different method to choose training sites, ie to set different -u and -l settings. 
 
