@@ -31,6 +31,7 @@ bamtobed="bamtobed -i"
 genomecov=genomecov
 
 #Sort the BAM file
+#Note: this command may not work for all versions of samtools. Later versions require a '-o' for the output declaration
 echo $samtools $sort $1 $3
 $samtools $sort $1 $3
 
