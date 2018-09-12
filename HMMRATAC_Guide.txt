@@ -190,7 +190,7 @@ Section 2:  Overview of Options
 	a peak file in BED format.  Default is True.  The resulting file will be in 
 	gappedPeak format and will be described in detail below.
 
-	-k  ,  --kmeans <int>  Number of states in the model.  Default is 4.  It is 
+	-k  ,  --kmeans <int>  Number of states in the model.  Default is 3.  It is 
 	generally not recommended to change this setting.  All of our tests and 
 	comparisons were done using the default setting.  It may be reasonable 
 	to set to a lower number of states when using 500 cell per-replicate data,
