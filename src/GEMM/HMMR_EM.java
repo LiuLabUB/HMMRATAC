@@ -112,6 +112,16 @@ public class HMMR_EM {
 			if (iter >= maxIter){
 				break;
 			}
+			//Output values during iterations
+			/*
+			for (int a = 0;a < mu.length;a++){
+				System.out.println(mu[a]);
+				
+				System.out.println(lamda[a]);
+				System.out.println(weights[a]);
+				System.out.println(iter);
+			}
+			*/
 			//System.out.println(iter);
 		}
 		

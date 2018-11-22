@@ -13,6 +13,9 @@ public class TagNode {
 	private int Score = 0;
 	private double score2 = 0.0;
 	private double score3 = 0.0;
+	private TagNode summit=null;
+	private TagNode upstream=null;
+	private TagNode downstream=null;
 	
 	private int overlap = 0;
 	
@@ -83,6 +86,19 @@ public class TagNode {
 		score2 = score;
 	}
 	/**
+	 * Set a summit as another TagNode
+	 * @param t a TagNode representing the summit
+	 */
+	public void setSummit(TagNode t){
+		summit=t;
+	}
+	/**
+	 * Access the summit 
+	 * @return a TagNode representing the summit
+	 */
+	public TagNode getSummit(){return summit;}
+	
+	/**
 	 * Set the third score variable
 	 * @param s a double representing a score
 	 */
@@ -127,6 +143,55 @@ public class TagNode {
 	 */
 	public String toString2(){
 		String ans = CHROM+"\t"+BP_START+"\t"+BP_STOP+"\t"+"E"+(int)score2;
+		return ans;
+	}
+	/**
+	 * Access textual description of the entry, including score
+	 * @return a String representing textual description of the entry
+	 */
+	public String toString3(){
+		String ans = CHROM+"\t"+BP_START+"\t"+BP_STOP+"\t"+score2;
+		return ans;
+	}
+	/**
+	 * Access textual description of the entry, as a scored bedgraph 
+	 * @return a String representing the scored bedgraph entry
+	 */
+	public String toString_ScoredBdg(){
+		String ans = CHROM+"\t"+BP_START+"\t"+BP_STOP+"\t"+"E"+(int)score2+"\t"+score3;
+		return ans;
+	}
+	/**
+	 * Access textual description of the entry, as a scored summit 
+	 * @return a String representing the scored summit entry
+	 */
+	public String toString_ScoredSummit(){
+		String ans = CHROM+"\t"+BP_START+"\t"+BP_STOP+"\t"+uniqID+"\t"+score3;
+		return ans;
+	}
+	/**
+	 * Access textual description of the entry, as a HMMR gappedPeak 
+	 * @return a String representing the scored summit entry
+	 */
+	public String toString_gappedPeak(){
+		
+		if (this.upstream == null){
+			upstream = this;
+		}
+		
+		if (this.downstream == null){
+			downstream=this;
+		}
+		
+		String middleValues = "3"+"\t"+
+				"1"+","+getLength()+","+
+					"1"+"\t"+"0,"+
+				(getStart()-upstream.getStart())+","+
+					((downstream.getStop()-upstream.getStart())-1);
+		
+		String ans = CHROM+"\t"+upstream.getStart()+"\t"+
+				downstream.getStop()+"\t"+uniqID+"\t"+".\t."+"\t"+BP_START+"\t"+
+				BP_STOP+"\t"+"255,0,0"+"\t"+middleValues+"\t"+score3+"\t"+"-1\t-1";
 		return ans;
 	}
 	/**
@@ -255,6 +320,26 @@ public class TagNode {
 	public void setStrand(boolean newstrand) {
 		Fstrand = newstrand;		
 	}
+	/**
+	 * Set an upstream tagnode
+	 * @param A TagNode representing the upstream feature
+	 */
+	public void setUpstream(TagNode u){upstream =u;}
+	/**
+	 * Get the upstream feature
+	 * @return A TagNode representing the upstream feature
+	 */
+	public TagNode getUpstream(){return upstream;}
+	/**
+	 * Set an upstream tagnode
+	 * @param A TagNode representing the upstream feature
+	 */
+	public void setDownstream(TagNode d){downstream =d;}
+	/**
+	 * Get the upstream feature
+	 * @return A TagNode representing the upstream feature
+	 */
+	public TagNode getDownstream(){return downstream;}
 	/**
 	 * Method for comparing and sorting TagNode
 	 */

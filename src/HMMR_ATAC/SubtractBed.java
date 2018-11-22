@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import FormatConverters.PileupToBedGraph;
 import Node.OverlapNode;
-import Node.PileupNode2;
 import Node.TagNode;
 
 public class SubtractBed {

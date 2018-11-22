@@ -28,7 +28,7 @@ import net.sf.samtools.util.CloseableIterator;
 
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
-import org.apache.commons.math3.distribution.LaplaceDistribution;
+//import org.apache.commons.math3.distribution.LaplaceDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import JAHMMTest.Slope;
@@ -333,8 +333,8 @@ public class FragPileupGen {
 	 */
 	private AbstractRealDistribution getDist(double p,double m, double l){
 		if (p == 1){
-			return new LaplaceDistribution(m,l);
-			//return new ExponentialDistribution(m);
+			//return new LaplaceDistribution(m,l);
+			return new ExponentialDistribution(m);
 		}
 		if (p == 2){
 			return new NormalDistribution(m,l);
