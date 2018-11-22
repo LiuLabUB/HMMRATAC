@@ -63,7 +63,9 @@ To retrieve the file, for H. sapiens, use the following command:
 
 	$ mysql –-user=genome --host=genome-mysql.cse.ucsc.edu –A –e \ “select chrom, size from hg19.chromInfo” > hg19.genome 
 
-4)	The final required file that is necessary to run HMMR is a BigWig file containing the 
+4)	**NOTE**: This is no longer required as of version 1.2
+
+The final required file that is necessary to run HMMR is a BigWig file containing the 
 genome-wide coverage of ATAC-seq reads.  This can be created using multiple programs. One 
 such method is to use bedtools.  Use the bedtools “bamtobed” command as follows:
 
@@ -107,7 +109,7 @@ Section 2:  Overview of Options
 	as described in section 1.3
 
 	-w  ,  --wig <BigWig>  This is the genome-wide BigWig file created as 
-	described in section 1.4
+	described in section 1.4 **NOTE**: This is no longer required as of version 1.2
 
 	Optional Parameters:
 
