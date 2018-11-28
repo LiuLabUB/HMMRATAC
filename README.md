@@ -2,7 +2,7 @@
 
 Quick Start:
 
-$ samtools ExampleFile.bam  -o ExampleFile.sorted.bam
+$ samtools sort ExampleFile.bam  -o ExampleFile.sorted.bam
 
 $ samtools index ExampleFile.sorted.bam ExampleFile.sorted.bam.bai
 
