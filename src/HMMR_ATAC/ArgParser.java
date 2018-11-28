@@ -10,7 +10,7 @@ public class ArgParser {
 		private File bam = null;
 		private File index = null;
 		private  String genomeFile = null;
-		private  String bigWig = null;
+		//private  String bigWig = null;
 		
 		//Optional Inputs
 		private  String means;//comma separted list of intial mean values for frag dist
@@ -77,7 +77,7 @@ public class ArgParser {
 		 * Access the bigwig file
 		 * @return a String representing the bigwig file
 		 */
-		public String getBigWig(){return bigWig;}
+//		public String getBigWig(){return bigWig;}
 		/**
 		 * Access the means of the mixture model
 		 * @return a String representing the means of the mixture model
@@ -170,6 +170,9 @@ public class ArgParser {
 		private void set(){
 			for (int i = 0; i < args.length; i++) {
 
+				switch (args[i].charAt(0)){
+					case'-':
+				
 				switch (args[i].charAt((1))) {
 				
 				case'b':
@@ -184,10 +187,10 @@ public class ArgParser {
 					genomeFile = args[i+1];
 					i++;
 					break;
-				case'w':
-					bigWig = args[i+1];
-					i++;
-					break;
+//				case'w':
+//					bigWig = args[i+1];
+//					i++;
+//					break;
 				case'm':
 					means = args[i+1];
 					i++;
@@ -262,10 +265,10 @@ public class ArgParser {
 						genomeFile = args[i+1];
 						i++;
 						break;
-					case"wig":
-						bigWig = args[i+1];
-						i++;
-						break;
+//					case"wig":
+//						bigWig = args[i+1];
+//						i++;
+//						break;
 					case"means":
 						means = args[i+1];
 						i++;
@@ -372,6 +375,7 @@ public class ArgParser {
 					}
 				}
 			}
+			}//for loop
 		}
 		/**
 		 * Print usage statement
@@ -382,7 +386,7 @@ public class ArgParser {
 			System.out.println("\t-b , --bam <BAM> Sorted BAM file containing the ATAC-seq reads");
 			System.out.println("\t-i , --index <BAI> Index file for the sorted BAM File");
 			System.out.println("\t-g , --genome <GenomeFile> Two column, tab delimited file containing genome size stats");
-			System.out.println("\t-w , --wig <BigWig> Whole genome big wig file created using all reads");
+//			System.out.println("\t-w , --wig <BigWig> Whole genome big wig file created using all reads");
 			System.out.println("\nOptional Parameters:");
 			System.out.println("\t-m , --means <double> Comma separated list of initial mean values for the fragment distribution. Default = 50,200,400,600");
 			System.out.println("\t-s , --stddev <double> Comma separated list of initial standard deviation values for fragment distribution. Default = 20,20,20,20");
