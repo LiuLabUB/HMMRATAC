@@ -6,8 +6,12 @@ $ samtools sort ExampleFile.bam  -o ExampleFile.sorted.bam
 
 $ samtools index ExampleFile.sorted.bam ExampleFile.sorted.bam.bai
 
-$ java -jar HMMRATAC_V1.2_exe.jar -b ExampleFile.sorted.bam -i ExampleFile.sorted.bam.bai -g hg19.genome
- 
+$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d 'L' -f 1 > tmp
+$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d ':' -f 2 > tmp2
+$ paste tmp tmp2 > hg.genome; rm tmp tmp2
+
+$ java -jar HMMRATAC_V1.2_exe.jar -b ExampleFile.sorted.bam -i ExampleFile.sorted.bam.bai -g hg.genome
+
 **NOTE: Earlier versions of HMMRATAC require a bigwig file. See HMMRATAC_Guide.txt for more detail**
 
 Samtools can be downloaded here: http://www.htslib.org/download/
