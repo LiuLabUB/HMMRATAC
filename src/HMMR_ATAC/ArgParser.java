@@ -34,15 +34,23 @@ public class ArgParser {
 		private int vitWindow = 25000000;
 		private File modelFile=null;
 		private boolean stopAfterModel = false;
+		private boolean printHMMRTracks = false;
+		private String version;
 		
 		/**
 		 * Main constructor 
 		 * @param an Array of Strings passed from the main program
 		 */
-		public ArgParser(String[] a){
+		public ArgParser(String[] a,String ver){
 			args = a;
+			version = ver;
 			set();
 		}
+		/**
+		 * Access print hmmr tracks
+		 * @return a boolean to determine whether to print the hmmr decomposed signal tracks
+		 */
+		public boolean getPrintHMMRTracks(){return printHMMRTracks;}
 		/**
 		 * Access stop after model
 		 * @return a boolean to determine whether to stop the program after model generation
@@ -361,6 +369,14 @@ public class ArgParser {
 						modelFile = new File(args[i+1]);
 						i++;
 						break;
+					case"printTracks":
+						String TEMP_print = args[i+1].toLowerCase();
+						if (TEMP_print.contains("t")){
+							printHMMRTracks=true;
+						}
+						else{printHMMRTracks=false;}
+						i++;
+						break;
 					case"modelonly":
 						String TEMP = args[i+1].toLowerCase();
 						if (TEMP.contains("t")){
@@ -381,7 +397,8 @@ public class ArgParser {
 		 * Print usage statement
 		 */
 		public void printUsage(){
-			System.out.println("Usage: java -jar HMMRATAC_V1.0_exe.jar");
+			System.out.println("HMMRATAC Version:"+"\t"+version);
+			System.out.println("Usage: java -jar HMMRATAC_V#_exe.jar");
 			System.out.println("\nRequired Parameters:");
 			System.out.println("\t-b , --bam <BAM> Sorted BAM file containing the ATAC-seq reads");
 			System.out.println("\t-i , --index <BAI> Index file for the sorted BAM File");
@@ -395,7 +412,7 @@ public class ArgParser {
 			System.out.println("\t-u , --upper <int> Upper limit on fold change range for choosing training sites. Default = 20");
 			System.out.println("\t-l , --lower <int> Lower limit on fold change range for choosing training sites. Default = 10");
 			System.out.println("\t-z , --zscore <int> Zscored read depth to mask during Viterbi decoding. Default = 100");
-			System.out.println("\t-o , --output <File> Name for output files. Default = NA");
+			System.out.println("\t-o , --output <String> Name for output files. Default = NA");
 			System.out.println("\t-e , --blacklist <BED_File> bed file of blacklisted regions to exclude");
 			System.out.println("\t-p , --peaks <true || false> Whether to report peaks in bed format. Default = true");
 			System.out.println("\t-k , --kmeans <int> Number of States in the model. Default = 3. If not k=3, recommend NOT calling peaks, use bedgraph");
@@ -408,6 +425,7 @@ public class ArgParser {
 			System.out.println("\t--window <int> Size of the bins to split the genome into for Viterbi decoding.\n\t To save memory, the genome is split into <int> long bins and viterbi decoding occurs across each bin. \n\tDefault = 25000000. Note: For machines with limited memory, it is recomended to reduce the size of the bins.");
 			System.out.println("\t--model <File> Binary model file (generated from previous HMMR run) to use instead of creating new one");
 			System.out.println("\t--modelonly <true || false> Whether or not to stop the program after generating model. Default = false");
+//			System.out.println("\t--printTracks <true || false> Whether or not to print the decomposed HMMRATAC signal tracks. Tracks will be labeled as Output_NFR.bedgraph, Output_Mono.bedgraph etc. Default = false");
 			System.out.println("\t-h , --help Print this help message and exit.");
 			System.exit(0);
 		}

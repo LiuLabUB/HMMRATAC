@@ -24,6 +24,11 @@ public class TrackHolder {
 		//positions = pos;
 	}
 	/**
+	 * Access the data as an ArrayList of double arrays
+	 * @return An ArrayList of double arrays representing the data
+	 */
+	public ArrayList<double[]> getRawData(){return tracks;}
+	/**
 	 * Access the positions
 	 */
 	public ArrayList<TagNode> getPositions() {return positions;}

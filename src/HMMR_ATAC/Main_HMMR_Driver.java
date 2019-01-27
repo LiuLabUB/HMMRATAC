@@ -65,13 +65,19 @@ public class Main_HMMR_Driver {
 	private static int vitWindow = 25000000;
 	private static File modelFile;
 	private static boolean stopAfterModel = false;
+	private static boolean printHMMRTracks = false;
 	
 	private static String trainingRegions;
+	
+	/*
+	 * Version number. Change as needed
+	 */
+	private static String versionNum = "1.2.2";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
 		
-		ArgParser p = new ArgParser(args);
+		ArgParser p = new ArgParser(args,versionNum);
 		bam = p.getBam();
 		index = p.getIndex();
 		genomeFile=p.getGenome();
@@ -95,6 +101,7 @@ public class Main_HMMR_Driver {
 		trainingRegions = p.getTrainingRegions();
 		vitWindow = p.getWindow();
 		modelFile = p.getModelFile();
+//		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
 		
@@ -109,6 +116,16 @@ public class Main_HMMR_Driver {
 			p.printUsage();
 			System.exit(1);
 		}
+		
+		/*
+		 * Report version into log file
+		 * 
+		 */
+		log.println("Version:"+"\t"+versionNum);
+		
+		/*
+		 * Report all input arguments into log file
+		 */
 		log.println("Arguments Used:");
 		for (int i = 0; i < args.length-1;i+=2){
 			log.println(args[i]+"\t"+args[i+1]);
@@ -413,6 +430,16 @@ public class Main_HMMR_Driver {
 		 * Run viterbi on the whole genome
 		 */
 		//PrintStream out = new PrintStream(output+".pileup");
+		PrintStream NFR = null;
+		PrintStream MONO = null;
+		PrintStream DI=null;
+		PrintStream TRI=null;
+		if(printHMMRTracks){
+			 NFR = new PrintStream(output+"_nfr.bedgraph");
+			 MONO = new PrintStream(output+"_mono.bedgraph");
+			 DI = new PrintStream(output+"_di.bedgraph");
+			 TRI = new PrintStream(output+"_tri.bedgraph");
+		}
 		ArrayList<TagNode> genomeAnnotation = new ArrayList<TagNode>();
 		for (int i = 0;i < vitBed.size();i++){
 			if (vitBed.get(i).getLength() >= 10){
@@ -421,7 +448,36 @@ public class Main_HMMR_Driver {
 				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ);
 				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()),trim);// 8/30/16 transformed tracks
 				
-				//System.out.println(vitBed.get(i).toString()+"\t"+"viterbi bed");
+				if (printHMMRTracks){
+					HMMRTracksToBedgraph tracks = new HMMRTracksToBedgraph(vHolder.getRawData(),vitBed.get(i),10);
+					ArrayList<TagNode> nfr = tracks.getShort();
+					ArrayList<TagNode> mono = tracks.getMono();
+					ArrayList<TagNode> di = tracks.getDi();
+					ArrayList<TagNode> tri = tracks.getTri();
+					
+					
+					if (nfr != null) {
+						for (int w = 0; w < nfr.size(); w++) {
+							NFR.println(nfr.get(w).toString2());
+						}
+					}
+					if (mono != null) {
+						for (int d = 0; d < mono.size(); d++) {
+							MONO.println(mono.get(d).toString2());
+						}
+					}
+					if (di != null) {
+						for (int e = 0; e < di.size(); e++) {
+							DI.println(di.get(e).toString2());
+						}
+					}
+					if (tri != null) {
+						for (int f = 0; f < tri.size(); f++) {
+							TRI.println(tri.get(f).toString2());
+						}
+					}
+					
+				}
 				vGen = null;
 			
 				RobustHMM HMM = new RobustHMM(vHolder.getObs(),null,hmm,false,0,"Vector",0);
@@ -449,7 +505,7 @@ public class Main_HMMR_Driver {
 			}
 		}
 		//out.close();
-		
+		NFR.close();MONO.close();DI.close();TRI.close();
 		/**
 		 * Report the final results as peaks, bedgraphs and summits, if desired
 		 */
@@ -472,82 +528,90 @@ public class Main_HMMR_Driver {
 		for (String chr : hmmrBdg.keySet()){
 			ArrayList<TagNode> hmmr = hmmrBdg.get(chr);
 			ArrayList<TagNode> signal = bdg.get(chr);
-			Collections.sort(hmmr,  TagNode.basepairComparator);
-			if (signal != null){
-				Collections.sort(signal,  TagNode.basepairComparator);
-			}
-			int index = 0;
-			for (int i = 0; i < hmmr.size();i++){
-				TagNode temp = hmmr.get(i);
+			if (signal != null) {
+				Collections.sort(hmmr, TagNode.basepairComparator);
 				
-				/**
-				 * Execute the scoring commands if the state is a peak or if bedgraph scoring is on
-				 */
-				if ((int)temp.getScore2() == peak || BGScore){
-					boolean hasHadOverlap = false;
-					ArrayList<TagNode> overlaps = new ArrayList<TagNode>();
-					for (int a = index;a<signal.size();a++){
-						if (SubtractBed.overlap(temp, signal.get(a)).hasHit()){
-							overlaps.add(signal.get(a));
-							hasHadOverlap=true;
-						}
-						else{
-							if(hasHadOverlap){
-								index=a;
-								break;
+				Collections.sort(signal, TagNode.basepairComparator);
+				
+				int index = 0;
+				for (int i = 0; i < hmmr.size(); i++) {
+					TagNode temp = hmmr.get(i);
+
+					/**
+					 * Execute the scoring commands if the state is a peak or if bedgraph scoring is on
+					 */
+					if ((int) temp.getScore2() == peak || BGScore) {
+						boolean hasHadOverlap = false;
+						ArrayList<TagNode> overlaps = new ArrayList<TagNode>();
+						for (int a = index; a < signal.size(); a++) {
+							if (SubtractBed.overlap(temp, signal.get(a))
+									.hasHit()) {
+								overlaps.add(signal.get(a));
+								hasHadOverlap = true;
+							} else {
+								if (hasHadOverlap) {
+									index = a;
+									break;
+								}
 							}
+
 						}
-						
+						ScoreNode scores = bedGraphMath.set(temp, overlaps);
+						if (scoreSys.equals("ave")) {
+							temp.setScore3(scores.getMean());
+						} else if (scoreSys.equals("fc")) {
+							temp.setScore3(scores.getMean() / genomeMean);
+						} else if (scoreSys.equals("zscore")) {
+							temp.setScore3((scores.getMean() - genomeMean)
+									/ genomeStd);
+						} else if (scoreSys.equals("med")) {
+							temp.setScore3(scores.getMedian());
+						} else {
+							temp.setScore3(scores.getMax());
+						}
+						if ((int) temp.getScore2() == peak) {
+							temp = bedGraphMath.setSmooth(20, temp, overlaps);
+							temp.setID("Peak_" + counter);
+							if (i > 0) {
+								temp.setUpstream(hmmr.get(i - 1));
+							} else {
+								temp.setUpstream(hmmr.get(i));
+							}
+							if (i < hmmr.size() - 1) {
+								temp.setDownstream(hmmr.get(i + 1));
+							} else {
+								temp.setDownstream(hmmr.get(i));
+							}
+							counter++;
+						}
+
 					}
-					ScoreNode scores = bedGraphMath.set(temp, overlaps);
-					if (scoreSys.equals("ave")){temp.setScore3(scores.getMean());}
-					else if (scoreSys.equals("fc")){temp.setScore3(scores.getMean()/genomeMean);}
-					else if (scoreSys.equals("zscore")){temp.setScore3((scores.getMean()-genomeMean)/genomeStd);}
-					else if (scoreSys.equals("med")){temp.setScore3(scores.getMedian());}
-					else{temp.setScore3(scores.getMax());}
-					if ((int)temp.getScore2() == peak){
-						temp = bedGraphMath.setSmooth(20, temp, overlaps);
-						temp.setID("Peak_"+counter);
-						if (i > 0){
-							temp.setUpstream(hmmr.get(i-1));
+					/**
+					 * report the bedgraph, is desired
+					 */
+					if (bg) {
+						if (!BGScore) {
+							bedgraph.println(temp.toString2());
+						} else {
+							bedgraph.println(temp.toString_ScoredBdg());
 						}
-						else{
-							temp.setUpstream(hmmr.get(i));
-						}
-						if (i < hmmr.size()-1){
-							temp.setDownstream(hmmr.get(i+1));
-						}
-						else{
-							temp.setDownstream(hmmr.get(i));
-						}
-						counter++;
 					}
-					
+					/**
+					 * report the peaks and summits, if desired
+					 */
+					if (peaks && (int) temp.getScore2() == peak
+							&& temp.getLength() >= minLength) {
+						if (temp.getSummit() != null) {
+							summits.println(temp.getSummit()
+									.toString_ScoredSummit());
+						}
+						pks.println(temp.toString_gappedPeak());
+					}
+
 				}
-				/**
-				 * report the bedgraph, is desired
-				 */
-				if (bg){
-					if (!BGScore){
-						bedgraph.println(temp.toString2());
-					}
-					else{
-						bedgraph.println(temp.toString_ScoredBdg());
-					}
-				}
-				/**
-				 * report the peaks and summits, if desired
-				 */
-				if (peaks && (int)temp.getScore2() == peak && temp.getLength() >= minLength){
-					if(temp.getSummit() != null){
-						summits.println(temp.getSummit().toString_ScoredSummit());
-					}
-					pks.println(temp.toString_gappedPeak());
-				}
-				
-				
 			}
-		}
+			
+		}//for loop through chroms
 		if (bg){
 			bedgraph.close();
 		}
