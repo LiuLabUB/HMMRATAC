@@ -72,7 +72,7 @@ public class Main_HMMR_Driver {
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.2";
+	private static String versionNum = "1.2.3";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
@@ -505,7 +505,9 @@ public class Main_HMMR_Driver {
 			}
 		}
 		//out.close();
-		NFR.close();MONO.close();DI.close();TRI.close();
+		if(printHMMRTracks){
+			NFR.close();MONO.close();DI.close();TRI.close();
+		}
 		/**
 		 * Report the final results as peaks, bedgraphs and summits, if desired
 		 */
@@ -602,8 +604,7 @@ public class Main_HMMR_Driver {
 					if (peaks && (int) temp.getScore2() == peak
 							&& temp.getLength() >= minLength) {
 						if (temp.getSummit() != null) {
-							summits.println(temp.getSummit()
-									.toString_ScoredSummit());
+							summits.println(temp.toString_ScoredSummit());
 						}
 						pks.println(temp.toString_gappedPeak());
 					}

@@ -166,7 +166,8 @@ public class TagNode {
 	 * @return a String representing the scored summit entry
 	 */
 	public String toString_ScoredSummit(){
-		String ans = CHROM+"\t"+BP_START+"\t"+BP_STOP+"\t"+uniqID+"\t"+score3;
+		
+		String ans = CHROM+"\t"+this.getSummit().getStart()+"\t"+this.getSummit().getStop()+"\t"+uniqID+"\t"+score3;
 		return ans;
 	}
 	/**
