@@ -20,6 +20,8 @@ Samtools can be downloaded here: http://www.htslib.org/download/
 
 Be sure to run HMMRATAC using the executable file, found here: 
 https://github.com/LiuLabUB/HMMRATAC/releases
-The source files are uploaded for users to see how the program works.  They do not contain the required manifest file needed to actually
-run.  For details on HOW to run HMMRATAC, see HMMRATAC_Guide.txt, which contains a thorough runthrough of all parameters, output files and input
+For details on HOW to run HMMRATAC, see HMMRATAC_Guide.txt, which contains a thorough runthrough of all parameters, output files and input
 requirements and troubleshooting.
+
+If you use HMMRATAC in your research, please cite the following paper:
+Evan D. Tarbell and Tao Liu, "HMMRATAC, a Hidden Markov ModeleR for ATAC-seq", bioRxiv 306621, Pages 1-24, 2018. https://doi.org/10.1101/306621 
