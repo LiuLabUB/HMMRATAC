@@ -12,7 +12,7 @@ public class TagNode {
 	private char strand = '\0';
 	private int Score = 0;
 	private double score2 = 0.0;
-	private double score3 = 0.0;
+	private String score3 = "";
 	private TagNode summit=null;
 	private TagNode upstream=null;
 	private TagNode downstream=null;
@@ -102,12 +102,12 @@ public class TagNode {
 	 * Set the third score variable
 	 * @param s a double representing a score
 	 */
-	public void setScore3(double s){score3 = s;}
+	public void setScore3(String s){score3 = s;}
 	/**
 	 * Access third score variable
 	 * @return a double representing a score
 	 */
-	public double getScore3(){return score3;}
+	public String getScore3(){return score3;}
 	/**
 	 * Set Score
 	 * @param score a double representing the entry's score

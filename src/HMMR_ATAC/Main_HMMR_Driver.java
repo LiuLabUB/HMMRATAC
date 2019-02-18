@@ -72,7 +72,7 @@ public class Main_HMMR_Driver {
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.3";
+	private static String versionNum = "1.2.4";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
@@ -559,17 +559,26 @@ public class Main_HMMR_Driver {
 
 						}
 						ScoreNode scores = bedGraphMath.set(temp, overlaps);
+						double MAX = scores.getMax();
+						double MEAN = scores.getMean();
+						double MEDIAN = scores.getMedian();
+						double ZSCORE = (scores.getMean() - genomeMean)
+								/ genomeStd;
+						double FOLDCHANGE = scores.getMean() / genomeMean;
+						
 						if (scoreSys.equals("ave")) {
-							temp.setScore3(scores.getMean());
+							temp.setScore3(Double.toString(MEAN));
 						} else if (scoreSys.equals("fc")) {
-							temp.setScore3(scores.getMean() / genomeMean);
+							temp.setScore3(Double.toString(FOLDCHANGE));
 						} else if (scoreSys.equals("zscore")) {
-							temp.setScore3((scores.getMean() - genomeMean)
-									/ genomeStd);
+							temp.setScore3(Double.toString(ZSCORE));
 						} else if (scoreSys.equals("med")) {
-							temp.setScore3(scores.getMedian());
+							temp.setScore3(Double.toString(MEDIAN));
+						} else if (scoreSys.equals("all")){
+							String ANSWER = MAX+"_"+MEAN+"_"+MEDIAN+"_"+ZSCORE+"_"+FOLDCHANGE;
+							temp.setScore3(ANSWER);
 						} else {
-							temp.setScore3(scores.getMax());
+							temp.setScore3(Double.toString(MAX));
 						}
 						if ((int) temp.getScore2() == peak) {
 							temp = bedGraphMath.setSmooth(20, temp, overlaps);
