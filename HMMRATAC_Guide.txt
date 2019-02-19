@@ -220,7 +220,8 @@ Section 2:  Overview of Options
 	by the genome average.  “Zscore” refers to the average number of reads
 	mapping to the open region minus the genome average divided by the
 	genomic standard deviation.  “All” reports all these scores separated by
-	a “_” (underscore).  Default is “max”.  
+	a “_” (underscore). The order for "all" is MAX_MEAN_MEDIAN_ZSCORE_FC 
+	Default is “max”.  
 
 	--bgscore <True || False>  Boolean to determine whether to add a score to 
 	every state annotation in a bedgraph file.  Note that –bedgraph has to be set 
