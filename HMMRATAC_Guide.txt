@@ -231,9 +231,10 @@ Section 2:  Overview of Options
 	--trim <int>  How many signals, or distributions, to trim from the signal 
 	tracks.  It trims from the end of the matrix (IE 1 means trim the tri signal
 	track, 2 means trim the tri and di signal tracks…etc).  This could be useful
-	if your data doesn’t contain many longer fragments.  It is always 
-	recommended to try to run at default before attempting this.  Default is
-	0.
+	if your data doesn’t contain many longer fragments, such as size selected data.  
+	Recommendations: fragments <= 500bp set --trim 1; 
+	fragments <= 250bp set --trim 2; fragments <= 150 set --trim 3. 
+	Default is 0.
 
 	--window <int>  Size of the bins to split the genome into for Viterbi decoding.
 	To save memory, HMMR splits the genome into these sized bins and 
