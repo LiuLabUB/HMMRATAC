@@ -23,6 +23,9 @@ https://github.com/LiuLabUB/HMMRATAC/releases
 For details on HOW to run HMMRATAC, see HMMRATAC_Guide.txt, which contains a thorough runthrough of all parameters, output files and input
 requirements and troubleshooting.
 
+HMMRATAC requires paired-end data. Single-end data will not work. HMMRATAC is designed to process ATAC-seq data that hasn't undergone
+any size selection.
+
 If you use HMMRATAC in your research, please cite the following paper:
 
 Evan D. Tarbell and Tao Liu, "HMMRATAC, a Hidden Markov ModeleR for ATAC-seq", bioRxiv 306621, Pages 1-24, 2018. https://doi.org/10.1101/306621 
