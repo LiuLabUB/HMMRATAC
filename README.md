@@ -24,7 +24,8 @@ For details on HOW to run HMMRATAC, see HMMRATAC_Guide.txt, which contains a tho
 requirements and troubleshooting.
 
 HMMRATAC requires paired-end data. Single-end data will not work. HMMRATAC is designed to process ATAC-seq data that hasn't undergone
-any size selection.
+any size selection, either physical or in silico. This should be standard practice for any ATAC-seq analysis. Size selected data can be
+processed by HMMRATAC (see HMMRATAC_Guide.txt, section 2, trim option). 
 
 If you use HMMRATAC in your research, please cite the following paper:
 
