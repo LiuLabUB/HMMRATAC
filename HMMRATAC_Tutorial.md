@@ -2,7 +2,7 @@
 
 Running the program:
 
-```java -jar HMMRATAC_V1.2_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> <options>```
+```java -jar HMMRATAC_V1.2.4_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> <options>```
 
 Version number may change.
 
