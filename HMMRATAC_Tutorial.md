@@ -2,7 +2,7 @@
 
 Running the program:
 
-```java -jar HMMRATAC_V1.0_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> -w <GenomeWideBigWig> <options>```
+```java -jar HMMRATAC_V1.2_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> <options>```
 
 Version number may change.
 
@@ -21,9 +21,7 @@ program. Source files do not contain manifest file needed to run.
 *Note: We include a python script to create the required input files
 for HMMRATAC, called ```Make_HMMR_Files.py```.  This code will take a
 unsorted BAM file and a genome stats file and will create a sorted BAM
-file, BAM index file and bigWig file. The bigWig file is created using
-the bedtools approach described in section 1.4.  This script requires
-bedtools, samtools and the UCSC tool bedGraphToBigWig.*
+file, and a BAM index file.
 
 1. The first file that is necessary is a sorted BAM file containing
    the pair-end ATAC-seq reads.  Typically, an alignment algorithm
@@ -86,18 +84,12 @@ bedtools, samtools and the UCSC tool bedGraphToBigWig.*
 * ```-i , --index <BAI>```
 
    This is the index file for the sorted BAM file
-   created as described in section 1.2.
+   created as described in [section 1](#creating-required-files).
 
 * ```-g , --genome <GenomeFile>```
 
    This is the genome file created or
-   downloaded as described in section 1.3
-
-* ```-w , --wig <BigWig>```
-
-   This is the genome-wide BigWig file created as
-   described in section 1.4 **NOTE**: This is no longer required as of
-   version 1.2
+   downloaded as described in [section 1](#creating-required-files).
 
 ### Optional Parameters:
 
@@ -425,7 +417,7 @@ first value is always 0, meaning 0 bp from the region start (column
 to the open region start (column 7), etc.
 
   13. Peak Score. This is the score for the peak, as determined by the
-  scoring system option described in [Section
+  scoring system option described in [section
   2](#overview-of-parameters) (option ```--score```).
 
   14. Unused, denoted as -1.
@@ -525,17 +517,18 @@ error.
    This is saying that the data matrix created by HMMRATAC, containing
    the values for nucleosome free and nucleosome enriched fragments,
    was empty. If you set the upper and lower fold change bounds for
-   choosing training regions (```-u``` and ```-l``` option) to values that prevent
-   ANY training sites from being identified (i.e. ```-u 10 -l 20```), or if
-   you provide an empty BED file of training regions, then the data
-   matrix will be empty and this error will occur. Alternatively, if
-   the BAM files use one type of chromsome annotation (ie. chr1) while
-   the genome file or bigwig file use a different chromosome
-   annotation (i.e. 1) or vice versa, then this discrepancy will also
-   result in an empty data matrix. Finally, it may be that there were
-   no identified training regions even with reasonable settings, than
-   it may be neccessary to choose a different method to choose
-   training sites, i.e. to set different ```-u``` and ```-l``` settings.
+   choosing training regions (```-u``` and ```-l``` option) to values
+   that prevent ANY training sites from being identified (i.e. ```-u
+   10 -l 20```), or if you provide an empty BED file of training
+   regions, then the data matrix will be empty and this error will
+   occur. Alternatively, if the BAM files use one type of chromsome
+   annotation (ie. chr1) while the genome file uses a different
+   chromosome annotation (i.e. 1) or vice versa, then this discrepancy
+   will also result in an empty data matrix. Finally, it may be that
+   there were no identified training regions even with reasonable
+   settings, than it may be neccessary to choose a different method to
+   choose training sites, i.e. to set different ```-u``` and ```-l```
+   settings.
 
 5. Tips for checking model.
 
