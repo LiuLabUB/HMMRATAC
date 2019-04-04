@@ -2,7 +2,7 @@
 
 Running the program:
 
-```java -jar HMMRATAC_V1.2.4_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> <options>```
+```java -jar HMMRATAC_V1.2_exe.jar -b <SortedBAM> -i <BAMIndex> -g <GenomeStatsFile> <options>```
 
 Version number may change.
 
@@ -18,59 +18,90 @@ program. Source files do not contain manifest file needed to run.
 
 ## Creating required files
 
-*Note: We include a python script to create the required input files
-for HMMRATAC, called ```Make_HMMR_Files.py```.  This code will take a
-unsorted BAM file and a genome stats file and will create a sorted BAM
-file, and a BAM index file.
+1. Sorted BAM file containing the alignments of ATAC-seq reads
 
-1. The first file that is necessary is a sorted BAM file containing
+   The first file that is necessary is a sorted BAM file containing
    the pair-end ATAC-seq reads.  Typically, an alignment algorithm
-   (such as bowtie/bowtie2) will output a SAM file as default.  The
-   first step is to convert this SAM file into a BAM file.  This is
-   best accomplished using samtools.  Samtools requires a SAM file and
-   a FASTA file to convert into a BAM file. Use the ```samtools
-   view``` command as follows:
+   (such as bwa/bowtie2/minimap2) will output a SAM file as default.
+   The first step is to convert this SAM file into a BAM file.  This
+   is best accomplished using ```samtools```.  Samtools requires a SAM
+   file to convert into a BAM file. Use the ```samtools view```
+   command as follows, assuming the SAM file is named as
+   ```atac.sam```:
 
-   ```$ samtools view –bT hgXX.fa XXX.sam > XXX.bam```
+   ```samtools view –bS -o atac.bam atac.sam```
 
+   **Note** the SAM file should have header lines. If not, check the
+     step3 below to get the genome information file ready
+     ```genome.info```(chromosome lengths) first, and run
+     ```samtools``` as:
+
+   ```samtools view -bS -t genome.info -o atac.bam atac.sam```
+   
    The next step is to sort the BAM file. This can also be
-   accomplished using samtools.  Use the ```samtools sort``` command as
-   follows:
+   accomplished using samtools.  Use the ```samtools sort``` command
+   as follows (example using 4 threads to sort, tweak it as
+   neccessary):
 
-   ```$ samtools sort XXX.bam XXX.sorted.bam```
+   ```samtools sort -@ 4 -o atac.sorted.bam atac.bam```
 
    It is possible to remove duplicates or low Mapping quality reads
-   before inputting into HMMRATAC, although HMMRATAC will perform these
-   functions by default.  By default HMMRATAC will remove duplicate reads
-   (and this function is currently hard-coded and cannot be turned
-   off).  HMMRATAC also removes those reads whose MapQ (mapping quality
-   scores) are below 30.  This value is changeable at runtime (using
-   the ```–q``` or ```--minmapq``` option) If you choose to merge
-   replicates prior to running HMMRATAC, this can also be accomplished
-   using samtools. Use the ```samtools merge``` command as follows:
+   before inputting into HMMRATAC, although HMMRATAC will perform
+   these functions by default.  By default HMMRATAC will remove
+   duplicate reads (and this function is currently hard-coded and
+   cannot be turned off).  HMMRATAC also removes those reads whose
+   MapQ (mapping quality scores) are below 30.  This value is
+   changeable through command line option (using the ```–q``` or
+   ```--minmapq``` option)
 
-   ```$ samtools merge –n MergedFile.bam XXX_rep1.sorted.bam XXX_rep2.sorted.bam ... XXX_repN.sorted.bam```
+   If you have multiple replicates and you choose to merge replicates
+   prior to running HMMRATAC, this can also be accomplished using
+   samtools. Use the ```samtools merge``` command as follows:
 
-   If you do choose to merge replicates, you will have to re-sort the
-   resulting merged file again before proceeding.
+   ```samtools merge –n atac_merged.bam atac_rep1.sorted.bam atac_rep2.sorted.bam ... atac_repN.sorted.bam```
 
-2. The next required file that HMMRATAC needs is an index file for the
+   If you merge BAM files sorted by the same ```samtools``` tool, the
+   merged file ```atac_merged.bam``` should *be sorted already*. If
+   uncertain, you can always re-sort the resulting merged file before
+   proceeding.
+
+   ```samtools sort -@ 4 -o atac_merged.sorted.bam atac_merged.bam```
+
+   Now, either rename ```atac.sorted.bam``` if you have only 1
+   replicate, or ```atac_merged.bam``` if you have multiple
+   replicates, or ```atac_merged.sorted.bam``` if an extra sorting is
+   performed on merged file, to ```atac.forHMMRATAC.bam```.
+
+2. The index file for the BAM.
+
+   The next required file that HMMRATAC needs is an index file for the
    sorted BAM file.  This file can also be easily created with
    samtools.  Use the ```samtools index``` command as follows:
 
-   ```$ samtools index XXX.sorted.bam XXX.sorted.bam.bai```
+   ```$ samtools index atac.forHMMRATAC.bam```
 
-3. The third required file is a genome annotation file.  This file can
-   be downloaded from numerous online sources, including UCSC genome
-   browser’s website.  This file is a two column, tab-delimited file
-   containing chromosome name and size in the following format:
-   <chromName><TAB><chromSIZE>
+   You will have a file named ```atac.forHMMRATAC.bam.bai``` in the
+   same working directory.
+
+3. Genome information file for chromosome sizes.
+
+   The third required file is a genome information file containing
+   chromosome sizes.  This file can be downloaded from numerous online
+   sources, including UCSC genome browser’s website.  This file is a
+   two column, tab-delimited file containing chromosome name and size
+   in the following format: <chromName><TAB><chromSIZE>
 
    It is possible to retrieve this file using UCSC Genome Browser’s
    MySQL database.  To retrieve the file, for H. sapiens, use the
    following command:
 
    ```$ mysql –-user=genome --host=genome-mysql.cse.ucsc.edu –A –e \ “select chrom, size from hg19.chromInfo” > hg19.genome ```
+
+   Alternatively, if your SAM file has header lines or you have
+   successfully generate a BAM file following step 1 and 2 without
+   input of genome information. You can extract genome information from BAM as:
+
+   ...
 
 ## Commandline Options
 
