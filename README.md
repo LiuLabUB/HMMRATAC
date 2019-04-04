@@ -22,8 +22,7 @@ Assume that you have a BAM file from aligner such as ```bwa mem``` named ```Exam
 
 4. Run HMMRATAC on the sorted BAM ```ExampleFile.sorted.bam```, the BAM index file ```ExampleFile.sorted.bam.bai```, and the genome information file ```genome.info```:
 
-   ```$ java -jar HMMRATAC_V1.2.4_exe.jar -b ExampleFile.sorted.bam\
-             -i ExampleFile.sorted.bam.bai -g genome.info```
+   ```$ java -jar HMMRATAC_V1.2.4_exe.jar -b ExampleFile.sorted.bam -i ExampleFile.sorted.bam.bai -g genome.info```
 
 **NOTE: Earlier versions of HMMRATAC require a bigwig file. See HMMRATAC_Guide.txt for more detail**
 
