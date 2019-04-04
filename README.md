@@ -1,18 +1,28 @@
 # HMMRATAC
 
-Quick Start:
+**Quick Start**
 
-```$ samtools sort ExampleFile.bam  -o ExampleFile.sorted.bam```
+Assume that you have a BAM file from aligner such as ```bwa mem``` named ```ExampleFile.bam```.
 
-```$ samtools index ExampleFile.sorted.bam ExampleFile.sorted.bam.bai```
+1. Sort the BAM file to get a ```ExampleFile.sorted.bam``` file:
 
-```$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d 'L' -f 1 > tmp```
+   ```$ samtools sort ExampleFile.bam  -o ExampleFile.sorted.bam```
 
-```$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d ':' -f 2 > tmp2```
+2. Make index from the BAM file to get a ```ExampleFile.sorted.bam.bai``` file:
 
-```$ paste tmp tmp2 > hg.genome; rm tmp tmp2```
+   ```$ samtools index ExampleFile.sorted.bam ExampleFile.sorted.bam.bai```
 
-```$ java -jar HMMRATAC_V1.2.4_exe.jar -b ExampleFile.sorted.bam -i ExampleFile.sorted.bam.bai -g hg.genome```
+3. Make genome information (chromosome sizes) from the BAM file to get a ```genome.info``` file:
+
+   ```$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d 'L' -f 1 > tmp```
+
+   ```$ samtools view -H ExampleFile.sorted.bam | grep SQ | cut -f 2-3 | cut -d ':' -f 2,3 | cut -d ':' -f 2 > tmp2```
+
+   ```$ paste tmp tmp2 > genome.info; rm tmp tmp2```
+
+4. Run HMMRATAC on the sorted BAM ```ExampleFile.sorted.bam```, the BAM index file ```ExampleFile.sorted.bam.bai```, and the genome information file ```genome.info```:
+
+   ```$ java -jar HMMRATAC_V1.2.4_exe.jar -b ExampleFile.sorted.bam -i ExampleFile.sorted.bam.bai -g genome.info```
 
 **NOTE: Earlier versions of HMMRATAC require a bigwig file. See HMMRATAC_Guide.txt for more detail**
 
