@@ -20,8 +20,6 @@ Assume that you have a BAM file from aligner such as ```bwa mem``` named ```ATAC
 
    ```java -jar HMMRATAC_V1.2.4_exe.jar -b ATACseq.sorted.bam -i ATACseq.sorted.bam.bai -g genome.info```
 
-**NOTE: Earlier versions of HMMRATAC require a bigwig file. See HMMRATAC_Guide.txt for more detail**
-
 Samtools can be downloaded here: http://www.htslib.org/download/
 
 Be sure to run HMMRATAC using the executable file, found here: 
