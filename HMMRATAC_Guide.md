@@ -67,7 +67,7 @@ program. Source files do not contain manifest file needed to run.
 
    ```samtools sort -@ 4 -o atac_merged.sorted.bam atac_merged.bam```
 
-   Now, either rename ```atac.sorted.bam``` if you have only 1
+   Now, either rename ```atac.sorted.bam``` if you have only one
    replicate, or ```atac_merged.bam``` if you have multiple
    replicates, or ```atac_merged.sorted.bam``` if an extra sorting is
    performed on merged file, to ```atac.forHMMRATAC.bam```.
@@ -78,7 +78,7 @@ program. Source files do not contain manifest file needed to run.
    sorted BAM file.  This file can also be easily created with
    samtools.  Use the ```samtools index``` command as follows:
 
-   ```$ samtools index atac.forHMMRATAC.bam```
+   ``` samtools index atac.forHMMRATAC.bam```
 
    You will have a file named ```atac.forHMMRATAC.bam.bai``` in the
    same working directory.
@@ -95,13 +95,14 @@ program. Source files do not contain manifest file needed to run.
    MySQL database.  To retrieve the file, for H. sapiens, use the
    following command:
 
-   ```$ mysql –-user=genome --host=genome-mysql.cse.ucsc.edu –A –e \ “select chrom, size from hg19.chromInfo” > hg19.genome ```
+   ```mysql –-user=genome --host=genome-mysql.cse.ucsc.edu –A –e \ “select chrom, size from hg19.chromInfo” > genome.info ```
 
-   Alternatively, if your SAM file has header lines or you have
-   successfully generate a BAM file following step 1 and 2 without
-   input of genome information. You can extract genome information from BAM as:
+   Alternatively, if your SAM file has header lines and you have
+   successfully generated a BAM file following step 1 and 2 without
+   input of genome information. You can extract genome information
+   from BAM as:
 
-   ...
+   ```samtools view -H atac.forHMMRATAC.bam| perl -ne 'if(/^@SQ.*?SN:(\w+)\s+LN:(\d+)/){print $1,"\t",$2,"\n"}' > genome.info```
 
 ## Commandline Options
 
@@ -347,7 +348,7 @@ program. Source files do not contain manifest file needed to run.
      easier.  For instance, to retrieve all regions that were
      classified as state 1, type:
 
-     ```$ grep E1 Name.bedgraph > State1_regions.bed```
+     ```grep E1 Name.bedgraph > State1_regions.bed```
 
 3. Name.model
 
