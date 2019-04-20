@@ -91,6 +91,8 @@ program. Source files do not contain manifest file needed to run.
    two column, tab-delimited file containing chromosome name and size
    in the following format: <chromName><TAB><chromSIZE>
 
+** Please Note: The genome file must NOT contain a header line
+
    It is possible to retrieve this file using UCSC Genome Browser’s
    MySQL database.  To retrieve the file, for H. sapiens, use the
    following command:
