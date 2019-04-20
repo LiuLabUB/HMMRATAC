@@ -66,13 +66,14 @@ public class Main_HMMR_Driver {
 	private static File modelFile;
 	private static boolean stopAfterModel = false;
 	private static boolean printHMMRTracks = false;
+	private static int maxTrain = 1000;
 	
 	private static String trainingRegions;
 	
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.5";
+	private static String versionNum = "1.2.6";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
@@ -101,6 +102,7 @@ public class Main_HMMR_Driver {
 		trainingRegions = p.getTrainingRegions();
 		vitWindow = p.getWindow();
 		modelFile = p.getModelFile();
+		maxTrain = p.getMaxTrain();
 //		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
@@ -257,13 +259,13 @@ public class Main_HMMR_Driver {
 		
 		
 		ArrayList<TagNode> newTrain = new ArrayList<TagNode>();
-		int maxTrain;
-		if (train.size() > 1000){
-			maxTrain = 1000;
-		}
-		else{
+//		int maxTrain;
+		if (train.size() < maxTrain){
 			maxTrain = train.size();
 		}
+//		else{
+//			maxTrain = train.size();
+//		}
 		
 		
 		for (int i = 0;i < maxTrain;i++){

@@ -36,6 +36,7 @@ public class ArgParser {
 		private boolean stopAfterModel = false;
 		private boolean printHMMRTracks = false;
 		private String version;
+		private int maxTrain=1000;
 		
 		/**
 		 * Main constructor 
@@ -46,6 +47,10 @@ public class ArgParser {
 			version = ver;
 			set();
 		}
+		/**
+		 * Access the maximum number of training regions to use 
+		 */
+		public int getMaxTrain(){return maxTrain;}
 		/**
 		 * Access print hmmr tracks
 		 * @return a boolean to determine whether to print the hmmr decomposed signal tracks
@@ -385,6 +390,10 @@ public class ArgParser {
 						else{stopAfterModel=false;}
 						i++;
 						break;
+					case"maxtrain":
+						maxTrain=Integer.parseInt(args[i+1]);
+						i++;
+						break;
 					case"help":
 						printUsage();
 						//System.exit(0);
@@ -425,6 +434,7 @@ public class ArgParser {
 			System.out.println("\t--window <int> Size of the bins to split the genome into for Viterbi decoding.\n\t\t To save memory, the genome is split into <int> long bins and viterbi decoding occurs across each bin. \n\t\tDefault = 25000000. Note: For machines with limited memory, it is recomended to reduce the size of the bins.");
 			System.out.println("\t--model <File> Binary model file (generated from previous HMMR run) to use instead of creating new one");
 			System.out.println("\t--modelonly <true || false> Whether or not to stop the program after generating model. Default = false");
+			System.out.println("\t--maxTrain <int> Maximum number of training regions to use. Default == 1000");
 //			System.out.println("\t--printTracks <true || false> Whether or not to print the decomposed HMMRATAC signal tracks. Tracks will be labeled as Output_NFR.bedgraph, Output_Mono.bedgraph etc. Default = false");
 			System.out.println("\t-h , --help Print this help message and exit.");
 			System.exit(0);
