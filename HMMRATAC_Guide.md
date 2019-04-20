@@ -317,7 +317,7 @@ program. Source files do not contain manifest file needed to run.
    model.  This is a helpful option when trying to determine the best
    parameters for creating the model.  Default = false.
 
-*```--maxTrain <int>```
+* ```--maxTrain <int>```
 
    Maximum number of training regions to use during model building.
    It is possible that the default number of training regions (1000) is 
