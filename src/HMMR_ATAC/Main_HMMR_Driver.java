@@ -72,7 +72,7 @@ public class Main_HMMR_Driver {
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.4";
+	private static String versionNum = "1.2.5";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
@@ -626,17 +626,19 @@ public class Main_HMMR_Driver {
 			bedgraph.close();
 		}
 		
-		counter=0;
 		
-		for (int i = 0;i < addBack.size();i++){
-			String chrom = addBack.get(i).getChrom();
-			int start = addBack.get(i).getStart();
-			int stop = addBack.get(i).getStop();
-			
-			pks.println(chrom+"\t"+start+"\t"+stop+"\t"+"HighCoveragePeak_"+counter+"\t.\t.\t0\t0\t255,0,0\t1\t"+
-			addBack.get(i).getLength()+"\t0\t-1\t-1\t-1");
-		}
 		if (peaks){
+			counter=0;
+			
+			for (int i = 0;i < addBack.size();i++){
+				String chrom = addBack.get(i).getChrom();
+				int start = addBack.get(i).getStart();
+				int stop = addBack.get(i).getStop();
+				
+				pks.println(chrom+"\t"+start+"\t"+stop+"\t"+"HighCoveragePeak_"+counter+"\t.\t.\t0\t0\t255,0,0\t1\t"+
+				addBack.get(i).getLength()+"\t0\t-1\t-1\t-1");
+			}
+			
 			pks.close();
 			summits.close();
 		}

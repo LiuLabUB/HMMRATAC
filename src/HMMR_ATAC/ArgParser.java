@@ -422,7 +422,7 @@ public class ArgParser {
 			System.out.println("\t--score <max || ave || med || fc || zscore || all> What type of score system to use for peaks. Can be used for ranking peaks. Default = max");
 			System.out.println("\t--bgscore <true || false> Whether to add the HMMR score to each state annotation in bedgraph. Note: this adds considerable time. Default = False");
 			System.out.println("\t--trim <int> How many signals from the end to trim off (ie starting with tri signal then di etc). This may be useful if your data doesn't contain many large fragments. Default = 0");
-			System.out.println("\t--window <int> Size of the bins to split the genome into for Viterbi decoding.\n\t To save memory, the genome is split into <int> long bins and viterbi decoding occurs across each bin. \n\tDefault = 25000000. Note: For machines with limited memory, it is recomended to reduce the size of the bins.");
+			System.out.println("\t--window <int> Size of the bins to split the genome into for Viterbi decoding.\n\t\t To save memory, the genome is split into <int> long bins and viterbi decoding occurs across each bin. \n\t\tDefault = 25000000. Note: For machines with limited memory, it is recomended to reduce the size of the bins.");
 			System.out.println("\t--model <File> Binary model file (generated from previous HMMR run) to use instead of creating new one");
 			System.out.println("\t--modelonly <true || false> Whether or not to stop the program after generating model. Default = false");
 //			System.out.println("\t--printTracks <true || false> Whether or not to print the decomposed HMMRATAC signal tracks. Tracks will be labeled as Output_NFR.bedgraph, Output_Mono.bedgraph etc. Default = false");
