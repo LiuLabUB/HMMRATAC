@@ -33,4 +33,4 @@ processed by HMMRATAC (see [HMMRATAC_Guide.md](./HMMRATAC_Guide.md#commandline-o
 
 If you use HMMRATAC in your research, please cite the following paper:
 
-Evan D. Tarbell and Tao Liu, "HMMRATAC, a Hidden Markov ModeleR for ATAC-seq", bioRxiv 306621, Pages 1-24, 2018. https://doi.org/10.1101/306621 
+- Evan D. Tarbell and Tao Liu, [HMMRATAC: a Hidden Markov ModeleR for ATAC-seq](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkz533/5519166), *Nucleic Acids Res.* 2019 Jun 14. doi: 10.1093/nar/gkz533
