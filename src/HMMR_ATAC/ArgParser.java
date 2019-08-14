@@ -54,6 +54,7 @@ public class ArgParser {
 		private boolean printHMMRTracks = false;
 		private String version;
 		private int maxTrain=1000;
+		private boolean rmDup=true;
 		
 		/**
 		 * Main constructor 
@@ -64,6 +65,11 @@ public class ArgParser {
 			version = ver;
 			set();
 		}
+		/**
+		 * Access whether to remove duplicate reads
+		 * @return a boolean to determine whether to exclude duplicate reads from analysis
+		 */
+		public boolean getRemoveDuplicates(){return rmDup;}
 		/**
 		 * Access the maximum number of training regions to use 
 		 */
@@ -399,6 +405,14 @@ public class ArgParser {
 						else{printHMMRTracks=false;}
 						i++;
 						break;
+					case"removeDuplicates":
+						String TEMP1_print = args[i+1].toLowerCase();
+						if (TEMP1_print.contains("t")){
+							rmDup=true;
+						}
+						else{rmDup=false;}
+						i++;
+						break;
 					case"modelonly":
 						String TEMP = args[i+1].toLowerCase();
 						if (TEMP.contains("t")){
@@ -453,6 +467,7 @@ public class ArgParser {
 			System.out.println("\t--modelonly <true || false> Whether or not to stop the program after generating model. Default = false");
 			System.out.println("\t--maxTrain <int> Maximum number of training regions to use. Default == 1000");
 //			System.out.println("\t--printTracks <true || false> Whether or not to print the decomposed HMMRATAC signal tracks. Tracks will be labeled as Output_NFR.bedgraph, Output_Mono.bedgraph etc. Default = false");
+			System.out.println("\t--removeDuplicates <true || false> Whether or not to remove duplicate reads from analysis. Default = true");
 			System.out.println("\t-h , --help Print this help message and exit.");
 			System.exit(0);
 		}

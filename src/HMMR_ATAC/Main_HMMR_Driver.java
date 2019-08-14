@@ -84,6 +84,7 @@ public class Main_HMMR_Driver {
 	private static boolean stopAfterModel = false;
 	private static boolean printHMMRTracks = false;
 	private static int maxTrain = 1000;
+	private static boolean rmDup = true;
 	
 	private static String trainingRegions;
 	
@@ -120,6 +121,7 @@ public class Main_HMMR_Driver {
 		vitWindow = p.getWindow();
 		modelFile = p.getModelFile();
 		maxTrain = p.getMaxTrain();
+		rmDup = p.getRemoveDuplicates();
 //		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
@@ -256,7 +258,7 @@ public class Main_HMMR_Driver {
 		//FoldChange fc = new FoldChange(bigWig,upper,lower,genomeStats);
 		//PullWigAboveCutoff z = new PullWigAboveCutoff(bigWig,zscore,genomeStats);
 		
-		pileup pileupData = new pileup(new SplitBed(genomeStats,vitWindow).getResult(), 0, bam, index, 0);
+		pileup pileupData = new pileup(new SplitBed(genomeStats,vitWindow).getResult(), 0, bam, index, 0,rmDup);
 //		pileup pileupData = new pileup(genomeStats, 0, bam, index, minMapQ);
 		bedGraphMath fc = new bedGraphMath(pileupData.getBedGraph());
 		pileupData = null;
@@ -347,7 +349,7 @@ public class Main_HMMR_Driver {
 			}
 			
 			
-		FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ);
+		FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ,rmDup);
 		TrackHolder holder = new TrackHolder((gen.transformTracks(gen.getAverageTracks())),trim);// 8/30/16 transformed tracks 
 		//	7/16/18 transformation removed after testing showed it has little effect with new weighted procedure 
 		
@@ -464,7 +466,7 @@ public class Main_HMMR_Driver {
 			if (vitBed.get(i).getLength() >= 10){
 				ArrayList<TagNode> tempBed = new ArrayList<TagNode>();
 				tempBed.add(vitBed.get(i));
-				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ);
+				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ,rmDup);
 				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()),trim);// 8/30/16 transformed tracks
 				
 				if (printHMMRTracks){

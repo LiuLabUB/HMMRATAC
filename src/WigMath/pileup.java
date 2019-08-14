@@ -1,4 +1,5 @@
 package WigMath;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -15,6 +16,7 @@ package WigMath;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +41,7 @@ public class pileup {
 	private static File input;
 	private static File index;
 	private static int minMapQ;
+	private static boolean rmDup;
 	
 	AbstractRealDistribution shortDist;
 	AbstractRealDistribution monoDist;
@@ -55,13 +58,14 @@ public class pileup {
 	private static ArrayList<TagNode> diBG;
 	private static ArrayList<TagNode> triBG;
 	
-	public pileup(ArrayList<TagNode> t, int s, File b, File i,int q){
+	public pileup(ArrayList<TagNode> t, int s, File b, File i,int q,boolean r){
 		
 		intervals = t;
 		start = s;
 		input = b;
 		index = i;
 		minMapQ = q;
+		rmDup=r;
 		build();
 	}
 	public pileup(ArrayList<TagNode> t, int s, File b, File i,int q,
@@ -221,7 +225,8 @@ public class pileup {
 		while (iter.hasNext()){
 			SAMRecord record = iter.next();
 			if(!record.getReadUnmappedFlag() && !record.getMateUnmappedFlag() 
-					&& record.getMappingQuality()>=minMapQ && !record.getDuplicateReadFlag()
+					&& record.getMappingQuality()>=minMapQ && 
+					!(record.getDuplicateReadFlag() && rmDup)
 					&& Math.abs(record.getInferredInsertSize()) <= 1000 && record.getInferredInsertSize() != 0) {
 				int readStart = record.getAlignmentStart();
 				int readStop = record.getAlignmentEnd();

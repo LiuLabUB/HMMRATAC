@@ -1,6 +1,6 @@
 package ATACFragments;
 
-/*
+/**
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@ package ATACFragments;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 /*
 import htsjdk.samtools.SAMFileReader;
 import htsjdk.samtools.SAMFormatException;
@@ -65,6 +64,7 @@ public class FragPileupGen {
 	AbstractRealDistribution diDist;
 	AbstractRealDistribution triDist;
 	AbstractRealDistribution quadDist;
+	private boolean rmDup;
 	
 	/**
 	 * Constructor for creating a new FragPileupGen object, which builds the data tracks
@@ -78,13 +78,14 @@ public class FragPileupGen {
 	 * @throws FileNotFoundException
 	 */
 	public FragPileupGen(File input,File index,ArrayList<TagNode> g,double[] mode, double[] means,double[] lamda,
-			int q) throws FileNotFoundException{
+			int q,boolean r) throws FileNotFoundException{
 		genome = g;
 		shortDist = getDist(mode[0],means[0],lamda[0]);
 		monoDist = getDist(mode[1],means[1],lamda[1]);
 		diDist = getDist(mode[2],means[2],lamda[2]);
 		triDist = getDist(mode[3],means[3],lamda[3]);
 		minMapQ=q;
+		rmDup = r;
 		
 		buildTracks(input,index);
 	}
@@ -265,7 +266,8 @@ public class FragPileupGen {
 				}
 				if(record != null){
 				if(!record.getReadUnmappedFlag() && !record.getMateUnmappedFlag() && record.getFirstOfPairFlag()
-						&& record.getMappingQuality()>=minMapQ && !record.getDuplicateReadFlag()) {
+						&& record.getMappingQuality()>=minMapQ && !(record.getDuplicateReadFlag() && rmDup)) {
+					
 					int start;
 					int stop;
 					if(record.getInferredInsertSize() > 0 ) {
@@ -328,7 +330,7 @@ public class FragPileupGen {
 					}
 					
 						
-				}
+				}//
 			}
 			}
 			iter.close();

@@ -16,13 +16,13 @@ package HMMR_ATAC;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 /*
 import htsjdk.samtools.SAMFileReader;
 import htsjdk.samtools.SAMFormatException;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.util.CloseableIterator;
 */
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
