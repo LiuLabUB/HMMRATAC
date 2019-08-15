@@ -28,6 +28,7 @@ Assume that you have a BAM file from aligner such as ```bwa mem``` named ```ATAC
    To filter the summit file by the same threshold:
    
    ```awk -v OFS="\t" '$5>=100 {print}' NAME_summits.bed > NAME.filteredSummits.bed```
+   
    NOTE: HMMRATAC will report all peaks that match the structure defined by the model, including weak peaks. Filtering by score 
    can be used to retain stronger peaks. Lower score = higher sensitivity and lower precision, Higher score = lower sensitivity and 
    higher precision.
