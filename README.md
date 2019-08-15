@@ -22,8 +22,11 @@ Assume that you have a BAM file from aligner such as ```bwa mem``` named ```ATAC
    
 5. Filter HMMRATAC output by the score, if desired. Score threshold will depend on dataset, score type and user preference.
    A threshold of 100 would be:
+   
    ``` awk -v OFS="\t" '$13>=100 {print}' NAME_peaks.gappedPeak > NAME.filteredPeaks.gappedPeak```
+   
    To filter the summit file by the same threshold:
+   
    ```awk -v OFS="\t" '$5>=100 {print}' NAME_summits.bed > NAME.filteredSummits.bed```
    NOTE: HMMRATAC will report all peaks that match the structure defined by the model, including weak peaks. Filtering by score 
    can be used to retain stronger peaks. Lower score = higher sensitivity and lower precision, Higher score = lower sensitivity and 
