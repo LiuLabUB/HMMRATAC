@@ -596,3 +596,25 @@ error.
    not ideal. The way to solve this issue, is the same as above,
    namely setting mote stringent parameters to create more separation
    in the values between states.
+   
+6. HMMRATAC produces too many peaks. What to keep?
+
+   By default, HMMRATAC will report all peak regions that match the learned 
+   model. This includes weaker peaks that have the characteristic patterns of
+   nucleosome-free and nucleosome-enriched fragments but whose read depth is low.
+   It is often necessary to filter the resulting peaks by their score, in order 
+   to eliminate these weak peaks, if that is desired. As an example, say you called 
+   peaks and wanted to keep only those whose score (defined by the --score option - 
+   default is maximum reads in the peak) is greater than or equal to 10. You 
+   could use the following command to filter the peak file:
+   
+    ``` awk -v OFS="\t" '$13>=10 {print}' NAME_peaks.gappedPeak > NAME.filteredPeaks.gappedPeak```
+   
+   To filter the summit file by the same threshold:
+   
+   ```awk -v OFS="\t" '$5>=10 {print}' NAME_summits.bed > NAME.filteredSummits.bed```
+   
+   Generally speaking, the higher the threshold that is used for filtering, the higher
+   the precision will be and the lower the sensitivity will be.  A lower score will
+   result in higher sensitivity and lower precision.
+   
