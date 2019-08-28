@@ -30,6 +30,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
@@ -286,7 +287,8 @@ public class Main_HMMR_Driver {
 //			maxTrain = train.size();
 //		}
 		
-		
+		//Shuffle training list before choosing.
+		Collections.shuffle(train, new Random(3));
 		for (int i = 0;i < maxTrain;i++){
 			newTrain.add(train.get(i));
 		}
