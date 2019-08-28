@@ -86,13 +86,15 @@ public class Main_HMMR_Driver {
 	private static boolean printHMMRTracks = false;
 	private static int maxTrain = 1000;
 	private static boolean rmDup = true;
+	private static boolean printExclude = false;
+	private static boolean printTrain = true;
 	
 	private static String trainingRegions;
 	
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.6";
+	private static String versionNum = "1.2.7";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
@@ -123,6 +125,8 @@ public class Main_HMMR_Driver {
 		modelFile = p.getModelFile();
 		maxTrain = p.getMaxTrain();
 		rmDup = p.getRemoveDuplicates();
+		printExclude = p.getPrintExclude();
+		printTrain = p.getPrintTrain();
 //		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
@@ -307,8 +311,12 @@ public class Main_HMMR_Driver {
 			exclude = new MergeBed(exclude).getResults();//added 8-3-18
 		}
 			
-		for (int c = 0;c < exclude.size();c++){
-			System.out.println(exclude.get(c).toString()+"\t"+"exclude");
+		if(printExclude){
+			PrintStream ex = new PrintStream(output+"_excluded.bed");
+			for (int c = 0;c < exclude.size();c++){
+				ex.println(exclude.get(c).toString()+"\t"+"exclude");
+			}
+			ex.close();
 		}
 		
 		
@@ -346,32 +354,35 @@ public class Main_HMMR_Driver {
 		 */
 		if (modelFile == null){
 		
-			for (int i = 0;i < train.size();i++){
-				System.out.println(train.get(i).toString()+"\t"+"training");
+			
+			if (printTrain) {
+				PrintStream tr = new PrintStream(output + "_training.bed");
+				for (int i = 0; i < train.size(); i++) {
+					tr.println(train.get(i).toString() + "\t" + "training");
+				}
+				tr.close();
 			}
+			FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ,rmDup);
+			TrackHolder holder = new TrackHolder((gen.transformTracks(gen.getAverageTracks())),trim);// 8/30/16 transformed tracks 
+			//	7/16/18 transformation removed after testing showed it has little effect with new weighted procedure 
 			
 			
-		FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ,rmDup);
-		TrackHolder holder = new TrackHolder((gen.transformTracks(gen.getAverageTracks())),trim);// 8/30/16 transformed tracks 
-		//	7/16/18 transformation removed after testing showed it has little effect with new weighted procedure 
+			gen = null;
+			
+			log.println("Training Fragment Pileup completed");
+			
+			/*
+			 * Create the initial model using KMeans and then refine it using Baum-Welch
+			 */
+			
+			KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(),k,Integer.MAX_VALUE,true,true,true);
+			log.println("Kmeans Model:\n"+kmeans.getHMM().toString()); // added 7-13-18
+			//System.out.println(kmeans.getHMM().toString());
+			
+			hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs(),1000).build();
 		
-		
-		gen = null;
-		
-		log.println("Training Fragment Pileup completed");
-		
-		/*
-		 * Create the initial model using KMeans and then refine it using Baum-Welch
-		 */
-		
-		KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(),k,Integer.MAX_VALUE,true,true,true);
-		log.println("Kmeans Model:\n"+kmeans.getHMM().toString()); // added 7-13-18
-		//System.out.println(kmeans.getHMM().toString());
-		
-		hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs(),1000).build();
-	
-		//System.out.println(hmm.toString());
-		kmeans = null; holder=null;
+			//System.out.println(hmm.toString());
+			kmeans = null; holder=null;
 		
 		}
 		/*
@@ -524,7 +535,9 @@ public class Main_HMMR_Driver {
 				pile.add(pNode);
 				genomeAnnotation.addAll(new PileupToBedGraph(pile,10).getBedGraph());
 				
-				log.println(i+" round viterbi done");
+				if(i%50 == 0 || i == vitBed.size()-1){
+					log.println(i+" round viterbi done");
+				}
 			}
 		}
 		//out.close();
