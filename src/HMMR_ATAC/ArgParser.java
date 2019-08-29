@@ -55,6 +55,9 @@ public class ArgParser {
 		private String version;
 		private int maxTrain=1000;
 		private boolean rmDup=true;
+		private boolean printExclude=false;
+		private boolean printTrain=true;
+		private long randomTrainSeed = 10151;
 		
 		/**
 		 * Main constructor 
@@ -65,6 +68,23 @@ public class ArgParser {
 			version = ver;
 			set();
 		}
+		/**
+		 * Access the seed used for random sampling of training regions
+		 * @return a long to represent the seed for random sampling of training regions
+		 */
+		public long getRandomTrainSeed(){return randomTrainSeed;}
+		/**
+		 * Access whether to print the excluded sites
+		 * @return a boolean to determine whether to print excluded sites to output file
+		 */
+		public boolean getPrintExclude(){return printExclude;}
+		
+		/**
+		 * Access whether to print the training sites
+		 * @return a boolean to determine whether to print training sites to output file
+		 */
+		public boolean getPrintTrain(){return printTrain;}
+				
 		/**
 		 * Access whether to remove duplicate reads
 		 * @return a boolean to determine whether to exclude duplicate reads from analysis
@@ -405,6 +425,22 @@ public class ArgParser {
 						else{printHMMRTracks=false;}
 						i++;
 						break;
+					case"printExclude":
+						String TEMPX_print = args[i+1].toLowerCase();
+						if (TEMPX_print.contains("t")){
+							printExclude=true;
+						}
+						else{printExclude=false;}
+						i++;
+						break;
+					case"printTrain":
+						String TEMPY_print = args[i+1].toLowerCase();
+						if (TEMPY_print.contains("t")){
+							printTrain=true;
+						}
+						else{printTrain=false;}
+						i++;
+						break;
 					case"removeDuplicates":
 						String TEMP1_print = args[i+1].toLowerCase();
 						if (TEMP1_print.contains("t")){
@@ -423,6 +459,10 @@ public class ArgParser {
 						break;
 					case"maxtrain":
 						maxTrain=Integer.parseInt(args[i+1]);
+						i++;
+						break;
+					case"randomSeed":
+						randomTrainSeed=Long.parseLong(args[i+1]);
 						i++;
 						break;
 					case"help":
@@ -468,6 +508,9 @@ public class ArgParser {
 			System.out.println("\t--maxTrain <int> Maximum number of training regions to use. Default == 1000");
 //			System.out.println("\t--printTracks <true || false> Whether or not to print the decomposed HMMRATAC signal tracks. Tracks will be labeled as Output_NFR.bedgraph, Output_Mono.bedgraph etc. Default = false");
 			System.out.println("\t--removeDuplicates <true || false> Whether or not to remove duplicate reads from analysis. Default = true");
+			System.out.println("\t--printExclude <true || false> Whether to output excluded regions into Output_exclude.bed. Default = false");
+			System.out.println("\t--printTrain <true || false> Whether to output training regions into Output_training.bed. Default = true");
+			System.out.println("\t--randomSeed <long> Seed to set for random sampling of training regions. Default is 10151");
 			System.out.println("\t-h , --help Print this help message and exit.");
 			System.exit(0);
 		}

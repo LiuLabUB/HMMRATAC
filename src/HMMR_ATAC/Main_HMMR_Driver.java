@@ -88,6 +88,7 @@ public class Main_HMMR_Driver {
 	private static boolean rmDup = true;
 	private static boolean printExclude = false;
 	private static boolean printTrain = true;
+	private static long randomTrainSeed=10151;
 	
 	private static String trainingRegions;
 	
@@ -127,6 +128,7 @@ public class Main_HMMR_Driver {
 		rmDup = p.getRemoveDuplicates();
 		printExclude = p.getPrintExclude();
 		printTrain = p.getPrintTrain();
+		randomTrainSeed = p.getRandomTrainSeed();
 //		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
@@ -292,7 +294,7 @@ public class Main_HMMR_Driver {
 //		}
 		
 		//Shuffle training list before choosing.
-		Collections.shuffle(train, new Random(3));
+		Collections.shuffle(train, new Random(randomTrainSeed));
 		for (int i = 0;i < maxTrain;i++){
 			newTrain.add(train.get(i));
 		}
