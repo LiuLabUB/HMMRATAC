@@ -271,6 +271,7 @@ public class Main_HMMR_Driver {
 		
 		//calculate the cpm scaling factor for input into FragPileupGen. Use cpmScale=1 for no scaling
 		double cpmScale = pileupData.getCPMScale()/1000000;
+		log.println("ScalingFactor\t"+cpmScale);
 		
 		pileupData = null;
 		
