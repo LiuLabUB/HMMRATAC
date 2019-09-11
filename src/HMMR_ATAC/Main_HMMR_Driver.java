@@ -268,6 +268,10 @@ public class Main_HMMR_Driver {
 		pileup pileupData = new pileup(new SplitBed(genomeStats,vitWindow).getResult(), 0, bam, index, 0,rmDup);
 //		pileup pileupData = new pileup(genomeStats, 0, bam, index, minMapQ);
 		bedGraphMath fc = new bedGraphMath(pileupData.getBedGraph());
+		
+		//calculate the cpm scaling factor for input into FragPileupGen. Use cpmScale=1 for no scaling
+		double cpmScale = pileupData.getCPMScale()/1000000;
+		
 		pileupData = null;
 		
 		
@@ -364,8 +368,8 @@ public class Main_HMMR_Driver {
 				}
 				tr.close();
 			}
-			FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ,rmDup);
-			TrackHolder holder = new TrackHolder((gen.transformTracks(gen.getAverageTracks())),trim);// 8/30/16 transformed tracks 
+			FragPileupGen gen = new FragPileupGen(bam, index, train, mode, fragMeans, fragStddevs,minMapQ,rmDup,cpmScale);
+			TrackHolder holder = new TrackHolder((gen.transformTracks(gen.scaleTracks(gen.getAverageTracks()))),trim);// 8/30/16 transformed tracks 
 			//	7/16/18 transformation removed after testing showed it has little effect with new weighted procedure 
 			
 			
@@ -481,8 +485,8 @@ public class Main_HMMR_Driver {
 			if (vitBed.get(i).getLength() >= 10){
 				ArrayList<TagNode> tempBed = new ArrayList<TagNode>();
 				tempBed.add(vitBed.get(i));
-				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ,rmDup);
-				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.getAverageTracks()),trim);// 8/30/16 transformed tracks
+				FragPileupGen vGen = new FragPileupGen(bam, index, tempBed, mode, fragMeans, fragStddevs,minMapQ,rmDup,cpmScale);
+				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.scaleTracks(vGen.getAverageTracks())),trim);// 8/30/16 transformed tracks
 				
 				if (printHMMRTracks){
 					HMMRTracksToBedgraph tracks = new HMMRTracksToBedgraph(vHolder.getRawData(),vitBed.get(i),10);

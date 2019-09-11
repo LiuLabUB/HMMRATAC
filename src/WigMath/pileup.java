@@ -57,6 +57,7 @@ public class pileup {
 	private static ArrayList<TagNode> monoBG;
 	private static ArrayList<TagNode> diBG;
 	private static ArrayList<TagNode> triBG;
+	private static double cpmScale=0;
 	
 	public pileup(ArrayList<TagNode> t, int s, File b, File i,int q,boolean r){
 		
@@ -86,6 +87,7 @@ public class pileup {
 		buildHMMRTrack();
 		
 	}
+	public double getCPMScale(){return cpmScale;}
 	public ArrayList<TagNode> getBedGraph(){return bdg;}
 	public ArrayList<TagNode> getShortBedGraph(){return shortBG;}
 	public ArrayList<TagNode> getMonoBedGraph(){return monoBG;}
@@ -235,6 +237,8 @@ public class pileup {
 //					readStart = record.getAlignmentEnd() + record.getInferredInsertSize() + 1;
 //					readStop = record.getAlignmentEnd();	
 //				}
+				
+				cpmScale++;
 				if (readStart < t.getStart()){
 					readStart = t.getStart();
 				}

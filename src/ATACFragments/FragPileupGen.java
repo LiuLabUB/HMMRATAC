@@ -65,6 +65,7 @@ public class FragPileupGen {
 	AbstractRealDistribution triDist;
 	AbstractRealDistribution quadDist;
 	private boolean rmDup;
+	private double scale;
 	
 	/**
 	 * Constructor for creating a new FragPileupGen object, which builds the data tracks
@@ -78,7 +79,7 @@ public class FragPileupGen {
 	 * @throws FileNotFoundException
 	 */
 	public FragPileupGen(File input,File index,ArrayList<TagNode> g,double[] mode, double[] means,double[] lamda,
-			int q,boolean r) throws FileNotFoundException{
+			int q,boolean r,double s) throws FileNotFoundException{
 		genome = g;
 		shortDist = getDist(mode[0],means[0],lamda[0]);
 		monoDist = getDist(mode[1],means[1],lamda[1]);
@@ -86,6 +87,7 @@ public class FragPileupGen {
 		triDist = getDist(mode[3],means[3],lamda[3]);
 		minMapQ=q;
 		rmDup = r;
+		scale=s;
 		
 		buildTracks(input,index);
 	}
@@ -175,7 +177,23 @@ public class FragPileupGen {
 		}
 		
 	}
-	
+	/**
+	 * Perform a scaling of the tracks based on inputted scaling factor.
+	 * @param ori an ArrayList containing the data to be transformed as an array of doubles.
+	 * @return a new ArrayList of arrays of doubles containing the transformed data.
+	 */
+	public ArrayList<double[]> scaleTracks(ArrayList<double[]> ori){
+		ArrayList<double[]> trans = new ArrayList<double[]>();
+		for (int i = 0;i < ori.size();i++){
+			double[] temp = new double[4];
+			temp[0] = (ori.get(i)[0]/scale);
+			temp[1] = (ori.get(i)[1]/scale);
+			temp[2] = (ori.get(i)[2]/scale);
+			temp[3] = (ori.get(i)[3]/scale);
+			trans.add(temp);
+		}
+		return trans;
+	}
 	/**
 	 * Perform a square root transformation of the tracks.
 	 * @param ori an ArrayList containing the data to be transformed as an array of doubles.
