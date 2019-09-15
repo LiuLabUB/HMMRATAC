@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -15,6 +16,7 @@ package Node;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 import java.util.Comparator;
 
 import net.sf.samtools.SAMRecord;
@@ -365,6 +367,7 @@ public class TagNode {
             double PeakScore1 = node1.getStart();
             double PeakScore2 = node2.getStart();
             if (PeakScore1 < PeakScore2) return -1;
+            else if(PeakScore1 == PeakScore2) return 0;
             else return 1;
     }
     };

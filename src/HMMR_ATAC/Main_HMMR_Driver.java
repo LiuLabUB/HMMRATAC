@@ -95,7 +95,7 @@ public class Main_HMMR_Driver {
 	/*
 	 * Version number. Change as needed
 	 */
-	private static String versionNum = "1.2.7";
+	private static String versionNum = "1.2.9";
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
