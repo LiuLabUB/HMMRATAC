@@ -58,6 +58,7 @@ public class ArgParser {
 		private boolean printExclude=false;
 		private boolean printTrain=true;
 		private long randomTrainSeed = 10151;
+		private double threshold = 30;
 		
 		/**
 		 * Main constructor 
@@ -68,6 +69,11 @@ public class ArgParser {
 			version = ver;
 			set();
 		}
+		/**
+		 * Access the threshold for reporting peaks
+		 * @return a double to represent the threshold
+		 */
+		public double getThreshold(){return threshold;}
 		/**
 		 * Access the seed used for random sampling of training regions
 		 * @return a long to represent the seed for random sampling of training regions
@@ -465,6 +471,10 @@ public class ArgParser {
 						randomTrainSeed=Long.parseLong(args[i+1]);
 						i++;
 						break;
+					case"threshold":
+						threshold = Double.parseDouble(args[i+1]);
+						i++;
+						break;
 					case"help":
 						printUsage();
 						//System.exit(0);
@@ -511,6 +521,7 @@ public class ArgParser {
 			System.out.println("\t--printExclude <true || false> Whether to output excluded regions into Output_exclude.bed. Default = false");
 			System.out.println("\t--printTrain <true || false> Whether to output training regions into Output_training.bed. Default = true");
 			System.out.println("\t--randomSeed <long> Seed to set for random sampling of training regions. Default is 10151");
+			System.out.println("\t--threshold <double> threshold for reporting peaks. Only peaks who's score is >= this value will be reported.");
 			System.out.println("\t-h , --help Print this help message and exit.");
 			System.exit(0);
 		}

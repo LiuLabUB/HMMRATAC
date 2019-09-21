@@ -89,6 +89,7 @@ public class Main_HMMR_Driver {
 	private static boolean printExclude = false;
 	private static boolean printTrain = true;
 	private static long randomTrainSeed=10151;
+	private static double threshold=0;
 	
 	private static String trainingRegions;
 	
@@ -129,6 +130,7 @@ public class Main_HMMR_Driver {
 		printExclude = p.getPrintExclude();
 		printTrain = p.getPrintTrain();
 		randomTrainSeed = p.getRandomTrainSeed();
+		threshold=p.getThreshold();
 //		printHMMRTracks = p.getPrintHMMRTracks(); 
 		//For run time calculation
 		Long startTime = System.currentTimeMillis();
@@ -654,7 +656,8 @@ public class Main_HMMR_Driver {
 					 * report the peaks and summits, if desired
 					 */
 					if (peaks && (int) temp.getScore2() == peak
-							&& temp.getLength() >= minLength) {
+							&& temp.getLength() >= minLength && 
+							Double.parseDouble(temp.getScore3()) >= threshold) {
 						if (temp.getSummit() != null) {
 							summits.println(temp.toString_ScoredSummit());
 						}
