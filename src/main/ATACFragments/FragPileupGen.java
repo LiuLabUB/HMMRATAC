@@ -32,17 +32,6 @@ import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 
-
-
-
-
-
-
-
-
-
-
-
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 //import org.apache.commons.math3.distribution.LaplaceDistribution;
@@ -50,8 +39,6 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 
 import JAHMMTest.Slope;
 import Node.TagNode;
-
-
 
 public class FragPileupGen {
 	private ArrayList<TagNode> genome;

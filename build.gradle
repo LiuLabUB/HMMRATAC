@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'be.ac.ulg.montefiore.run.jahmm:jahmm:0.6.2'
+    compile 'org.apache.commons:commons-math3:3.6.1'
+    compile 'net.sourceforge:javaml:0.1.7'
+    compile 'net.sf.samtools:samtools:1.93'
+    testImplementation 'junit:junit:4.12' 
+}
+
+group = 'HMMR_ATAC'
+version = '1.2.10'
+description = """Hidden Markov Model for ATAC-seq"""
+mainClassName = 'HMMR_ATAC.Main_HMMR_Driver'
+
