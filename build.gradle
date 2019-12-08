@@ -5,6 +5,12 @@ plugins {
 
 repositories {
     jcenter()
+    maven {
+        url "https://bio.informatik.uni-jena.de/repository/libs-release-oss/"
+    }
+    maven {
+        url "http://hadoop-bam.sourceforge.net/maven/"
+    }
 }
 
 dependencies {
