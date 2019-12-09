@@ -17,7 +17,6 @@ jobs:
       run: ./gradlew execJar
 
     - uses: actions/upload-artifact@v1
-      if: failure()
       with:
         name: HMMRATAC-snapshot-exec.jar
         path: build/lib
