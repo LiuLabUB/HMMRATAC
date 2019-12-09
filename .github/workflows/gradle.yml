@@ -20,4 +20,4 @@ jobs:
       if: failure()
       with:
         name: HMMRATAC-snapshot-exec.jar
-	path: build/lib
+        path: build/lib
