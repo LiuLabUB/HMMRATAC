@@ -29,8 +29,9 @@ task execJar(type: Jar) {
     manifest {
         attributes "Main-Class": "HMMR_ATAC.Main_HMMR_Driver"
     }
-    baseName = "HMMRATAC"
+    archiveBaseName = "HMMRATAC"
     archiveClassifier = "exec"
+    archiveVersion = "snapshot"
     doFirst {
         from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } 
     }

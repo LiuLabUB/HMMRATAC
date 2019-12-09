@@ -19,5 +19,5 @@ jobs:
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
-        name: *-exec.jar
+        name: HMMRATAC-snapshot-exec.jar
 	path: build/lib/
