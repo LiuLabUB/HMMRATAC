@@ -14,4 +14,10 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew execJar
+
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: *-exec.jar
+	path: build/lib/
