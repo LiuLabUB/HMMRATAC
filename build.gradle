@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    flatDir {
+        dirs 'ThirdPartyJARS/'
+    }
+}
+
+dependencies {
+    implementation 'be.ac.ulg.montefiore.run.jahmm:jahmm:0.6.1'
+    implementation 'org.apache.commons:commons-math3:3.5'
+    implementation 'net.sourceforge:javaml:0.1.7'
+    implementation 'net.sf.samtools:sam:1.97'
+    implementation 'org.broad.igv:BigWig'
+}
+
+group = 'HMMRATAC'
+version = '1.2.10'
+description = """Hidden Markov Model for ATAC-seq"""
+
+application {
+    mainClassName = 'HMMR_ATAC.Main_HMMR_Driver'
+}
+
+task execJar(type: Jar) {
+    manifest {
+        attributes "Main-Class": "HMMR_ATAC.Main_HMMR_Driver"
+    }
+    archiveBaseName = "HMMRATAC"
+    archiveClassifier = "exec"
+    archiveVersion = "snapshot"
+    doFirst {
+        from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } 
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
+    with jar
+}

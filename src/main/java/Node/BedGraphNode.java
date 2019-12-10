@@ -25,7 +25,7 @@ public class BedGraphNode extends Node.TagNode{
 	private int _stop;
 	private int _score;
 	private double _score2;
-	private double _score3;
+	private String _score3;
 	
 	public BedGraphNode(String chr,int start,int stop,int score){
 		_chrom = chr;
@@ -42,7 +42,7 @@ public class BedGraphNode extends Node.TagNode{
 	public BedGraphNode(){
 		
 	}
-	public BedGraphNode(String chr,int start,int stop,double score,double s){
+    public BedGraphNode(String chr,int start,int stop,double score,String s){
 		_chrom = chr;
 		_start = start;
 		_stop = stop;
@@ -60,6 +60,6 @@ public class BedGraphNode extends Node.TagNode{
 	public void setScore(int s){_score = s;}
 	public double getScore2(){return _score2;}
 	public void setScore2(double s){_score2 = s;}
-	public double getScore3(){return _score3;}
-	public void setScore3(double score){_score3 = score;}
+	public String getScore3(){return _score3;}
+	public void setScore3(String score){_score3 = score;}
 }
