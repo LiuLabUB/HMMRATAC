@@ -1,0 +1,69 @@
+Version:	1.2.9
+Arguments Used:
+-b	65283_treat_rep1.chr22.20to30MB.bam
+-i	65283_treat_rep1.chr22.20to30MB.bam.bai
+-g	hg19.chr22.genome
+--window	100000
+-o	65283_chr22_20to30MB
+-p	true
+-u	20
+-l	10
+Fragment Expectation Maximum Done
+Mean	50.0	StdDevs	20.0
+Mean	182.17175917152832	StdDevs	40.68592596649732
+Mean	359.5832398292082	StdDevs	41.09125945615911
+Mean	527.5501422573168	StdDevs	48.44333621164874
+ScalingFactor	0.215267
+Training Regions found and Zscore regions for exclusion found
+Training Fragment Pileup completed
+Kmeans Model:
+HMM with 3 state(s)
+
+State 0
+  Pi: 0.3333333333333333
+  Aij: 0.333 0.333 0.333
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 0.372 0.676 0.286 0.081 ]
+
+State 1
+  Pi: 0.3333333333333333
+  Aij: 0.333 0.333 0.333
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 1.341 2.996 1.291 0.3 ]
+
+State 2
+  Pi: 0.3333333333333333
+  Aij: 0.333 0.333 0.333
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 3.777 6.505 4.572 2.042 ]
+
+Model created and refined. See 65283_chr22_20to30MB.model
+Model:
+HMM with 3 state(s)
+
+State 0
+  Pi: 0.3333333333333333
+  Aij: 0.942 0.05 0.008
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 0 0 0 0 ]
+
+State 1
+  Pi: 0.3333333333333333
+  Aij: 0.036 0.948 0.016
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 1.195 2.339 0.055 0 ]
+
+State 2
+  Pi: 0.3333333333333333
+  Aij: 0.006 0.013 0.981
+  Opdf: Multi-variate Gaussian distribution --- Mean: [ 1.347 2.871 2.253 0.666 ]
+
+Genome split and subtracted masked regions
+0 round viterbi done
+50 round viterbi done
+100 round viterbi done
+150 round viterbi done
+200 round viterbi done
+250 round viterbi done
+300 round viterbi done
+350 round viterbi done
+400 round viterbi done
+450 round viterbi done
+500 round viterbi done
+513 round viterbi done
+Total time (seconds)= 	2435
