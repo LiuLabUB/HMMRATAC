@@ -28,6 +28,7 @@ import org.apache.commons.math3.distribution.LaplaceDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMFormatException;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import FormatConverters.PileupToBedGraph;
@@ -224,38 +225,49 @@ public class pileup {
 		SAMFileReader reader = new SAMFileReader(input,index);
 		CloseableIterator<SAMRecord> iter = reader.query(t.getChrom(), t.getStart(), 
 				t.getStop(), false);
+		
 		while (iter.hasNext()){
-			SAMRecord record = iter.next();
-			if(!record.getReadUnmappedFlag() && !record.getMateUnmappedFlag() 
-					&& record.getMappingQuality()>=minMapQ && 
-					!(record.getDuplicateReadFlag() && rmDup)
-					&& Math.abs(record.getInferredInsertSize()) <= 1000 && record.getInferredInsertSize() != 0) {
-				int readStart = record.getAlignmentStart();
-				int readStop = record.getAlignmentEnd();
-//				int readStop= record.getAlignmentStart() + record.getInferredInsertSize() - 1;
-//				if (record.getInferredInsertSize() < 0 ) {
-//					readStart = record.getAlignmentEnd() + record.getInferredInsertSize() + 1;
-//					readStop = record.getAlignmentEnd();	
-//				}
-				
-				cpmScale++;
-				if (readStart < t.getStart()){
-					readStart = t.getStart();
-				}
-				if (readStop < t.getStart()){
-					readStop = t.getStart();
-				}
-				if (readStop >= t.getStop()){
-					readStop = t.getStop()-1;
-				}
-				if (readStart >= t.getStop()){
-					readStart = t.getStop()-1;
-				}
-				temp[readStart - t.getStart()]++;
-				temp[readStop - t.getStart()]--;
-				
-					
+			SAMRecord record = null;
+			try{
+				record = iter.next();
 			}
+			catch(SAMFormatException ex){
+				System.out.println("SAM Record is problematic. Has mapQ != 0 for unmapped read. Will continue anyway");
+			}
+			if(record != null){
+				if (!record.getReadUnmappedFlag()
+						&& !record.getMateUnmappedFlag()
+						&& record.getMappingQuality() >= minMapQ
+						&& !(record.getDuplicateReadFlag() && rmDup)
+						&& Math.abs(record.getInferredInsertSize()) <= 1000
+						&& record.getInferredInsertSize() != 0) {
+					int readStart = record.getAlignmentStart();
+					int readStop = record.getAlignmentEnd();
+					//				int readStop= record.getAlignmentStart() + record.getInferredInsertSize() - 1;
+					//				if (record.getInferredInsertSize() < 0 ) {
+					//					readStart = record.getAlignmentEnd() + record.getInferredInsertSize() + 1;
+					//					readStop = record.getAlignmentEnd();	
+					//				}
+
+					cpmScale++;
+					if (readStart < t.getStart()) {
+						readStart = t.getStart();
+					}
+					if (readStop < t.getStart()) {
+						readStop = t.getStart();
+					}
+					if (readStop >= t.getStop()) {
+						readStop = t.getStop() - 1;
+					}
+					if (readStart >= t.getStop()) {
+						readStart = t.getStop() - 1;
+					}
+					temp[readStart - t.getStart()]++;
+					temp[readStop - t.getStart()]--;
+
+				}
+			}
+			
 		}
 		iter.close();
 		reader.close();
