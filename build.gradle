@@ -4,6 +4,7 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
     flatDir {
         dirs 'ThirdPartyJARS/'
     }
@@ -15,6 +16,7 @@ dependencies {
     implementation 'net.sourceforge:javaml:0.1.7'
     implementation 'net.sf.samtools:sam:1.97'
     implementation 'org.broad.igv:BigWig'
+    implementation 'com.beust:jcommander:1.82'
 }
 
 group = 'HMMRATAC'
