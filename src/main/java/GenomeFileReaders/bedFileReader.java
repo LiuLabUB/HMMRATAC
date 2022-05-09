@@ -30,19 +30,18 @@ import Node.TagNode;
 
 public class bedFileReader {
 	
-	private File file;
+	private final File file;
 	private ArrayList<TagNode> data;
-	private int minQ=0;
-	private boolean rmDup = false;
-	
-	
+	private final int minQ=0;
+	private final boolean rmDup = false;
+
 	/**
 	 * Constructor which reads data
 	 * @param f a BED File containing the data
 	 */
 	public bedFileReader(File f){
 		file = f;
-		setData();
+		setData(rmDup);
 	}
 	/**
 	 * Constructor that reads data. Uses name of file
@@ -50,47 +49,35 @@ public class bedFileReader {
 	 */
 	public bedFileReader(String f){
 		file = new File(f);
-		setData();
+		setData(rmDup);
 	}
 	/**
 	 * Method for determining which regions of the genome are mappable 
 	 * @return an ArrayList of TagNode's representing the mappable regions
 	 */
 	public ArrayList<TagNode> getMappable(){
-		ArrayList<TagNode> mappable = new ArrayList<TagNode>();
-		
-		Node.TagNode temp = null;
-		
-		HashMap<String,Point> chrMap = new HashMap<String,Point>();
-		for(int i = 0;i < data.size();i++){
-			
-					
-				String chr = data.get(i).getChrom();
-				int start = data.get(i).getStart();
-				int stop = data.get(i).getStop();
-				if (chrMap.containsKey(chr)){
-					Point coords = chrMap.get(chr);
-					int a = coords.x;
-					int b = coords.y;
-					if (start < a){
-						coords.x = start;
-					}
-					if (stop > b){
-						coords.y = stop;
-					}
-					chrMap.put(chr, coords);
-				}
-				else if(!chrMap.containsKey(chr)){
-					Point coords = new Point(start,stop);
-					chrMap.put(chr, coords);
-				}
-				
+		ArrayList<TagNode> mappable = new ArrayList<>();
+		HashMap<String,Point> chrMap = new HashMap<>();
+
+		for (TagNode datum : data) {
+
+			String chr = datum.getChrom();
+			int start = datum.getStart();
+			int stop = datum.getStop();
+			Point coords;
+			if (chrMap.containsKey(chr)) {
+				coords = chrMap.get(chr);
+				coords.x = Math.min(start, coords.x);
+				coords.y = Math.max(stop, coords.y);
+			} else {
+				coords = new Point(start, stop);
+			}
+			chrMap.put(chr, coords);
 		}
 		
 		for (String chr : chrMap.keySet()){
 			Point p = chrMap.get(chr);
-			temp = new TagNode(chr,p.x,p.y);
-			mappable.add(temp);
+			mappable.add(new TagNode(chr,p.x,p.y));
 		}	
 		return mappable;
 	}
@@ -101,63 +88,53 @@ public class bedFileReader {
 	public ArrayList<TagNode> getData(){
 		return data;
 	}
+
 	/**
 	 * Access the accepted BED File formats
 	 * @return a String that represents the BED File formats that can be parsed
 	 */
 	public String bedFormats(){
-		return "BED3: <chr> <start> <stop>"+"\n"+"BED6: <chr> <start> <stop> <name> <mapQualScore> <strand>"+"\n"+
+		return "BED3: <chr> <start> <stop>\nBED6: <chr> <start> <stop> <name> <mapQualScore> <strand>\n" +
 				"BEDPE: <chr1> <start1> <stop1> <chr2> <start2> <stop2> <name> <mapQ> <strand1> <strand2>";
 	}
+
 	/**
 	 * Read the input file and set the data
 	 */
-	private void setData(){
-		data = new ArrayList<TagNode>();
-		TagNode temp = null;
-		Scanner inFile = null;
-		try{
-			inFile = new Scanner((Readable) new FileReader(file));
+	private void setData(boolean rmDup) {
+		data = new ArrayList<>();
+		try {
+			Scanner inFile = new Scanner(new FileReader(file));
+			while (inFile.hasNextLine()) {
+				String line = inFile.nextLine();
+				String[] fields = line.split("\\s+");
+
+				if (fields.length == 3 && isBED(fields)) {
+					data.add(readMinBED(fields));
+				} else if (fields.length > 6 && bedpe(fields)) {
+					data.add(readBEDPE(fields));
+				} else if (fields.length == 6 && bedSix(fields)) {
+					data.add(readBEDSix(fields));
+				} else if (isBED(fields)) {
+					data.add(readMinBED(fields));
+				}
+			}
+			if (rmDup) {
+				data = removeDup();
+			}
 		}
-		catch(FileNotFoundException e){
+		catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		int counter = 0;
-		while (inFile.hasNextLine()){
-			String line = inFile.nextLine();
-			String[] fields = line.split("\\s+");
-			//System.out.println("length of fields"+"\t"+fields.length);
-			if (fields.length == 3 && isBED(fields)){
-				temp = readMinBED(fields);
-				data.add(temp);
-			}
-			else if (fields.length > 6 && bedpe(fields) ){
-				temp = readBEDPE(fields);
-				data.add(temp);
-			}
-			else if (fields.length == 6 && bedSix(fields)){
-				temp = readBEDSix(fields);
-				if (counter % 1000000 == 0){System.out.println("reading bedsix");}
-				data.add(temp);
-			}
-			else if (isBED(fields)){
-				temp = readMinBED(fields);
-				data.add(temp);
-			}
-			//if (counter % 1000000 == 0){System.out.println(counter);}
-			counter+=1;
-		}
-		if (rmDup == true){
-			data = removeDup();
-		}
 	}
+
 	/**
 	 * Method for reading BED-six formatted files
 	 * @param line an Array of Strings representing a line in the BED File
 	 * @return	a TagNode representing the BED data
 	 */
-	private TagNode readBEDSix(String[] line){
-		TagNode temp = null;
+	private TagNode readBEDSix(String[] line) {
+		TagNode node = null;
 		String chr = line[0];
 		int start = Integer.parseInt(line[1]);
 		int stop = Integer.parseInt(line[2]);
@@ -165,17 +142,18 @@ public class bedFileReader {
 		int mapQ = Integer.parseInt(line[4]);
 		char s1 = line[5].charAt(0);
 		if (mapQ >= minQ){
-			temp = new TagNode(chr,start,stop,name,mapQ,s1);
+			node = new TagNode(chr, start, stop, name, mapQ, s1);
 		}
-		return temp;
+		return node;
 	}
+
 	/**
 	 * Method for reading BEDPE formatted files
 	 * @param line an Array of Strings representing a line in the BED File
 	 * @return	a TagNode representing the BED data
 	 */
-	private TagNode readBEDPE(String[] line){
-		TagNode temp = null;
+	private TagNode readBEDPE(String[] line) {
+		TagNode node = null;
 		String chr = line[0];
 		int start = Integer.parseInt(line[1]);
 		int stop = Integer.parseInt(line[2]);
@@ -183,23 +161,23 @@ public class bedFileReader {
 		int stop2 = Integer.parseInt(line[5]);
 		int mapQ = Integer.parseInt(line[7]);
 		
-		if (mapQ >= minQ){
-			temp = new TagNode(chr,Math.min(start, start2),Math.max(stop, stop2));
+		if (mapQ >= minQ) {
+			node = new TagNode(chr, Math.min(start, start2), Math.max(stop, stop2));
 		}
-		return temp;
+		return node;
 		
 	}
+
 	/**
 	 * Method for reading BED-three formatted files
 	 * @param line an Array of Strings representing a line in the BED File
 	 * @return	a TagNode representing the BED data
 	 */
-	private TagNode readMinBED(String[] line){
+	private TagNode readMinBED(String[] line) {
 		String chr = line[0];
 		int start = Integer.parseInt(line[1]);
 		int stop = Integer.parseInt(line[2]);
-		TagNode temp = new TagNode(chr,start,stop);
-		return temp;
+		return new TagNode(chr,start,stop);
 	}
 	
 	/**
@@ -207,27 +185,24 @@ public class bedFileReader {
 	 * @return an ArrayList of TagNode representing the data with duplicates removed
 	 */
 	private ArrayList<TagNode> removeDup(){
-		if (rmDup == true){
-			HashSet<String> map = new HashSet<String>();
-			for (int i = 0; i < data.size();i++){
-				String chr = data.get(i).getChrom();
-				int start = data.get(i).getStart();
-				int stop = data.get(i).getStop();
-				String key = chr+"_"+start+"_"+stop;
-				map.add(key);
-			}
-			ArrayList<TagNode> temp = new ArrayList<TagNode>();
-			for (String key: map){
-				String[] line = key.split("_");
-				String chr = line[0];
-				int start = Integer.parseInt(line[1]);
-				int stop = Integer.parseInt(line[2]);
-				TagNode tempNode = new TagNode(chr,start,stop);
-				temp.add(tempNode);
-			}
-			return temp;
+		HashSet<String> map = new HashSet<>();
+		for (TagNode datum : data) {
+			String chr = datum.getChrom();
+			int start = datum.getStart();
+			int stop = datum.getStop();
+			String key = chr + "_" + start + "_" + stop;
+			map.add(key);
 		}
-		else{return null;}
+		ArrayList<TagNode> list = new ArrayList<>();
+		for (String key: map){
+			String[] line = key.split("_");
+			String chr = line[0];
+			int start = Integer.parseInt(line[1]);
+			int stop = Integer.parseInt(line[2]);
+			TagNode tempNode = new TagNode(chr, start, stop);
+			list.add(tempNode);
+		}
+		return list;
 	}
 	
 	/**
@@ -235,38 +210,33 @@ public class bedFileReader {
 	 * @param line an Array of Strings representing a line in the BED File
 	 * @return a boolean representing whether the data is in BEDPE format
 	 */
-	private boolean bedpe(String[] line){
+	private boolean bedpe(String[] line) {
 		try {
-			if (isBED(line)){
-				String[] temp = new String[3];
-				temp[0] = line[3];temp[1]=line[4];temp[2]=line[5];
-				if (isBED(temp) && Math.round(Integer.parseInt(line[7])) == Integer.parseInt(line[7]) 
-						&& line[8].equals("+") || line[8].equals("-") 
-						&& line[9].equals("+") || line[9].equals("-")){
-						return true;
-				}
-				else{return false;}
+			if (isBED(line)) {
+				String[] arr = {line[3], line[4], line[5]};
+
+				return isBED(arr) && Math.round(Integer.parseInt(line[7])) == Integer.parseInt(line[7])
+						&& line[8].equals("+") || line[8].equals("-")
+						&& line[9].equals("+") || line[9].equals("-");
 			}
-			else{return false;}
+			else {return false;}
 		}
-		catch(NumberFormatException e){
+		catch (NumberFormatException e) {
 			return false;
 		}
 	}
+
 	/**
 	 * Determine if the file is in BED-six format
 	 * @param line an Array of Strings representing a line in the BED File
 	 * @return a boolean representing whether the data is in BED-six format
 	 */
-	private boolean bedSix(String[] line){
+	private boolean bedSix(String[] line) {
 		try {
-			if (isBED(line) && Math.round(Integer.parseInt(line[4])) == Integer.parseInt(line[4]) && (line[5].equals("+"))
-					|| line[5].equals("-")){
-				return true;
-			}
-			else{return false;}
+			return isBED(line) && Math.round(Integer.parseInt(line[4])) == Integer.parseInt(line[4])
+					&& (line[5].equals("+")) || line[5].equals("-");
 		}
-		catch(NumberFormatException e){
+		catch (NumberFormatException e) {
 			return false;
 		}
 	}
@@ -278,21 +248,13 @@ public class bedFileReader {
 	 */
 	private boolean isBED(String[] line){
 		try{
-			if (line[0].startsWith("chr") || line[0].contains("X") || line[0].contains("Y") || line[0].contains("M")
+			return line[0].startsWith("chr") || line[0].contains("X") || line[0].contains("Y") || line[0].contains("M")
 					|| Math.round(Integer.parseInt(line[0])) == Integer.parseInt(line[0])
-					&& Math.round(Integer.parseInt(line[1]))==Integer.parseInt(line[1])
-					&& Math.round(Integer.parseInt(line[2]))==Integer.parseInt(line[2])){
-				return true;
-			
-			}
-			else{return false;}
+					&& Math.round(Integer.parseInt(line[1])) == Integer.parseInt(line[1])
+					&& Math.round(Integer.parseInt(line[2])) == Integer.parseInt(line[2]);
 		}
-		catch (NumberFormatException e){
+		catch (NumberFormatException e) {
 			return false;
 		}
 	}
-	
-	
-
-	
 }

@@ -80,8 +80,7 @@ public class Main_HMMR_Driver {
 		}
 		
 		//Read in genome size stats
-		GenomeFileReader gReader = new GenomeFileReader(parser.genomeFile);
-		ArrayList<TagNode> genomeStats = gReader.getMap();
+		ArrayList<TagNode> genomeStats = new GenomeFileReader(parser.genomeFile).getMap();
 		
 		//Read in blacklisted if inputted
 		ArrayList<TagNode> black = null;
@@ -361,7 +360,18 @@ public class Main_HMMR_Driver {
 		}
 		//out.close();
 		if (parser.printHMMRTracks) {
-			NFR.close();MONO.close();DI.close();TRI.close();
+			if (NFR != null) {
+				NFR.close();
+			}
+			if (MONO != null) {
+				MONO.close();
+			}
+			if (DI != null) {
+				DI.close();
+			}
+			if (TRI != null) {
+				TRI.close();
+			}
 		}
 		/*
 		 * Report the final results as peaks, bedgraphs and summits, if desired
@@ -508,4 +518,3 @@ public class Main_HMMR_Driver {
 		log.close();
 	}//main
 }
-
