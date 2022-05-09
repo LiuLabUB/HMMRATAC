@@ -23,20 +23,20 @@ import java.util.ArrayList;
 
 public class ExtendBed {
 	
-	private ArrayList<TagNode> input;
-	private int extSize;
-	private ArrayList<TagNode> output;
+	private final ArrayList<TagNode> input;
+	private final int extSize;
+	private final ArrayList<TagNode> output;
 	
 	/**
 	 * Constructor for creating ExtendBed object and performing extension
 	 *
-	 * @param i   an ArrayList of TagNode representing the BED data to be extended
-	 * @param ext an integer representing the upstream and downstream extension size
+	 * @param input	an ArrayList of TagNode representing the BED data to be extended
+	 * @param ext	an integer representing the upstream and downstream extension size
 	 */
-	public ExtendBed(ArrayList<TagNode> i, int ext) {
-		input = i;
-		extSize = ext;
-		output = new ArrayList<TagNode>();
+	public ExtendBed(ArrayList<TagNode> input, int ext) {
+		this.input = input;
+		this.extSize = ext;
+		this.output = new ArrayList<>();
 		set();
 	}
 	
@@ -54,15 +54,14 @@ public class ExtendBed {
 	 */
 	private void set() {
 		
-		for (int i = 0; i < input.size(); i++) {
-			String chr = input.get(i).getChrom();
-			int start = input.get(i).getStart();
+		for (TagNode tagNode : input) {
+			String chr = tagNode.getChrom();
+			int start = tagNode.getStart();
 			if (start - extSize > 0) {
-				start = start - extSize;
+				start -= extSize;
 			}
-			int stop = input.get(i).getStop() + extSize;
-			TagNode temp = new TagNode(chr, start, stop);
-			output.add(temp);
+			int stop = tagNode.getStop() + extSize;
+			output.add(new TagNode(chr, start, stop));
 		}
 	}
 	

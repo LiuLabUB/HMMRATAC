@@ -17,7 +17,6 @@ package HMMR_ATAC;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Node.TagNode;
 import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
@@ -28,18 +27,16 @@ import java.util.List;
 
 public class TrackHolder {
 	
-	private ArrayList<double[]> tracks;
-	private ArrayList<TagNode> positions;
+	private final ArrayList<double[]> tracks;
 	
 	/**
 	 * Constructor for creating a TrackHolder object
 	 *
-	 * @param t    an ArrayList of doubles representing the data to be held
+	 * @param data    an ArrayList of doubles representing the data to be held
 	 * @param trim an integer representing the number of data points to trim from the left side of the matrix
 	 */
-	public TrackHolder(ArrayList<double[]> t, int trim) {
-		tracks = trim(t, trim);
-		//positions = pos;
+	public TrackHolder(ArrayList<double[]> data, int trim) {
+		tracks = trim(data, trim);
 	}
 	
 	/**
@@ -52,27 +49,17 @@ public class TrackHolder {
 	}
 	
 	/**
-	 * Access the positions
-	 */
-	public ArrayList<TagNode> getPositions() {
-		return positions;
-	}
-	
-	/**
 	 * Trim the data
 	 *
-	 * @param t    an ArrayList of doubles representing the original data
+	 * @param data    an ArrayList of doubles representing the original data
 	 * @param trim an integer representing how many data points to trim
 	 * @return an ArrayList of doubles representing the trimmed data
 	 */
-	public ArrayList<double[]> trim(ArrayList<double[]> t, int trim) {
-		ArrayList<double[]> updated = new ArrayList<double[]>();
-		for (int i = 0; i < t.size(); i++) {
-			double[] temp = t.get(i);
+	public ArrayList<double[]> trim(ArrayList<double[]> data, int trim) {
+		ArrayList<double[]> updated = new ArrayList<>();
+		for (double[] temp : data) {
 			double[] temp2 = new double[temp.length - trim];
-			for (int a = 0; a < temp.length - trim; a++) {
-				temp2[a] = temp[a];
-			}
+			if (temp.length - trim >= 0) System.arraycopy(temp, 0, temp2, 0, temp.length - trim);
 			updated.add(temp2);
 		}
 		return updated;
@@ -85,35 +72,28 @@ public class TrackHolder {
 	 */
 	public Dataset getDataSet() {
 		Dataset data = new DefaultDataset();
-		for (int i = 0; i < tracks.size(); i++) {
-			DenseInstance ins = new DenseInstance(tracks.get(i));
-			//for (int a = 0;a < tracks.get(i).length;a++){
-			//System.out.println(tracks.get(i)[a]);
-			//}
-			data.add(ins);
+		for (double[] track : tracks) {
+			data.add(new DenseInstance(track));
 		}
-		
 		return data;
 	}
 	
 	/**
-	 * Access the data as a List of List of ObservationVector for baum welch applications
+	 * Access the data as a List of Lists of ObservationVector for baum welch applications
 	 *
-	 * @return a List of List of ObservationVector for baum welch applications
+	 * @return a List of Lists of ObservationVector for baum welch applications
 	 */
 	public List<List<ObservationVector>> getBWObs() {
-		List<List<ObservationVector>> newList = new ArrayList<List<ObservationVector>>();
+		List<List<ObservationVector>> newList = new ArrayList<>();
 		List<ObservationVector> obsList = getObs();
-		int a;
-		int i;
 		int halfSize = obsList.size() / 2;
 		
-		for (i = 0; i < obsList.size() - 1; i += halfSize) {
+		for (int i = 0; i < obsList.size() - 1; i += halfSize) {
 			
-			List<ObservationVector> temp = new ArrayList<ObservationVector>();
-			for (a = i; a < i + halfSize - 1; a++) {
+			List<ObservationVector> temp = new ArrayList<>();
+			for (int a = i; a < i + halfSize - 1; a++) {
 				
-				ObservationVector o = (ObservationVector) obsList.get(a);
+				ObservationVector o = obsList.get(a);
 				temp.add(o);
 			}
 			newList.add(temp);
@@ -127,12 +107,10 @@ public class TrackHolder {
 	 * @return a List of ObservationVector for viterbi applications
 	 */
 	public List<ObservationVector> getObs() {
-		List<ObservationVector> obs = new ArrayList<ObservationVector>();
-		for (int i = 0; i < tracks.size(); i++) {
-			ObservationVector vec = new ObservationVector(tracks.get(i));
-			obs.add(vec);
+		List<ObservationVector> obs = new ArrayList<>();
+		for (double[] track : tracks) {
+			obs.add(new ObservationVector(track));
 		}
-		
 		return obs;
 	}
 }

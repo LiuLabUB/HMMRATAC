@@ -25,19 +25,19 @@ import java.util.ArrayList;
 
 public class HMMRTracksToBedgraph {
 	
-	private ArrayList<double[]> tracks;
-	private TagNode interval;
-	private int step;
+	private final ArrayList<double[]> tracks;
+	private final TagNode interval;
+	private final int step;
 	
 	private ArrayList<TagNode> nfr;
 	private ArrayList<TagNode> mono;
 	private ArrayList<TagNode> di;
 	private ArrayList<TagNode> tri;
 	
-	public HMMRTracksToBedgraph(ArrayList<double[]> t, TagNode i, int s) {
-		tracks = t;
-		interval = i;
-		step = s;
+	public HMMRTracksToBedgraph(ArrayList<double[]> tracks, TagNode interval, int step) {
+		this.tracks = tracks;
+		this.interval = interval;
+		this.step = step;
 		run();
 	}
 	
@@ -58,31 +58,21 @@ public class HMMRTracksToBedgraph {
 	}
 	
 	private void run() {
-		ArrayList<TagNode> nfr = new ArrayList<TagNode>();
-		ArrayList<TagNode> mono = new ArrayList<TagNode>();
-		ArrayList<TagNode> di = new ArrayList<TagNode>();
-		ArrayList<TagNode> tri = new ArrayList<TagNode>();
-		
-		nfr.addAll(runOneCol(0));
-		mono.addAll(runOneCol(1));
-		di.addAll(runOneCol(2));
-		tri.addAll(runOneCol(3));
-		
+		nfr = runOneCol(0);
+		mono = runOneCol(1);
+		di = runOneCol(2);
+		tri = runOneCol(3);
 	}
 	
 	private ArrayList<TagNode> runOneCol(int c) {
-		ArrayList<TagNode> temp = new ArrayList<TagNode>();
 		int start = interval.getStart();
-		ArrayList<PileupNode2> pile = new ArrayList<PileupNode2>();
+		ArrayList<PileupNode2> pile = new ArrayList<>();
 		int remainder = interval.getLength() % step;
 		int i;
 		for (i = 0; i < tracks.size() - 1; i++) {
-			PileupNode2 pNode = new PileupNode2(start + (i * step), tracks.get(i)[c], interval.getChrom());
-			pile.add(pNode);
+			pile.add(new PileupNode2(start + (i * step), tracks.get(i)[c], interval.getChrom()));
 		}
-		PileupNode2 pNode = new PileupNode2(start + (((i) * step) - remainder), tracks.get(i)[c], interval.getChrom());
-		pile.add(pNode);
-		temp.addAll(new PileupToBedGraph(pile, step).getBedGraph());
-		return temp;
+		pile.add(new PileupNode2(start + (((i) * step) - remainder), tracks.get(i)[c], interval.getChrom()));
+		return new PileupToBedGraph(pile, step).getBedGraph();
 	}
 }

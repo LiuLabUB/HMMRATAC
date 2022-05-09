@@ -23,18 +23,18 @@ import java.util.ArrayList;
 
 public class MergeBed {
 	
-	private ArrayList<TagNode> input;
+	private final ArrayList<TagNode> input;
 	
-	private ArrayList<TagNode> output;
+	private final ArrayList<TagNode> output;
 	
 	/**
 	 * Constructor for creating new MergeBed object and merging data
 	 *
-	 * @param i an ArrayList of TagNode representing the data to be merged
+	 * @param input an ArrayList of TagNode representing the data to be merged
 	 */
-	public MergeBed(ArrayList<TagNode> i) {
-		input = i;
-		output = new ArrayList<TagNode>();
+	public MergeBed(ArrayList<TagNode> input) {
+		this.input = input;
+		this.output = new ArrayList<>();
 		merge();
 	}
 	
@@ -65,5 +65,4 @@ public class MergeBed {
 			output.add(first);
 		}
 	}
-	
 }

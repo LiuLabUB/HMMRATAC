@@ -19,27 +19,27 @@ package HMMR_ATAC;
 
 import Node.OverlapNode;
 import Node.TagNode;
+import org.apache.commons.math3.ml.neuralnet.MapUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SubtractBed {
 	
-	private ArrayList<TagNode> input;
-	private ArrayList<TagNode> exclude;
-	private ArrayList<TagNode> output;
+	private final ArrayList<TagNode> input;
+	private final ArrayList<TagNode> exclude;
+	private final ArrayList<TagNode> output;
 	
 	/**
 	 * Constructor for creating a SubtractBed object and subtracting the data
 	 *
-	 * @param i an ArrayList of TagNode representing the data to be subtracted from
-	 * @param e an ArrayList of TagNode representing the data to be subtracted by
+	 * @param input an ArrayList of TagNode representing the data to be subtracted from
+	 * @param exclude an ArrayList of TagNode representing the data to be subtracted by
 	 */
-	public SubtractBed(ArrayList<TagNode> i, ArrayList<TagNode> e) {
-		input = i;
-		exclude = e;
-		output = new ArrayList<TagNode>();
+	public SubtractBed(ArrayList<TagNode> input, ArrayList<TagNode> exclude) {
+		this.input = input;
+		this.exclude = exclude;
+		this.output = new ArrayList<>();
 		subtract();
 	}
 	
@@ -56,107 +56,103 @@ public class SubtractBed {
 	 * Subtract the data
 	 */
 	private void subtract() {
-		HashMap<String, ArrayList<TagNode>> in = toMap(input);
-		HashMap<String, ArrayList<TagNode>> ex = toMap(exclude);
+		Map<String, List<TagNode>> in = toMap(input);
+		Map<String, List<TagNode>> ex = toMap(exclude);
+		
 		for (String chr : in.keySet()) {
 			if (ex.containsKey(chr)) {
 				
+				List<TagNode> inTemp = in.get(chr);
+				List<TagNode> exTemp = ex.get(chr);
 				
-				ArrayList<TagNode> inTemp = in.get(chr);
-				ArrayList<TagNode> exTemp = ex.get(chr);
-				//TagNode temp = inTemp.get(0);
-				for (int i = 0; i < inTemp.size(); i++) {
-					ArrayList<OverlapNode> results = new ArrayList<OverlapNode>();
-					for (int a = 0; a < exTemp.size(); a++) {
-						OverlapNode node = overlap(inTemp.get(i), exTemp.get(a));
+				for (TagNode tagNode : inTemp) {
+					ArrayList<OverlapNode> results = new ArrayList<>();
+					for (TagNode node2 : exTemp) {
+						OverlapNode node = overlap(tagNode, node2);
 						if (node.hasHit()) {
-							// If A is completely consumed by B, dont add as there wont be a subtraction.
+							// If A is completely consumed by B, don't add as there won't be a subtraction.
 							if (!node.isConsumed()) {
 								results.add(node);
 							}
 						}
 					}
-					//No hits, therefore add the whole A entry into output
 					if (results.size() == 0) {
-						output.add(inTemp.get(i));
-					}
-					//Only one hit recorded. Only need to find one set of outputs
-					else if (results.size() == 1) {
+						//No hits, therefore add the whole A entry into output
+						output.add(tagNode);
+					} else if (results.size() == 1) {
+						//Only one hit recorded. Only need to find one set of outputs
 						TagNode hit = results.get(0).getHit();
 						/*
 						 * +++++++++++
 						 *    ----
 						 * ===    ====
 						 */
-						if (hit.getStart() > inTemp.get(i).getStart() && hit.getStop() < inTemp.get(i).getStop()) {
-							output.add(new TagNode(hit.getChrom(), inTemp.get(i).getStart(), hit.getStart()));
-							output.add(new TagNode(hit.getChrom(), hit.getStop(), inTemp.get(i).getStop()));
+						if (hit.getStart() > tagNode.getStart() && hit.getStop() < tagNode.getStop()) {
+							output.add(new TagNode(hit.getChrom(), tagNode.getStart(), hit.getStart()));
+							output.add(new TagNode(hit.getChrom(), hit.getStop(), tagNode.getStop()));
 						}
 						/*
 						 * ++++++++++
 						 * -------
 						 *        ===
 						 */
-						else if (hit.getStart() == inTemp.get(i).getStart()) {
-							output.add(new TagNode(hit.getChrom(), hit.getStop(), inTemp.get(i).getStop()));
+						else if (hit.getStart() == tagNode.getStart()) {
+							output.add(new TagNode(hit.getChrom(), hit.getStop(), tagNode.getStop()));
 						}
 						/*
 						 * +++++++++++
 						 *    --------
 						 * ===
 						 */
-						else if (hit.getStop() == inTemp.get(i).getStop()) {
-							output.add(new TagNode(hit.getChrom(), inTemp.get(i).getStart(), hit.getStop()));
+						else if (hit.getStop() == tagNode.getStop()) {
+							output.add(new TagNode(hit.getChrom(), tagNode.getStart(), hit.getStop()));
 						}
 						/*
 						 *     +++++++++
 						 * ---------
 						 *     =====
 						 */
-						else if (hit.getStart() < inTemp.get(i).getStart()) {
-							output.add(new TagNode(hit.getChrom(), inTemp.get(i).getStart(), hit.getStop()));
+						else if (hit.getStart() < tagNode.getStart()) {
+							output.add(new TagNode(hit.getChrom(), tagNode.getStart(), hit.getStop()));
 						}
 						/*
 						 * ++++++++
 						 *     -------
 						 *     ====
 						 */
-						else if (hit.getStart() > inTemp.get(i).getStart()) {
-							output.add(new TagNode(hit.getChrom(), hit.getStart(), inTemp.get(i).getStop()));
+						else if (hit.getStart() > tagNode.getStart()) {
+							output.add(new TagNode(hit.getChrom(), hit.getStart(), tagNode.getStop()));
 						}
-					}
-					//More than one overlap
-					else if (results.size() > 1) {
-						
+					} else {
+						//More than one overlap
 						
 						//Scan the hits to look for which bases in A survive. Then report contiguous intervals that survive
-						ArrayList<TagNode> res = new ArrayList<TagNode>();
-						for (int y = 0; y < results.size(); y++) {
-							res.add(results.get(y).getHit());
+						ArrayList<TagNode> res = new ArrayList<>();
+						for (OverlapNode result : results) {
+							res.add(result.getHit());
 						}
-						Collections.sort(res, TagNode.basepairComparator);
-						//Added above. changed below from results.get(i).getHit() to res.get(i) as tag node
+						res.sort(TagNode.basepairComparator);
 						
 						int index;
-						if (res.get(0).getStart() < inTemp.get(i).getStart()) {
-							output.add(new TagNode(inTemp.get(i).getChrom(), res.get(0).getStop(),
+						if (res.get(0).getStart() < tagNode.getStart()) {
+							output.add(new TagNode(tagNode.getChrom(), res.get(0).getStop(),
 									res.get(1).getStart()));
 							index = 1;
 						} else {
-							output.add(new TagNode(inTemp.get(i).getChrom(), inTemp.get(i).getStart(),
+							output.add(new TagNode(tagNode.getChrom(), tagNode.getStart(),
 									res.get(0).getStart()));
 							index = 0;
 						}
 						for (int x = index; x < res.size() - 1; x++) {
-							output.add(new TagNode(inTemp.get(i).getChrom(), res.get(x).getStop()
-									, res.get(x + 1).getStart()));
+							output.add(new TagNode(tagNode.getChrom(), res.get(x).getStop(),
+									res.get(x + 1).getStart()));
 						}
-						if (res.get(res.size() - 1).getStop() < inTemp.get(i).getStop()) {
-							output.add(new TagNode(inTemp.get(i).getChrom(), res.get(res.size() - 1).getStop(),
-									inTemp.get(i).getStop()));
+						if (res.get(res.size() - 1).getStop() < tagNode.getStop()) {
+							output.add(new TagNode(tagNode.getChrom(), res.get(res.size() - 1).getStop(),
+									tagNode.getStop()));
 						}
 						
-						/**
+						/*
 						 //New Approach. Use an array
 						 int[] keep = new int[inTemp.get(i).getLength()];
 						 //String chr = inTemp.get(i).getChrom();
@@ -182,21 +178,18 @@ public class SubtractBed {
 						 output.addAll((new PileupToBedGraph(pile,1).getBedGraph()));
 						 **/
 					}
-					
 				}
-				
 			} else {
 				output.addAll(in.get(chr));
 			}
 		}
-		
 	}
 	
 	/**
 	 * Determine if two entries overlap each other
 	 *
 	 * @param node1 a TagNode representing one entry
-	 * @param node2 a TagNode representing a seconfd entry
+	 * @param node2 a TagNode representing a second entry
 	 * @return a OverlapNode representing the overlap between the two TagNode
 	 */
 	public static OverlapNode overlap(TagNode node1, TagNode node2) {
@@ -250,26 +243,10 @@ public class SubtractBed {
 	/**
 	 * Split the data by chromosome for calculation efficiency
 	 *
-	 * @param i an ArrayList of TagNode to split
-	 * @return a HashMap of String and ArrayList of TagNode where the key String is the chromosome and the value ArrayList is all TagNode on that chromosome
+	 * @param list an ArrayList of TagNode to split
+	 * @return a Map of String and List of TagNode where the key String is the chromosome and the value List is all TagNodes on that chromosome
 	 */
-	private HashMap<String, ArrayList<TagNode>> toMap(ArrayList<TagNode> i) {
-		HashMap<String, ArrayList<TagNode>> map = new HashMap<String, ArrayList<TagNode>>();
-		for (int x = 0; x < i.size(); x++) {
-			String chr = i.get(x).getChrom();
-			if (map.containsKey(chr)) {
-				ArrayList<TagNode> temp = map.get(chr);
-				temp.add(i.get(x));
-				map.put(chr, temp);
-			} else {
-				ArrayList<TagNode> temp = new ArrayList<TagNode>();
-				temp.add(i.get(x));
-				map.put(chr, temp);
-			}
-		}
-		
-		return map;
-		
+	private Map<String, List<TagNode>> toMap(ArrayList<TagNode> list) {
+		return list.stream().collect(Collectors.groupingBy(TagNode::getChrom));
 	}
 }
-
