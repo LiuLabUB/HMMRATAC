@@ -32,24 +32,34 @@ public class bedFileReader {
 	
 	private final File file;
 	private ArrayList<TagNode> data;
-	private final int minQ=0;
-	private final boolean rmDup = false;
+	private final int minQ = 0;
+	private boolean rmDup = false;
 
 	/**
 	 * Constructor which reads data
-	 * @param f a BED File containing the data
+	 * @param file a BED File containing the data
+	 * @param rmDup boolean flag whether to remove duplicate entries in the BED file
 	 */
-	public bedFileReader(File f){
-		file = f;
-		setData(rmDup);
+	public bedFileReader(File file, boolean rmDup) {
+		this.rmDup = rmDup;
+		this.file = file;
+		setData();
+	}
+
+	/**
+	 * Constructor which reads data
+	 * @param file a BED File containing the data
+	 */
+	public bedFileReader(File file) {
+		this.file = file;
+		setData();
 	}
 	/**
 	 * Constructor that reads data. Uses name of file
 	 * @param f String that represents the name of the BED File
 	 */
-	public bedFileReader(String f){
-		file = new File(f);
-		setData(rmDup);
+	public bedFileReader(String f) {
+		this(new File(f));
 	}
 	/**
 	 * Method for determining which regions of the genome are mappable 
@@ -93,7 +103,7 @@ public class bedFileReader {
 	 * Access the accepted BED File formats
 	 * @return a String that represents the BED File formats that can be parsed
 	 */
-	public String bedFormats(){
+	public String bedFormats() {
 		return "BED3: <chr> <start> <stop>\nBED6: <chr> <start> <stop> <name> <mapQualScore> <strand>\n" +
 				"BEDPE: <chr1> <start1> <stop1> <chr2> <start2> <stop2> <name> <mapQ> <strand1> <strand2>";
 	}
@@ -101,7 +111,7 @@ public class bedFileReader {
 	/**
 	 * Read the input file and set the data
 	 */
-	private void setData(boolean rmDup) {
+	private void setData() {
 		data = new ArrayList<>();
 		try {
 			Scanner inFile = new Scanner(new FileReader(file));

@@ -48,6 +48,7 @@ import RobustHMM.RobustHMM;
 import WigMath.bedGraphMath;
 import WigMath.pileup;
 import com.beust.jcommander.JCommander;
+import static java.lang.System.exit;
 
 public class Main_HMMR_Driver {
 
@@ -59,10 +60,16 @@ public class Main_HMMR_Driver {
 		
 		ArgParser parser = new ArgParser();
 
-		JCommander.newBuilder()
+		JCommander jc = JCommander.newBuilder()
 				.addObject(parser)
-				.build()
-				.parse(args);
+				.build();
+		jc.setProgramName("HMMRATAC");
+		jc.setUsageFormatter(new ArgParser.MyUsageFormatter(jc));
+		jc.parse(args);
+		if (parser.help) {
+			jc.usage();
+			exit(0);
+		}
 
 		//For run time calculation
 		long startTime = System.currentTimeMillis();
@@ -273,7 +280,7 @@ public class Main_HMMR_Driver {
 		 */
 		
 		if (parser.stopAfterModel) {
-			System.exit(0);
+			exit(0);
 		}
 		
 		/*
