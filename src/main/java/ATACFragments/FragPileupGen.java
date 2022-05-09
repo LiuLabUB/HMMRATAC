@@ -1,6 +1,6 @@
 package ATACFragments;
 
-/**
+/*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
  * <p>
  * This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,6 @@ package ATACFragments;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/*
-import htsjdk.samtools.SAMFileReader;
-import htsjdk.samtools.SAMFormatException;
-import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.util.CloseableIterator;
-*/
 
 import JAHMMTest.Slope;
 import Node.TagNode;
@@ -36,43 +30,42 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class FragPileupGen {
-	private ArrayList<TagNode> genome;
+	private final ArrayList<TagNode> genome;
 	private ArrayList<double[]> tracks;
-	//private ArrayList<TagNode> positions;
 	
-	private int minMapQ;
+	private final int minMapQ;
 	AbstractRealDistribution shortDist;
 	AbstractRealDistribution monoDist;
 	AbstractRealDistribution diDist;
 	AbstractRealDistribution triDist;
-	AbstractRealDistribution quadDist;
-	private boolean rmDup;
-	private double scale;
+	private final boolean rmDup;
+	private final double scale;
 	
 	/**
 	 * Constructor for creating a new FragPileupGen object, which builds the data tracks
 	 * @param input a BAM file containing ATAC-seq reads
 	 * @param index a BAM index file for the BAM file
-	 * @param g an ArrayList of TagNodes representing the genomic regions over which the data will be created
+	 * @param genome an ArrayList of TagNodes representing the genomic regions over which the data will be created
 	 * @param mode an array of doubles representing the distributions to use for building the data tracks
 	 * @param means an array of doubles representing the means of the distributions
-	 * @param lamda an array of doubles representing the standard deviations of the distributions
-	 * @param q an integer representing the minimum mapping quality score of the reads to use for data track generation
-	 * @throws FileNotFoundException
+	 * @param lambda an array of doubles representing the standard deviations of the distributions
+	 * @param minMapQ an integer representing the minimum mapping quality score of the reads to use for data track generation
 	 */
-	public FragPileupGen(File input, File index, ArrayList<TagNode> g, double[] mode, double[] means, double[] lamda,
-						 int q, boolean r, double s) throws FileNotFoundException {
-		genome = g;
-		shortDist = getDist(mode[0], means[0], lamda[0]);
-		monoDist = getDist(mode[1], means[1], lamda[1]);
-		diDist = getDist(mode[2], means[2], lamda[2]);
-		triDist = getDist(mode[3], means[3], lamda[3]);
-		minMapQ = q;
-		rmDup = r;
-		scale = s;
+	public FragPileupGen(File input, File index, ArrayList<TagNode> genome, double[] mode, double[] means,
+						 double[] lambda, int minMapQ, boolean rmDup, double scale) {
+		this.genome = genome;
+		this.shortDist = getDist(mode[0], means[0], lambda[0]);
+		this.monoDist = getDist(mode[1], means[1], lambda[1]);
+		this.diDist = getDist(mode[2], means[2], lambda[2]);
+		this.triDist = getDist(mode[3], means[3], lambda[3]);
+		this.minMapQ = minMapQ;
+		this.rmDup = rmDup;
+		this.scale = scale;
 		
 		buildTracks(input, index);
 	}
@@ -84,11 +77,6 @@ public class FragPileupGen {
 	public ArrayList<double[]> getTracks() {
 		return tracks;
 	}
-	/**
-	 * Access the genome positions associated with the tracks
-	 * @return An ArrayList containing the positions of the track values
-	 */
-	//public ArrayList<TagNode> getPositions(){return positions;}
 	
 	/**
 	 * Reverse the tracks. Only used as a test.
@@ -96,10 +84,9 @@ public class FragPileupGen {
 	 * @return a new ArrayList of arrays of doubles containing the transformed data.
 	 */
 	public ArrayList<double[]> reverseTracks(ArrayList<double[]> ori) {
-		ArrayList<double[]> reversed = new ArrayList<double[]>();
-		for (int i = ori.size() - 1; i >= 0; i--) {
-			reversed.add(ori.get(i));
-		}
+		ArrayList<double[]> reversed = new ArrayList<>();
+		Collections.copy(ori, reversed);
+		Collections.reverse(reversed);
 		return reversed;
 	}
 	
@@ -110,7 +97,7 @@ public class FragPileupGen {
 	 * @return a new ArrayList of arrays of doubles containing the slopes of the ori data
 	 */
 	public ArrayList<double[]> getSlope(ArrayList<double[]> ori, int window) {
-		ArrayList<double[]> trans = new ArrayList<double[]>();
+		ArrayList<double[]> trans = new ArrayList<>();
 		double[] temp1 = new double[ori.size()];
 		double[] temp2 = new double[ori.size()];
 		double[] temp3 = new double[ori.size()];
@@ -144,7 +131,7 @@ public class FragPileupGen {
 	 */
 	
 	public ArrayList<double[]> merge(ArrayList<double[]> first, ArrayList<double[]> second) {
-		ArrayList<double[]> merged = new ArrayList<double[]>();
+		ArrayList<double[]> merged = new ArrayList<>();
 		if (first.size() != second.size()) {
 			return null;
 		} else {
@@ -171,13 +158,13 @@ public class FragPileupGen {
 	 * @return a new ArrayList of arrays of doubles containing the transformed data.
 	 */
 	public ArrayList<double[]> scaleTracks(ArrayList<double[]> ori) {
-		ArrayList<double[]> trans = new ArrayList<double[]>();
-		for (int i = 0; i < ori.size(); i++) {
+		ArrayList<double[]> trans = new ArrayList<>();
+		for (double[] doubles : ori) {
 			double[] temp = new double[4];
-			temp[0] = (ori.get(i)[0] / scale);
-			temp[1] = (ori.get(i)[1] / scale);
-			temp[2] = (ori.get(i)[2] / scale);
-			temp[3] = (ori.get(i)[3] / scale);
+			temp[0] = (doubles[0] / scale);
+			temp[1] = (doubles[1] / scale);
+			temp[2] = (doubles[2] / scale);
+			temp[3] = (doubles[3] / scale);
 			trans.add(temp);
 		}
 		return trans;
@@ -189,13 +176,13 @@ public class FragPileupGen {
 	 * @return a new ArrayList of arrays of doubles containing the transformed data.
 	 */
 	public ArrayList<double[]> transformTracks(ArrayList<double[]> ori) {
-		ArrayList<double[]> trans = new ArrayList<double[]>();
-		for (int i = 0; i < ori.size(); i++) {
+		ArrayList<double[]> trans = new ArrayList<>();
+		for (double[] doubles : ori) {
 			double[] temp = new double[4];
-			temp[0] = Math.sqrt(ori.get(i)[0]);
-			temp[1] = Math.sqrt(ori.get(i)[1]);
-			temp[2] = Math.sqrt(ori.get(i)[2]);
-			temp[3] = Math.sqrt(ori.get(i)[3]);
+			temp[0] = Math.sqrt(doubles[0]);
+			temp[1] = Math.sqrt(doubles[1]);
+			temp[2] = Math.sqrt(doubles[2]);
+			temp[3] = Math.sqrt(doubles[3]);
 			trans.add(temp);
 		}
 		return trans;
@@ -206,8 +193,7 @@ public class FragPileupGen {
 	 * @return a new ArrayList containing the averaged data
 	 */
 	public ArrayList<double[]> getAverageTracks() {
-		ArrayList<double[]> newTracks = new ArrayList<double[]>();
-		//ArrayList<TagNode> newPositions = new ArrayList<TagNode>();
+		ArrayList<double[]> newTracks = new ArrayList<>();
 		for (int i = 0; i < tracks.size(); i += 10) {
 			double[] temp = new double[4];
 			double counter = 0.0;
@@ -226,41 +212,30 @@ public class FragPileupGen {
 				temp[a] /= counter;
 			}
 			newTracks.add(temp);
-			
-			//	newPositions.add(new TagNode(positions.get(i).getChrom(),positions.get(i).getStart(),
-			//		positions.get(i).getStart()+end));
-			//positions = newPositions;
-			
-			
 		}
-		
 		return newTracks;
-		
 	}
 	
 	/**
 	 * Builds the data tracks.
 	 * @param input a BAM file containing the ATAC-seq paired end reads.
 	 * @param index a BAM index file containing the index for the BAM file.
-	 * @throws FileNotFoundException
 	 */
-	private void buildTracks(File input, File index) throws FileNotFoundException {
-		tracks = new ArrayList<double[]>();
-		//positions = new ArrayList<TagNode>();
+	private void buildTracks(File input, File index) {
+		tracks = new ArrayList<>();
 		SAMFileReader reader = new SAMFileReader(input, index);
 		
-		for (int i = 0; i < genome.size(); i++) {
-			String chr = genome.get(i).getChrom();
-			int bedStart = genome.get(i).getStart();
-			int bedStop = genome.get(i).getStop();
+		for (TagNode tagNode : genome) {
+			String chr = tagNode.getChrom();
+			int bedStart = tagNode.getStart();
+			int bedStop = tagNode.getStop();
 			
-			HashMap<Integer, double[]> pileup = new HashMap<Integer, double[]>();
+			HashMap<Integer, double[]> pileup = new HashMap<>();
 			for (int a = bedStart; a < bedStop; a++) {
 				if (!pileup.containsKey(a)) {
 					double[] t = new double[4];
 					pileup.put(a, t);
 				}
-				
 			}
 			
 			CloseableIterator<SAMRecord> iter = reader.query(chr, bedStart, bedStop, false);
@@ -278,76 +253,44 @@ public class FragPileupGen {
 						int start;
 						int stop;
 						if (record.getInferredInsertSize() > 0) {
-							
 							start = record.getAlignmentStart();
-							
 							stop = record.getAlignmentStart() + record.getInferredInsertSize() - 1;
-							int length = stop - start;
-							double sh = shortDist.density(length);
-							double mono = monoDist.density(length);
-							double di = diDist.density(length);
-							double tri = triDist.density(length);
-							
-							double total = sh + mono + di + tri;
-							//added on 7-13-18 to normalize the data so each frag contributes one
-							//found to be better performing so it is now standard procedure for HMMRATAC
-							
-							if (total == 0) {
-								total = 1;
-							}
-							
-							for (int x = start; x < stop; x++) {
-								if (pileup.containsKey(x)) {
-									double[] t = pileup.get(x);
-									t[0] += sh / total;
-									t[1] += mono / total;
-									t[2] += di / total;
-									t[3] += tri / total;
-									pileup.put(x, t);
-									
-								}
-							}
-							
-							
 						} else if (record.getInferredInsertSize() < 0) {
 							start = record.getAlignmentEnd() + record.getInferredInsertSize() + 1;
 							stop = record.getAlignmentEnd();
-							int length = stop - start;
-							double sh = shortDist.density(length);
-							double mono = monoDist.density(length);
-							double di = diDist.density(length);
-							double tri = triDist.density(length);
-							
-							double total = sh + mono + di + tri;
-							
-							if (total == 0) {
-								total = 1;
-							}
-							
-							for (int x = start; x < stop; x++) {
-								if (pileup.containsKey(x)) {
-									double[] t = pileup.get(x);
-									t[0] += sh / total;
-									t[1] += mono / total;
-									t[2] += di / total;
-									t[3] += tri / total;
-									pileup.put(x, t);
-								}
-							}
+						} else {
+							continue;
 						}
 						
+						int length = stop - start;
+						double sh = shortDist.density(length);
+						double mono = monoDist.density(length);
+						double di = diDist.density(length);
+						double tri = triDist.density(length);
 						
-					}//
+						double total = sh + mono + di + tri;
+						
+						if (total == 0) {
+							total = 1;
+						}
+						
+						for (int x = start; x < stop; x++) {
+							if (pileup.containsKey(x)) {
+								double[] t = pileup.get(x);
+								t[0] += sh / total;
+								t[1] += mono / total;
+								t[2] += di / total;
+								t[3] += tri / total;
+								pileup.put(x, t);
+							}
+						}
+					}
 				}
 			}
 			iter.close();
 			for (int x = bedStart; x < bedStop; x++) {
 				tracks.add(pileup.get(x));
-				//positions.add(new TagNode(chr,x,x+1));
-				//System.out.println("tracks\t"+chr+"\t"+x+"\t"+(x+1)+"\t"+Arrays.toString(pileup.get(x)));//Added on 9/29/17 to print out actual tracks for paper. REMOVE THIS LINE WHEN DONE!!!!
-				
 			}
-			
 		}
 		reader.close();
 	}
@@ -361,7 +304,6 @@ public class FragPileupGen {
 	 */
 	private AbstractRealDistribution getDist(double p, double m, double l) {
 		if (p == 1) {
-			//return new LaplaceDistribution(m,l);
 			return new ExponentialDistribution(m);
 		}
 		if (p == 2) {
@@ -371,13 +313,9 @@ public class FragPileupGen {
 			return new ExponentialDistribution(m);
 		}
 		if (p == 0) {
-			//return new ModifiedLaplaceDistribution(m,l);
 			return new ExponentialDistribution(m);
 		} else {
 			return null;
 		}
-		
 	}
-	
-	
 }
