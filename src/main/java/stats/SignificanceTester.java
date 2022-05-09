@@ -15,6 +15,9 @@ package stats;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+import org.apache.commons.math3.stat.inference.TestUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -23,11 +26,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
 import java.util.Vector;
-
-import org.apache.commons.math3.stat.inference.TestUtils;
-import org.apache.commons.math3.distribution.*;
-
-
 
 
 public class SignificanceTester {
@@ -38,92 +36,92 @@ public class SignificanceTester {
 	private static int type = 0;
 	private static double mu = 0.0;
 	
-	public static void main(String[] args) throws FileNotFoundException{
+	public static void main(String[] args) throws FileNotFoundException {
 		
 		for (int i = 0; i < args.length; i++) {
-
-			switch (args[i].charAt((1))) {
-
-			case 'i':
-				input = new File(args[i + 1]);
-				i++;
-				break;
-				
-			case 'f':
-				input2 = new File(args[i+1]);
-				i++;
-				break;
-				
-			case 'o':
-				output = new File(args[i+1]);
-				i++;
-				break;
 			
-			case 't':
-				type = Integer.parseInt(args[i+1]);
-				i++;
-				break;
+			switch (args[i].charAt((1))) {
 				
-			case 'm':
-				mu = Integer.parseInt(args[i+1]);
-				i++;
-				break;
+				case 'i':
+					input = new File(args[i + 1]);
+					i++;
+					break;
+				
+				case 'f':
+					input2 = new File(args[i + 1]);
+					i++;
+					break;
+				
+				case 'o':
+					output = new File(args[i + 1]);
+					i++;
+					break;
+				
+				case 't':
+					type = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				
+				case 'm':
+					mu = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
 			}
 		}
-		double mu1 = (double)mu;
-		if (input == null  || output == null || type == 0){
+		double mu1 = (double) mu;
+		if (input == null || output == null || type == 0) {
 			printUsage();
 			System.exit(0);
 		}
 		PrintStream OUT = new PrintStream(output);
 		@SuppressWarnings("resource")
-		Scanner inFile =new Scanner ((Readable) new FileReader(input));
+		Scanner inFile = new Scanner((Readable) new FileReader(input));
 		
 		Vector<Node.MinNode> val1 = new Vector<Node.MinNode>();
 		Vector<Node.MinNode> val2 = new Vector<Node.MinNode>();
 		Node.MinNode temp1 = null;
 		Node.MinNode temp2 = null;
 		
-		while (inFile.hasNext()){
+		while (inFile.hasNext()) {
 			double value = inFile.nextDouble();
 			temp1 = new Node.MinNode(value);
 			val1.add(temp1);
 		}
 		
-		if (type == 2){
+		if (type == 2) {
 			@SuppressWarnings("resource")
-			Scanner inFile2 = new Scanner ((Readable) new FileReader(input2));
-		
-		
-			while (inFile2.hasNext()){
+			Scanner inFile2 = new Scanner((Readable) new FileReader(input2));
+			
+			
+			while (inFile2.hasNext()) {
 				double value = inFile2.nextDouble();
 				temp2 = new Node.MinNode(value);
 				val2.add(temp2);
 			}
-		
+			
 			double[] value1 = new double[val1.size()];
-			for (int i = 0;i < val1.size();i++){
+			for (int i = 0; i < val1.size(); i++) {
 				double value = val1.get(i).getMin();
 				value1[i] = value;
 			}
 			double[] value2 = new double[val2.size()];
-			for (int i = 0; i < val2.size();i++){
+			for (int i = 0; i < val2.size(); i++) {
 				double value = val2.get(i).getMin();
 				value2[i] = value;
 			}
-		
-			double pValue = gettwosidedPValue(value1,value2);
+			
+			double pValue = gettwosidedPValue(value1, value2);
 			System.out.println(pValue);
 		}
 		
-		if (type == 1){
+		if (type == 1) {
 			double[] value1 = new double[val1.size()];
-			for (int i = 0;i < val1.size();i++){
+			for (int i = 0; i < val1.size(); i++) {
 				double value = val1.get(i).getMin();
 				value1[i] = value;
 			}
 			
-			double pValue = getonesidedPValue(mu1,value1);
+			double pValue = getonesidedPValue(mu1, value1);
 			System.out.println(pValue);
 		}
 		
@@ -141,26 +139,26 @@ public class SignificanceTester {
 		System.out.println("-m <Mu> The value to compare for a one sided t-test");
 	}
 	
-	private static double getonesidedPValue(double mu,double[] sample1){
+	private static double getonesidedPValue(double mu, double[] sample1) {
 		double PValue = TestUtils.tTest(mu, sample1);
 		
 		return PValue;
 	}
 	
-	private static double gettwosidedPValue(double[] sample1,double[] sample2){
+	private static double gettwosidedPValue(double[] sample1, double[] sample2) {
 		
 		double PValue = TestUtils.tTest(sample1, sample2);
 		return PValue;
 		
-	
+		
 	}
 	
 	private static void printTimeStamp() {
 		//Outputs a time stamp onto Standard Output
 		Calendar timestamp = new GregorianCalendar();
 		System.out.println("Program Complete");
-		System.out.print("Current Time: " + (timestamp.get(Calendar.MONTH)+1) + "-" + timestamp.get(Calendar.DAY_OF_MONTH) + "-" + timestamp.get(Calendar.YEAR));
+		System.out.print("Current Time: " + (timestamp.get(Calendar.MONTH) + 1) + "-" + timestamp.get(Calendar.DAY_OF_MONTH) + "-" + timestamp.get(Calendar.YEAR));
 		System.out.println("\t" + timestamp.get(Calendar.HOUR_OF_DAY) + ":" + timestamp.get(Calendar.MINUTE) + ":" + timestamp.get(Calendar.SECOND));
 	}
-
+	
 }

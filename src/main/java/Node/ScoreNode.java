@@ -15,6 +15,7 @@ package Node;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 import java.util.ArrayList;
 
 public class ScoreNode {
@@ -23,11 +24,26 @@ public class ScoreNode {
 	private double max;
 	private ArrayList<Double> val;
 	
-	public ScoreNode(double a,double med, double m,ArrayList<Double> v){
-		ave=a;median=med;max=m;val=v;
+	public ScoreNode(double a, double med, double m, ArrayList<Double> v) {
+		ave = a;
+		median = med;
+		max = m;
+		val = v;
 	}
-	public double getMean(){return ave;}
-	public double getMax(){return max;}
-	public double getMedian(){return median;}
-	public ArrayList<Double> getvalues(){return val;}
+	
+	public double getMean() {
+		return ave;
+	}
+	
+	public double getMax() {
+		return max;
+	}
+	
+	public double getMedian() {
+		return median;
+	}
+	
+	public ArrayList<Double> getvalues() {
+		return val;
+	}
 }

@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -16,32 +17,38 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 public class StateNode {
-
+	
 	private String chr;
 	private int pos;
 	private int state;
 	
-	public StateNode(String c, int p, int s){
+	public StateNode(String c, int p, int s) {
 		chr = c;
 		pos = p;
 		state = s;
 	}
-	public void setChr(String c){
+	
+	public void setChr(String c) {
 		chr = c;
 	}
-	public String getChr(){
+	
+	public String getChr() {
 		return chr;
 	}
-	public void setPos(int p){
+	
+	public void setPos(int p) {
 		pos = p;
 	}
-	public int getPos(){
+	
+	public int getPos() {
 		return pos;
 	}
-	public void setState(int s){
+	
+	public void setState(int s) {
 		state = s;
 	}
-	public int getState(){
+	
+	public int getState() {
 		return state;
 	}
 	

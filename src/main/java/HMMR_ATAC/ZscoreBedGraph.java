@@ -17,9 +17,9 @@ package HMMR_ATAC;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-
 import Node.TagNode;
+
+import java.util.ArrayList;
 
 public class ZscoreBedGraph {
 	
@@ -30,23 +30,27 @@ public class ZscoreBedGraph {
 	
 	private ArrayList<TagNode> output;
 	
-	public ZscoreBedGraph(ArrayList<TagNode> b,double m,double s,double c){
+	public ZscoreBedGraph(ArrayList<TagNode> b, double m, double s, double c) {
 		bedgraph = b;
 		mean = m;
 		std = s;
 		cutoff = c;
 		locate();
 	}
-	public ArrayList<TagNode> getResults(){return output;}
-	private void locate(){
+	
+	public ArrayList<TagNode> getResults() {
+		return output;
+	}
+	
+	private void locate() {
 		output = new ArrayList<TagNode>();
-		for (int i = 0; i < bedgraph.size();i++){
+		for (int i = 0; i < bedgraph.size(); i++) {
 			double value = bedgraph.get(i).getScore2();
-			double z = (value - mean)/std;
-			if (z >= cutoff){
+			double z = (value - mean) / std;
+			if (z >= cutoff) {
 				output.add(bedgraph.get(i));
 			}
 		}
 	}
-
+	
 }

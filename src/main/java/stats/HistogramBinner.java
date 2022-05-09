@@ -1,4 +1,5 @@
 package stats;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -21,34 +22,37 @@ public class HistogramBinner {
 	private double BinStop = 0.0;
 	private int BinNumber = 0;
 	
-	public HistogramBinner(){
+	public HistogramBinner() {
 		
 	}
-
-	public HistogramBinner(double binstart,double binstop,int binnumber){
+	
+	public HistogramBinner(double binstart, double binstop, int binnumber) {
 		BinStart = binstart;
 		BinStop = binstop;
 		BinNumber = binnumber;
 	}
 	
-	public double getStart(){
+	public double getStart() {
 		return BinStart;
 	}
-	public void setStart(double binstart){
+	
+	public void setStart(double binstart) {
 		BinStart = binstart;
 	}
 	
-	public double getStop(){
+	public double getStop() {
 		return BinStop;
 	}
-	public void setStop(double binstop){
+	
+	public void setStop(double binstop) {
 		BinStop = binstop;
 	}
 	
-	public int getNumber(){
+	public int getNumber() {
 		return BinNumber;
 	}
-	public void setNumber(int binnumber){
+	
+	public void setNumber(int binnumber) {
 		BinNumber = binnumber;
 	}
 }

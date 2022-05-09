@@ -15,6 +15,9 @@ package stats;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+import org.apache.commons.math3.stat.inference.TestUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,49 +27,45 @@ import java.util.GregorianCalendar;
 import java.util.Scanner;
 import java.util.Vector;
 
-import org.apache.commons.math3.stat.inference.TestUtils;
 
-
-
-public class ColumnCounter{
+public class ColumnCounter {
 	public static File input1 = null;
 	public static File input2 = null;
 	public static File OutPut = null;
 	public static String type = "";
 	
 	
-	public static void main(String[] args) throws FileNotFoundException{
-	
+	public static void main(String[] args) throws FileNotFoundException {
+		
 		for (int i = 0; i < args.length; i++) {
-
+			
 			switch (args[i].charAt((1))) {
-
-			case 'i':
-				input1 = new File(args[i + 1]);
-				i++;
-				break;
 				
-			case 'f':
-				input2 = new File(args[i+1]);
-				i++;
-				break;
-			
-			case 'o':
-				OutPut = new File(args[i+1]);
-				i++;
-				break;
+				case 'i':
+					input1 = new File(args[i + 1]);
+					i++;
+					break;
 				
-			case 't':
-				type = new String(args[i+1]);
-				i++;
-				break;
+				case 'f':
+					input2 = new File(args[i + 1]);
+					i++;
+					break;
 				
-			
-			
+				case 'o':
+					OutPut = new File(args[i + 1]);
+					i++;
+					break;
+				
+				case 't':
+					type = new String(args[i + 1]);
+					i++;
+					break;
+				
+				
 			}
 		}
 		
-		if (input1 == null || input2 == null || OutPut == null || type == ""){
+		if (input1 == null || input2 == null || OutPut == null || type == "") {
 			printUsage();
 		}
 		
@@ -75,18 +74,18 @@ public class ColumnCounter{
 		//also - columns are sometimes of different lengths.  There WILL HAVE to be TWO inputfiles
 		PrintStream OUT = new PrintStream(OutPut);
 		@SuppressWarnings("resource")
-		Scanner inFile =new Scanner ((Readable) new FileReader(input1));
+		Scanner inFile = new Scanner((Readable) new FileReader(input1));
 		@SuppressWarnings("resource")
-		Scanner inFile2 = new Scanner ((Readable) new FileReader(input2));
+		Scanner inFile2 = new Scanner((Readable) new FileReader(input2));
 		
 		String word = "word";
 		String num = "number";
 		
-		if (type.equals(word)){
+		if (type.equals(word)) {
 			Vector<String> Val1 = new Vector<String>();
 			Vector<String> Val2 = new Vector<String>();
-		
-			while (inFile.hasNext()){
+			
+			while (inFile.hasNext()) {
 				
 				String value1 = inFile.next();
 				//String value2 = inFile.next();
@@ -95,33 +94,33 @@ public class ColumnCounter{
 				//Val2.add(value2);
 				
 			}
-			while (inFile2.hasNext()){
+			while (inFile2.hasNext()) {
 				String value2 = inFile2.next();
 				Val2.add(value2);
 				
 			}
 			
-			for (int i = 0;i < Val1.size();i++){
+			for (int i = 0; i < Val1.size(); i++) {
 				String value1 = Val1.get(i);
 				int counter = 0;
-				for (int a = 0;a < Val2.size();a++){
+				for (int a = 0; a < Val2.size(); a++) {
 					String value2 = Val2.get(a);
-					if (value1.equals(value2)){
+					if (value1.equals(value2)) {
 						counter++;
 					}
 				}
-				OUT.println(value1+"\t"+counter);
-			
+				OUT.println(value1 + "\t" + counter);
+				
 			}
 			
 		}
-		if (type.equals(num)){
+		if (type.equals(num)) {
 			Vector<Node.MinNode> Val1 = new Vector<Node.MinNode>();
 			Node.MinNode temp1 = null;
 			Vector<Node.MinNode> Val2 = new Vector<Node.MinNode>();
 			Node.MinNode temp2 = null;
 			
-			while (inFile.hasNext()){
+			while (inFile.hasNext()) {
 				double value1 = inFile.nextDouble();
 				//double value2 = inFile.nextDouble();
 				temp1 = new Node.MinNode(value1);
@@ -129,29 +128,26 @@ public class ColumnCounter{
 				Val1.add(temp1);
 				//Val2.add(temp2);
 			}
-			while (inFile2.hasNext()){
+			while (inFile2.hasNext()) {
 				double value2 = inFile2.nextDouble();
 				temp2 = new Node.MinNode(value2);
 				Val2.add(temp2);
 			}
-			for (int i = 0;i < Val1.size();i++){
+			for (int i = 0; i < Val1.size(); i++) {
 				double value1 = Val1.get(i).getMin();
 				int counter = 0;
-				for (int a = 0;a < Val2.size();a++){
+				for (int a = 0; a < Val2.size(); a++) {
 					double value2 = Val2.get(a).getMin();
-					if (value1 == value2){
+					if (value1 == value2) {
 						counter++;
 					}
 				}
-				OUT.println(value1+"\t"+counter);
-			
+				OUT.println(value1 + "\t" + counter);
+				
 			}
 			
 			
 		}
-		
-		
-		
 		
 		
 		printTimeStamp();
@@ -166,25 +162,25 @@ public class ColumnCounter{
 		System.out.println("-t <Type> Can be either <word> or <number>");
 	}
 	
-	private static double getonesidedPValue(double mu,double[] sample1){
+	private static double getonesidedPValue(double mu, double[] sample1) {
 		double PValue = TestUtils.tTest(mu, sample1);
 		
 		return PValue;
 	}
 	
-	private static double gettwosidedPValue(double[] sample1,double[] sample2){
+	private static double gettwosidedPValue(double[] sample1, double[] sample2) {
 		
 		double PValue = TestUtils.tTest(sample1, sample2);
 		return PValue;
 		
-	
+		
 	}
 	
 	private static void printTimeStamp() {
 		//Outputs a time stamp onto Standard Output
 		Calendar timestamp = new GregorianCalendar();
 		System.out.println("Program Complete");
-		System.out.print("Current Time: " + (timestamp.get(Calendar.MONTH)+1) + "-" + timestamp.get(Calendar.DAY_OF_MONTH) + "-" + timestamp.get(Calendar.YEAR));
+		System.out.print("Current Time: " + (timestamp.get(Calendar.MONTH) + 1) + "-" + timestamp.get(Calendar.DAY_OF_MONTH) + "-" + timestamp.get(Calendar.YEAR));
 		System.out.println("\t" + timestamp.get(Calendar.HOUR_OF_DAY) + ":" + timestamp.get(Calendar.MINUTE) + ":" + timestamp.get(Calendar.SECOND));
 	}
 }

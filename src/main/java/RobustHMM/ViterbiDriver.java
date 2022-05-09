@@ -15,19 +15,19 @@ package RobustHMM;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
 
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.Observation;
 import be.ac.ulg.montefiore.run.jahmm.Opdf;
 import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryReader;
 
-public class ViterbiDriver {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
+public class ViterbiDriver {
+	
 	
 	private static String obs = null;
 	private static String train = null;
@@ -38,84 +38,87 @@ public class ViterbiDriver {
 	
 	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < args.length; i++) {
-
-			switch (args[i].charAt((1))) {
 			
-			case'o':
-				obs = (args[i+1]);
-				i++;
-				break;
-			case 't':
-				train = (args[i+1]);
-				i++;
-				break;
-			case'm':
-				hmm = new File(args[i+1]);
-				i++;
-				break;
-			case'w':
-				String w = args[i+1].toLowerCase();
-				if (w.equals("t") || w.equals("true")){welch = true;}
-				i++;
-				break;
-			case'k':
-				k = Integer.parseInt(args[i+1]);
-				i++;
-				break;
-			case'n':
-				numDist = Integer.parseInt(args[i+1]);
-				i++;
-				break;
-			case'h':
-				printUsage();
-				System.exit(0);
+			switch (args[i].charAt((1))) {
+				
+				case 'o':
+					obs = (args[i + 1]);
+					i++;
+					break;
+				case 't':
+					train = (args[i + 1]);
+					i++;
+					break;
+				case 'm':
+					hmm = new File(args[i + 1]);
+					i++;
+					break;
+				case 'w':
+					String w = args[i + 1].toLowerCase();
+					if (w.equals("t") || w.equals("true")) {
+						welch = true;
+					}
+					i++;
+					break;
+				case 'k':
+					k = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				case 'n':
+					numDist = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				case 'h':
+					printUsage();
+					System.exit(0);
 			}
 		}
-		if (obs == null || (train == null && hmm == null) ){
+		if (obs == null || (train == null && hmm == null)) {
 			printUsage();
 			System.exit(0);
 		}
 		
-		TrainingReader trainReader = null; List<List<?>> trainList = null;
-		if (train != null){
+		TrainingReader trainReader = null;
+		List<List<?>> trainList = null;
+		if (train != null) {
 			trainReader = new TrainingReader(train);
 			trainList = trainReader.getObs();
 		}
 		ObservationReader obsReader = new ObservationReader(obs);
 		List<?> obsList = obsReader.getObs();
 		String method = obsReader.getMethod();
-		trainReader=null;obsReader=null;
+		trainReader = null;
+		obsReader = null;
 		Hmm<?> h = null;
-		if (hmm != null){
+		if (hmm != null) {
 			h = HmmBinaryReader.read(new FileInputStream(hmm));
 			//System.out.println(h.toString());
 			//System.exit(0);
 		}
 		
-		RobustHMM HMM = new RobustHMM(obsList,trainList,h,welch,k,method,numDist);
+		RobustHMM HMM = new RobustHMM(obsList, trainList, h, welch, k, method, numDist);
 		int[] states = HMM.getStates();
 		Hmm<?> outHmm = HMM.getHmm();
 		//System.out.println(outHmm.toString());
-		for (int i = 0;i < states.length;i++){
+		for (int i = 0; i < states.length; i++) {
 			Observation o = (Observation) obsList.get(i);
 			@SuppressWarnings("unchecked")
 			Opdf<Observation> opdf = (Opdf<Observation>) outHmm.getOpdf(states[i]);
 			double ep = Math.log10(opdf.probability(o));
 			double tp;
-			if (i == 0){
+			if (i == 0) {
 				tp = Math.log10(outHmm.getPi(states[i]));
-			}
-			else{
-				tp = Math.log10(outHmm.getAij(states[i-1], states[i]));
+			} else {
+				tp = Math.log10(outHmm.getAij(states[i - 1], states[i]));
 			}
 			double prob = ep + tp;
-			System.out.println(o.toString()+"\t"+states[i]+"\t"+prob);
+			System.out.println(o.toString() + "\t" + states[i] + "\t" + prob);
 		}
 		
 		
 	}
-
-	private static void printUsage(){
+	
+	private static void printUsage() {
 		System.out.println("Usage: java -jar ViterbiDriver.jar");
 		System.out.println("Required Paramters:");
 		System.out.println("-o <File> Observation File in specific format");

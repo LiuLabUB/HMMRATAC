@@ -17,9 +17,9 @@ package HMMR_ATAC;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-
 import Node.TagNode;
+
+import java.util.ArrayList;
 
 public class ExtendBed {
 	
@@ -29,38 +29,42 @@ public class ExtendBed {
 	
 	/**
 	 * Constructor for creating ExtendBed object and performing extension
-	 * @param i an ArrayList of TagNode representing the BED data to be extended
+	 *
+	 * @param i   an ArrayList of TagNode representing the BED data to be extended
 	 * @param ext an integer representing the upstream and downstream extension size
 	 */
-	public ExtendBed(ArrayList<TagNode> i,int ext){
+	public ExtendBed(ArrayList<TagNode> i, int ext) {
 		input = i;
 		extSize = ext;
 		output = new ArrayList<TagNode>();
 		set();
 	}
+	
 	/**
 	 * Access the extended data
+	 *
 	 * @return an ArrayList of TagNode representing the extended data
 	 */
-	public ArrayList<TagNode> getResults(){
+	public ArrayList<TagNode> getResults() {
 		return output;
 	}
+	
 	/**
 	 * Extend the data by the extension size
 	 */
-	private void set(){
+	private void set() {
 		
-		for (int i = 0; i < input.size();i++){
+		for (int i = 0; i < input.size(); i++) {
 			String chr = input.get(i).getChrom();
 			int start = input.get(i).getStart();
-			if (start - extSize > 0){
+			if (start - extSize > 0) {
 				start = start - extSize;
 			}
 			int stop = input.get(i).getStop() + extSize;
-			TagNode temp = new TagNode(chr,start,stop);
+			TagNode temp = new TagNode(chr, start, stop);
 			output.add(temp);
 		}
 	}
 	
-
+	
 }

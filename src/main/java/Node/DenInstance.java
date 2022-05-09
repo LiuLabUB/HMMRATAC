@@ -15,20 +15,22 @@ package Node;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 import net.sf.javaml.core.DenseInstance;
 
-public class DenInstance extends DenseInstance{
-
+public class DenInstance extends DenseInstance {
+	
 	private String _id;
-	public DenInstance(double[] att,String ID) {
+	
+	public DenInstance(double[] att, String ID) {
 		super(att);
 		_id = ID;
 	}
 	
 	
-	public String getStringID(){
-	
+	public String getStringID() {
+		
 		return _id;
 	}
-
+	
 }

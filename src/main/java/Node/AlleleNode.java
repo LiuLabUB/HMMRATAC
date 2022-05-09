@@ -28,11 +28,11 @@ public class AlleleNode {
 	private StringBuilder Seq;
 	private String Quality = "";
 	
-	public AlleleNode(){
+	public AlleleNode() {
 		
 	}
 	
-	public AlleleNode(String snp,String con,int pos,char nt,int start,int stop,String head,StringBuilder seq, String qual){
+	public AlleleNode(String snp, String con, int pos, char nt, int start, int stop, String head, StringBuilder seq, String qual) {
 		SnpName = snp;
 		ConName = con;
 		Position = pos;
@@ -43,65 +43,77 @@ public class AlleleNode {
 		Seq = seq;
 		Quality = qual;
 	}
-	public int getPos(){
+	
+	public int getPos() {
 		return Position;
 	}
-	public void setPos(int pos){
+	
+	public void setPos(int pos) {
 		Position = pos;
 	}
-	public int getStart(){
+	
+	public int getStart() {
 		return ConStart;
 	}
-	public void setStart(int start){
+	
+	public void setStart(int start) {
 		ConStart = start;
 	}
-	public int getStop(){
+	
+	public int getStop() {
 		return ConStop;
 	}
-	public void setStop(int stop){
+	
+	public void setStop(int stop) {
 		ConStop = stop;
 	}
 	
-	public String getSnpName(){
+	public String getSnpName() {
 		return SnpName;
 	}
-	public void setSnp(String snp){
+	
+	public void setSnp(String snp) {
 		SnpName = snp;
 	}
 	
-	public String getCon(){
+	public String getCon() {
 		return ConName;
 	}
-	public void setCon(String con){
+	
+	public void setCon(String con) {
 		ConName = con;
 	}
 	
-	public char getNT(){
+	public char getNT() {
 		return NT;
 	}
-	public void setNT(char nt){
+	
+	public void setNT(char nt) {
 		NT = nt;
 	}
 	
-	public String getHeader(){
+	public String getHeader() {
 		return Header;
 	}
-	public void setHeader(String head){
+	
+	public void setHeader(String head) {
 		Header = head;
 	}
 	
-	public StringBuilder getSeq(){
+	public StringBuilder getSeq() {
 		return Seq;
 	}
-	public void setSeq(StringBuilder seq){
+	
+	public void setSeq(StringBuilder seq) {
 		Seq = seq;
 	}
 	
-	public String getQuality(){
+	public String getQuality() {
 		return Quality;
 	}
-	public void setQual(String qual){
+	
+	public void setQual(String qual) {
 		Quality = qual;
 	}
-
+	
 }

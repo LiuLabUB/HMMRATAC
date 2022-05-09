@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -15,21 +16,22 @@ package Node;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-public class MatrixNodeForKMeans extends ATACMatrixNode{
-
+public class MatrixNodeForKMeans extends ATACMatrixNode {
+	
 	private int dataID;
 	
 	public MatrixNodeForKMeans(String chrom, int pos, double enrich1,
-			double enrich2, double enrich3, int index, int ID) {
+							   double enrich2, double enrich3, int index, int ID) {
 		super(chrom, pos, enrich1, enrich2, enrich3, index);
 		dataID = ID;
 	}
 	
-	public void setID(int ID){
+	public void setID(int ID) {
 		dataID = ID;
 	}
-	public int getID(){
+	
+	public int getID() {
 		return dataID;
 	}
-
+	
 }

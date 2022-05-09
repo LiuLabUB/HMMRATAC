@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -16,7 +17,7 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 public class SnpOverlapNode {
-
+	
 	private String snpChr = "";
 	private int snpStart = 0;
 	private int snpStop = 0;
@@ -31,11 +32,11 @@ public class SnpOverlapNode {
 	private char contigStrand = '\0';
 	private int overlap = 0;
 	
-	public SnpOverlapNode(){
+	public SnpOverlapNode() {
 		
 	}
 	
-	public SnpOverlapNode(String snpchr,int snpstart,int snpstop,String snpname,int snpscore,char snpstrand,String contigchr,int contigstart,int contigstop,String contigname,int contigscore,char contigstrand,int over){
+	public SnpOverlapNode(String snpchr, int snpstart, int snpstop, String snpname, int snpscore, char snpstrand, String contigchr, int contigstart, int contigstop, String contigname, int contigscore, char contigstrand, int over) {
 		snpChr = snpchr;
 		snpStart = snpstart;
 		snpStop = snpstop;
@@ -51,80 +52,91 @@ public class SnpOverlapNode {
 		overlap = over;
 	}
 	
-	public String getSnpChr(){
+	public String getSnpChr() {
 		return snpChr;
 	}
-	public void setSnpChr(String snpchr){
+	
+	public void setSnpChr(String snpchr) {
 		snpChr = snpchr;
 	}
 	
-	public int getSnpStart(){
+	public int getSnpStart() {
 		return snpStart;
 	}
-	public void setSnpStart(int snpstart){
+	
+	public void setSnpStart(int snpstart) {
 		snpStart = snpstart;
 	}
 	
-	public int getSnpStop(){
+	public int getSnpStop() {
 		return snpStart;
 	}
-	public void setSnpStop(int snpstop){
+	
+	public void setSnpStop(int snpstop) {
 		snpStop = snpstop;
 	}
 	
-	public String getSnpName(){
+	public String getSnpName() {
 		return snpName;
 	}
-	public void setSnpName(String snpname){
-		snpName= snpname;
+	
+	public void setSnpName(String snpname) {
+		snpName = snpname;
 	}
 	
-	public char getSnpStrand(){
+	public char getSnpStrand() {
 		return snpStrand;
 	}
-	public void setSnpStrand(char snpstrand){
+	
+	public void setSnpStrand(char snpstrand) {
 		snpStrand = snpstrand;
 	}
 	
-	public String getContigChr(){
+	public String getContigChr() {
 		return contigChr;
 	}
-	public void setContigChr(String contigchr){
+	
+	public void setContigChr(String contigchr) {
 		contigChr = contigchr;
 	}
 	
-	public int getContigStart(){
+	public int getContigStart() {
 		return contigStart;
 	}
-	public void setContigStart(int contigstart){
-		contigStart=contigstart;
+	
+	public void setContigStart(int contigstart) {
+		contigStart = contigstart;
 	}
 	
-	public int getContigStop(){
+	public int getContigStop() {
 		return contigStop;
 	}
-	public void setContigStop(int contigstop){
+	
+	public void setContigStop(int contigstop) {
 		contigStop = contigstop;
 	}
 	
-	public String getContigName(){
+	public String getContigName() {
 		return contigName;
 	}
-	public void setContigName(String contigname){
+	
+	public void setContigName(String contigname) {
 		contigName = contigname;
 	}
 	
-	public char getContigStrand(){
+	public char getContigStrand() {
 		return contigStrand;
 	}
-	public void setContigStrand(char contigstrand){
+	
+	public void setContigStrand(char contigstrand) {
 		contigStrand = contigstrand;
 	}
 	
-	public int getOverlap(){
+	public int getOverlap() {
 		return overlap;
 	}
-	public void setOverlap(int over){
-		overlap=over;
+	
+	public void setOverlap(int over) {
+		overlap = over;
 	}
 }

@@ -15,7 +15,12 @@ package RobustHMM;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import java.io.File;
+
+import be.ac.ulg.montefiore.run.jahmm.*;
+import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryWriter;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -23,18 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import net.sf.javaml.core.DenseInstance;
-
-import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import org.apache.commons.math3.stat.descriptive.moment.Variance;
-
-import be.ac.ulg.montefiore.run.jahmm.Hmm;
-import be.ac.ulg.montefiore.run.jahmm.ObservationReal;
-import be.ac.ulg.montefiore.run.jahmm.ObservationVector;
-import be.ac.ulg.montefiore.run.jahmm.OpdfGaussian;
-import be.ac.ulg.montefiore.run.jahmm.OpdfMultiGaussian;
-import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryWriter;
 
 public class RandomInitHMM {
 	//class variables
@@ -47,42 +40,45 @@ public class RandomInitHMM {
 	private static String file = null;
 	private static String output = null;
 	
-	public RandomInitHMM(String i,int n) throws FileNotFoundException{
+	public RandomInitHMM(String i, int n) throws FileNotFoundException {
 		input = i;
 		numStates = n;
 		read();
 	}
-	public Hmm<?> getHMM(){return hmm;}
-
-	private void read() throws FileNotFoundException{
+	
+	public Hmm<?> getHMM() {
+		return hmm;
+	}
+	
+	private void read() throws FileNotFoundException {
 		ObservationReader reader = new ObservationReader(input);
 		String method = reader.getMethod();
-		if (method.equals("Vector")){
+		if (method.equals("Vector")) {
 			hmm = readVector(reader);
-		}
-		else if(method.equals("Real") ){
+		} else if (method.equals("Real")) {
 			hmm = readReal(reader);
 		}
 		
 	}
-	private void read2() throws FileNotFoundException{
-		Scanner inFile =new Scanner ((Readable) new FileReader(input));
+	
+	private void read2() throws FileNotFoundException {
+		Scanner inFile = new Scanner((Readable) new FileReader(input));
 		ArrayList<double[]> data = new ArrayList<double[]>();
 		int numFeat = 0;
-		while (inFile.hasNext()){
+		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] features = line.split(",");
 			double[] values = new double[features.length];
 			numFeat = features.length;
-			for (int i = 0;i < features.length;i++){
+			for (int i = 0; i < features.length; i++) {
 				values[i] = Double.parseDouble(features[i]);
 			}
 			data.add(values);
 		}
 		double[][] values = new double[data.size()][numFeat];
-		for(int i = 0;i < data.size();i++){
+		for (int i = 0; i < data.size(); i++) {
 			double[] temp = data.get(i);
-			for (int a = 0;a < temp.length;a++){
+			for (int a = 0; a < temp.length; a++) {
 				values[i][a] = temp[a];
 			}
 		}
@@ -91,18 +87,18 @@ public class RandomInitHMM {
 		double[] var = new double[numFeat];
 		Mean mean = new Mean();
 		Variance variance = new Variance();
-		for (int i = 0; i < numFeat;i++){
+		for (int i = 0; i < numFeat; i++) {
 			mu[i] = mean.evaluate(values[i]);
 			var[i] = variance.evaluate(values[i]);
 		}
 		List<OpdfMultiGaussian> opdf = new ArrayList<OpdfMultiGaussian>();
-		for (int i = 0;i < numStates;i++){
+		for (int i = 0; i < numStates; i++) {
 			
 		}
 	}
 	
 	@SuppressWarnings({"unchecked"})
-	private Hmm<ObservationVector> readVector(ObservationReader reader){
+	private Hmm<ObservationVector> readVector(ObservationReader reader) {
 		
 		ArrayList<ObservationVector> obs = (ArrayList<ObservationVector>) reader.getObs();
 		double[] initial = setInitial();
@@ -115,20 +111,22 @@ public class RandomInitHMM {
 		return h;
 		
 	}
-	@SuppressWarnings({ "unused", "unchecked" })
-	private Hmm<ObservationReal> readReal(ObservationReader reader){
+	
+	@SuppressWarnings({"unused", "unchecked"})
+	private Hmm<ObservationReal> readReal(ObservationReader reader) {
 		ArrayList<ObservationReal> obs = (ArrayList<ObservationReal>) reader.getObs();
 		double[] initial = setInitial();
 		double[][] trans = setTrans();
 		//TODO: write opdf maker for monovariate gaussian
 		return null;
 	}
-	private List<OpdfGaussian> setRealPDF(ArrayList<ObservationReal> obs){
+	
+	private List<OpdfGaussian> setRealPDF(ArrayList<ObservationReal> obs) {
 		//TODO: write this method
 		return null;
 	}
 	
-	private List<OpdfMultiGaussian> setVectorPDF(ArrayList<ObservationVector> obs){
+	private List<OpdfMultiGaussian> setVectorPDF(ArrayList<ObservationVector> obs) {
 		List<OpdfMultiGaussian> opdf = new ArrayList<OpdfMultiGaussian>();
 		ObservationVector o = obs.get(0);
 		int dim = o.dimension();
@@ -137,9 +135,9 @@ public class RandomInitHMM {
 		Variance v = new Variance();
 		double[] vars = new double[dim];
 		double[] vals = new double[obs.size()];
-		for (int i = 0;i < dim;i++){
+		for (int i = 0; i < dim; i++) {
 			
-			for (int a = 0;a < obs.size();a++){
+			for (int a = 0; a < obs.size(); a++) {
 				vals[a] = obs.get(a).value(i);
 			}
 			means[i] = mu.evaluate(vals, 0, vals.length);
@@ -147,21 +145,21 @@ public class RandomInitHMM {
 		}
 		double[][] Means = new double[numStates][dim];
 		double[][] Vars = new double[numStates][dim];
-		for (int i = 0; i < means.length;i++){
+		for (int i = 0; i < means.length; i++) {
 			double mean = means[i];
 			double var = vars[i];
 			
 			double sd = Math.sqrt(var);
-			double meanLower = mean - (3.0*sd);
-			double meanUpper = mean + (3.0*sd);
+			double meanLower = mean - (3.0 * sd);
+			double meanUpper = mean + (3.0 * sd);
 			double varLower = 0.5 * var;
 			double varUpper = 3 * var;
 			
 			
-			double meanStep = (meanUpper - meanLower) / ((double)numStates - 1);
+			double meanStep = (meanUpper - meanLower) / ((double) numStates - 1);
 			double varStep = (varUpper - varLower) / ((double) numStates - 1);
 			//System.out.println((meanUpper-meanLower)+"\t"+meanStep);
-			for(int a = 0;a < numStates;a++){
+			for (int a = 0; a < numStates; a++) {
 				Means[a][i] = meanLower + (a * meanStep);
 				Vars[a][i] = varLower + (a * varStep);
 				//System.out.println(Means[a][i]);
@@ -169,65 +167,67 @@ public class RandomInitHMM {
 			}
 			
 		}
-		for (int i = 0;i < Means.length;i++){
+		for (int i = 0; i < Means.length; i++) {
 			//System.out.println(Means.length);
 			double[][] cov = new double[dim][dim];
-			for (int a = 0;a < Means[i].length;a++){
+			for (int a = 0; a < Means[i].length; a++) {
 				//System.out.println(Means[i].length);
 				cov[a][a] = Vars[i][a];
 				//System.out.println(cov[a][a]);
 			}
-			OpdfMultiGaussian pdf = new OpdfMultiGaussian(Means[i],cov);
+			OpdfMultiGaussian pdf = new OpdfMultiGaussian(Means[i], cov);
 			opdf.add(pdf);
 		}
 		
 		return opdf;
 		
 	}
-	private double[][] setTrans(){
+	
+	private double[][] setTrans() {
 		double[][] trans = new double[numStates][numStates];
-		for (int i = 0;i < numStates;i++){
-			for(int a = 0;a < numStates;a++){
-				trans[i][a] = (double) 1/numStates;
+		for (int i = 0; i < numStates; i++) {
+			for (int a = 0; a < numStates; a++) {
+				trans[i][a] = (double) 1 / numStates;
 			}
 		}
 		return trans;
 	}
-	private double[] setInitial(){
+	
+	private double[] setInitial() {
 		double[] initial = new double[numStates];
-		for(int i = 0;i < numStates;i++){
-			initial[i] = (double) 1/numStates;
+		for (int i = 0; i < numStates; i++) {
+			initial[i] = (double) 1 / numStates;
 		}
 		return initial;
 	}
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < args.length; i++) {
-
+			
 			switch (args[i].charAt((1))) {
-			
-			
-			case'i':
-				file = (args[i+1]);
-				i++;
-				break;
-			case 'n':
-				states = Integer.parseInt(args[i+1]);
-				i++;
-				break;
-			case'o':
-				output = args[i+1];
-				i++;
-				break;
-			
+				
+				
+				case 'i':
+					file = (args[i + 1]);
+					i++;
+					break;
+				case 'n':
+					states = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				case 'o':
+					output = args[i + 1];
+					i++;
+					break;
+				
 			}
 		}
-		if (file == null || states == 0 || output == null){
+		if (file == null || states == 0 || output == null) {
 			printUsage();
 			System.exit(1);
 		}
 		
-		RandomInitHMM init = new RandomInitHMM(file,states);
+		RandomInitHMM init = new RandomInitHMM(file, states);
 		Hmm<?> hmm = init.getHMM();
 		System.out.println(hmm.toString());
 		FileOutputStream out = new FileOutputStream(output);
@@ -235,7 +235,8 @@ public class RandomInitHMM {
 		writer.write(out, hmm);
 		
 	}
-	private static void printUsage(){
+	
+	private static void printUsage() {
 		System.out.println("Usage: java -jar RandomInitHMM.jar");
 		System.out.println("Required Parameters:");
 		System.out.println("-i <File> Observation File in proper format");

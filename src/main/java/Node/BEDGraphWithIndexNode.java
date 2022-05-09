@@ -17,24 +17,31 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-public class BEDGraphWithIndexNode extends BedGraphNode{
-
+public class BEDGraphWithIndexNode extends BedGraphNode {
+	
 	
 	private int _index;
-	public BEDGraphWithIndexNode(String chr, int start, int stop, double score,int index) {
+	
+	public BEDGraphWithIndexNode(String chr, int start, int stop, double score, int index) {
 		super(chr, start, stop, score);
 		_index = index;
 	}
-
-	public BEDGraphWithIndexNode(String chr, int start, int stop, int score,int index) {
+	
+	public BEDGraphWithIndexNode(String chr, int start, int stop, int score, int index) {
 		super(chr, start, stop, score);
 		_index = index;
 	}
-	public BEDGraphWithIndexNode(){
+	
+	public BEDGraphWithIndexNode() {
 		
 	}
 	
-	public int getIndex(){return _index;}
-	public void setIndex(int i){_index = i;}
+	public int getIndex() {
+		return _index;
+	}
+	
+	public void setIndex(int i) {
+		_index = i;
+	}
 	
 }

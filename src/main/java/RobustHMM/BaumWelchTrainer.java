@@ -15,16 +15,16 @@ package RobustHMM;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
 
 import be.ac.ulg.montefiore.run.jahmm.Hmm;
 import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryReader;
 import be.ac.ulg.montefiore.run.jahmm.io.HmmBinaryWriter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 public class BaumWelchTrainer {
 	
@@ -32,36 +32,36 @@ public class BaumWelchTrainer {
 	private static File hmm = null;
 	private static int k = 0;
 	private static int numDist = 0;
-	private static String output=null;
+	private static String output = null;
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < args.length; i++) {
-
+			
 			switch (args[i].charAt((1))) {
-			case 't':
-				train = (args[i+1]);
-				i++;
-				break;
-			case'm':
-				hmm = new File(args[i+1]);
-				i++;	
-				break;
-			case'k':
-				k = Integer.parseInt(args[i+1]);
-				i++;
-				break;
-			case'n':
-				numDist = Integer.parseInt(args[i+1]);
-				i++;
-				break;
-			case'o':
-				output = args[i+1];
-				i++;
-				break;
+				case 't':
+					train = (args[i + 1]);
+					i++;
+					break;
+				case 'm':
+					hmm = new File(args[i + 1]);
+					i++;
+					break;
+				case 'k':
+					k = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				case 'n':
+					numDist = Integer.parseInt(args[i + 1]);
+					i++;
+					break;
+				case 'o':
+					output = args[i + 1];
+					i++;
+					break;
 			}
 		}
 		
-		if (train == null || (hmm == null && k == 0)){
+		if (train == null || (hmm == null && k == 0)) {
 			printUsage();
 			System.exit(1);
 		}
@@ -70,7 +70,7 @@ public class BaumWelchTrainer {
 		List<List<?>> trainList = reader.getObs();
 		
 		Hmm<?> h = null;
-		if (hmm != null){
+		if (hmm != null) {
 			h = HmmBinaryReader.read(new FileInputStream(hmm));
 		}
 		
@@ -84,8 +84,8 @@ public class BaumWelchTrainer {
 		writer.write(out, newHmm);
 		System.out.println(newHmm.toString());
 	}
-
-	public static void printUsage(){
+	
+	public static void printUsage() {
 		System.out.println("Usage: java -jar BaumWelchTrainer.jar");
 		System.out.println("Parameters:");
 		System.out.println("-t <File> Training file");

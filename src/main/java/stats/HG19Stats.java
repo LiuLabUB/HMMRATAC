@@ -15,14 +15,16 @@ package stats;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import java.util.ArrayList;
 
 import Node.TagNode;
+
+import java.util.ArrayList;
 
 public class HG19Stats {
 	
 	private ArrayList<TagNode> stats = new ArrayList<TagNode>();
-	public HG19Stats(){
+	
+	public HG19Stats() {
 		String[] s = new String[24];
 		s[0] = "chr1	0	249250621";
 		s[1] = "chr2	0	243199373";
@@ -48,15 +50,17 @@ public class HG19Stats {
 		s[21] = "chr19	0	59128983";
 		s[22] = "chr22	0	51304566";
 		s[23] = "chr21	0	48129895";
-		for (int i = 0;i < s.length;i++){
+		for (int i = 0; i < s.length; i++) {
 			String[] temp = s[i].split("\t");
 			int start = Integer.parseInt(temp[1]);
 			int stop = Integer.parseInt(temp[2]);
-			TagNode node = new TagNode(temp[0],start,stop);
+			TagNode node = new TagNode(temp[0], start, stop);
 			stats.add(node);
 			
 		}
 	}
-
-	public ArrayList<TagNode> getStats(){return stats;}
+	
+	public ArrayList<TagNode> getStats() {
+		return stats;
+	}
 }

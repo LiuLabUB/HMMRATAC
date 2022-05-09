@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -16,20 +17,22 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 public class MinNode {
-
+	
 	private double Min = 0.0;
 	
-	public MinNode(){
+	public MinNode() {
 		
 	}
 	
-	public MinNode(double min){
+	public MinNode(double min) {
 		Min = min;
 	}
-	public double getMin(){
+	
+	public double getMin() {
 		return Min;
 	}
-	public void setMin(double min){
+	
+	public void setMin(double min) {
 		Min = min;
 	}
 }

@@ -15,14 +15,12 @@ package stats;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import javax.swing.JFrame;
 
 public class Driver1 {
 	
-	public static void main(String[] srgs){
+	public static void main(String[] srgs) {
 		
 		
-				
 	}
-
+	
 }

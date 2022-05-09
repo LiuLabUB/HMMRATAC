@@ -1,4 +1,3 @@
-
 package Node;
 
 /*
@@ -18,7 +17,7 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-public class BedGraphNode extends Node.TagNode{
+public class BedGraphNode extends Node.TagNode {
 	
 	private String _chrom;
 	private int _start;
@@ -27,22 +26,25 @@ public class BedGraphNode extends Node.TagNode{
 	private double _score2;
 	private String _score3;
 	
-	public BedGraphNode(String chr,int start,int stop,int score){
+	public BedGraphNode(String chr, int start, int stop, int score) {
 		_chrom = chr;
 		_start = start;
 		_stop = stop;
 		_score = score;
 	}
-	public BedGraphNode(String chr,int start,int stop,double score){
+	
+	public BedGraphNode(String chr, int start, int stop, double score) {
 		_chrom = chr;
 		_start = start;
 		_stop = stop;
 		_score2 = score;
 	}
-	public BedGraphNode(){
+	
+	public BedGraphNode() {
 		
 	}
-    public BedGraphNode(String chr,int start,int stop,double score,String s){
+	
+	public BedGraphNode(String chr, int start, int stop, double score, String s) {
 		_chrom = chr;
 		_start = start;
 		_stop = stop;
@@ -50,16 +52,51 @@ public class BedGraphNode extends Node.TagNode{
 		_score3 = s;
 	}
 	
-	public String getChrom(){return _chrom;}
-	public void setChrom(String chr){_chrom = chr;}
-	public int getStart(){return _start;}
-	public void setStart(int s){_start = s;}
-	public int getStop(){return _stop;}
-	public void setStop(int s){_stop = s;}
-	public int getScore(){return _score;}
-	public void setScore(int s){_score = s;}
-	public double getScore2(){return _score2;}
-	public void setScore2(double s){_score2 = s;}
-	public String getScore3(){return _score3;}
-	public void setScore3(String score){_score3 = score;}
+	public String getChrom() {
+		return _chrom;
+	}
+	
+	public void setChrom(String chr) {
+		_chrom = chr;
+	}
+	
+	public int getStart() {
+		return _start;
+	}
+	
+	public void setStart(int s) {
+		_start = s;
+	}
+	
+	public int getStop() {
+		return _stop;
+	}
+	
+	public void setStop(int s) {
+		_stop = s;
+	}
+	
+	public int getScore() {
+		return _score;
+	}
+	
+	public void setScore(int s) {
+		_score = s;
+	}
+	
+	public double getScore2() {
+		return _score2;
+	}
+	
+	public void setScore2(double s) {
+		_score2 = s;
+	}
+	
+	public String getScore3() {
+		return _score3;
+	}
+	
+	public void setScore3(String score) {
+		_score3 = score;
+	}
 }

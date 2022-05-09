@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -15,36 +16,47 @@ package Node;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-public class StateNode2 extends StateNode{
-
+public class StateNode2 extends StateNode {
+	
 	
 	private double emissionProb;
 	private double transitionProb;
 	private double zscore;
-	public StateNode2(String c, int p, int s,double ep,double tp) {
+	
+	public StateNode2(String c, int p, int s, double ep, double tp) {
 		super(c, p, s);
 		emissionProb = ep;
 		transitionProb = tp;
 	}
-	public StateNode2(String c,int p,int s,double ep,double tp,double z){
+	
+	public StateNode2(String c, int p, int s, double ep, double tp, double z) {
 		super(c, p, s);
 		emissionProb = ep;
 		transitionProb = tp;
 		zscore = z;
 	}
 	
-	public void setEP(double ep){
+	public void setEP(double ep) {
 		emissionProb = ep;
 	}
-	public double getEP(){
+	
+	public double getEP() {
 		return emissionProb;
 	}
-	public void setTP(double tp){
+	
+	public void setTP(double tp) {
 		transitionProb = tp;
 	}
-	public double getTP(){
+	
+	public double getTP() {
 		return transitionProb;
 	}
-	public void setZScore(double z){zscore = z;}
-	public double getZScore(){return zscore;}
+	
+	public void setZScore(double z) {
+		zscore = z;
+	}
+	
+	public double getZScore() {
+		return zscore;
+	}
 }

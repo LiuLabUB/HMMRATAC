@@ -17,36 +17,39 @@ package GenomeFileReaders;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Node.TagNode;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import Node.TagNode;
-
 public class GenomeFileReader {
-
+	
 	private final ArrayList<TagNode> _genMap = new ArrayList<>();
+	
 	/**
 	 * Constructor for creating Object and reading the data
+	 *
 	 * @param input a File representing the genome data
 	 */
-	public GenomeFileReader(File input) throws FileNotFoundException{
-		Scanner inFile =new Scanner(new FileReader(input));
+	public GenomeFileReader(File input) throws FileNotFoundException {
+		Scanner inFile = new Scanner(new FileReader(input));
 		
 		while (inFile.hasNext()) {
 			String chr = inFile.next();
 			int size = inFile.nextInt();
-			_genMap.add(new TagNode(chr,0,size));
+			_genMap.add(new TagNode(chr, 0, size));
 		}
 	}
-
+	
 	/**
 	 * Access the data
+	 *
 	 * @return an ArrayList of TagNode representing the data
 	 */
-	public ArrayList<TagNode> getMap(){
+	public ArrayList<TagNode> getMap() {
 		return _genMap;
 	}
 }

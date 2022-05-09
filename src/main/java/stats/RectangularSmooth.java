@@ -15,7 +15,8 @@ package stats;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import java.awt.Point;
+
+import java.awt.*;
 
 public class RectangularSmooth {
 	
@@ -24,62 +25,64 @@ public class RectangularSmooth {
 	private int _numPass;
 	
 	
-	public RectangularSmooth(double[] list,int width,int numberOfPasses){
+	public RectangularSmooth(double[] list, int width, int numberOfPasses) {
 		
 		_width = width;
 		_numPass = numberOfPasses;
 		smooth(list);
 	}
-	public RectangularSmooth(double[] list, int window){
+	
+	public RectangularSmooth(double[] list, int window) {
 		
 		_numPass = FindPara(window).x;
 		_width = FindPara(window).y;
 		smooth(list);
 	}
 	
-	public double[] getsmoothedData(){
-			return _smoothed;
-	}
-		
-	private void smooth(double[] list){
-		
-		for (int i = 0;i < _numPass;i++){
-				list = onePass(list);
-		}
-		_smoothed = list;
-			
+	public double[] getsmoothedData() {
+		return _smoothed;
 	}
 	
-	private double[] onePass(double[] list){
+	private void smooth(double[] list) {
+		
+		for (int i = 0; i < _numPass; i++) {
+			list = onePass(list);
+		}
+		_smoothed = list;
+		
+	}
+	
+	private double[] onePass(double[] list) {
 		
 		double[] tempList = new double[list.length];
 		double temp;
-		int halfWidth = _width/2;
-		for (int i = halfWidth;i < list.length-halfWidth;i++){
+		int halfWidth = _width / 2;
+		for (int i = halfWidth; i < list.length - halfWidth; i++) {
 			
-			temp=list[i];
-			for (int a = i+1;a <= i+halfWidth;a++){
-				temp+=list[a];
+			temp = list[i];
+			for (int a = i + 1; a <= i + halfWidth; a++) {
+				temp += list[a];
 			}
-			for (int b = i-halfWidth;b <= i-1;b++){
-				temp+=list[b];
+			for (int b = i - halfWidth; b <= i - 1; b++) {
+				temp += list[b];
 			}
-			temp = temp/_width;
+			temp = temp / _width;
 			
-
-			tempList[i]=temp;
+			
+			tempList[i] = temp;
 			
 		}
 		return tempList;
 	}
-	private  Point FindPara(int window){
+	
+	private Point FindPara(int window) {
 		int sqW = (int) Math.sqrt(window);
 		int closest = 0;
 		Point para = new Point();
-		for (int n = sqW;n < window;n++){
-			for (int w = sqW;w < window;w++){
-				int t = findT(n,w);
-				if (isCloser(t,closest,window)){
+		for (int n = sqW; n < window; n++) {
+			for (int w = sqW; w < window; w++) {
+				int t = findT(n, w);
+				if (isCloser(t, closest, window)) {
 					closest = t;
 					para.x = n;
 					para.y = w;
@@ -88,20 +91,20 @@ public class RectangularSmooth {
 		}
 		return para;
 	}
-
-	private  int findT(int n,int w){
-		return n*w-n+1;
+	
+	private int findT(int n, int w) {
+		return n * w - n + 1;
 	}
-	private  boolean isCloser(int t,int closest,int window){
+	
+	private boolean isCloser(int t, int closest, int window) {
 		int one = Math.abs(window - t);
 		int two = Math.abs(window - closest);
-		if (one < two){
+		if (one < two) {
 			return true;
-		}
-		else{
+		} else {
 			return false;
 		}
 	}
 	
-
+	
 }

@@ -1,4 +1,5 @@
 package Node;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -16,20 +17,22 @@ package Node;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 public class intNode {
-
+	
 	private int Min = 0;
 	
-	public intNode(){
+	public intNode() {
 		
 	}
 	
-	public intNode(int min){
+	public intNode(int min) {
 		Min = min;
 	}
-	public int getMin(){
+	
+	public int getMin() {
 		return Min;
 	}
-	public void setMin(int min){
+	
+	public void setMin(int min) {
 		Min = min;
 	}
 }

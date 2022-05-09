@@ -3,45 +3,45 @@ package JAHMMTest;
 import java.util.Arrays;
 
 public class FitRobust {
-
+	
 	
 	private double[][] covariance;
 	
 	
-	public FitRobust(double[][] c){
+	public FitRobust(double[][] c) {
 		covariance = c;
 		fit();
 	}
-	public double[][] getCovariance(){
+	
+	public double[][] getCovariance() {
 		return covariance;
 	}
-	private void fit(){
+	
+	private void fit() {
 		
-		double[] m=new double [dimension(covariance)];
-        for (int r = 0; r < dimension(covariance); r++){
-                
-                m[r]=covariance[r][r];
-                        
-                
-        }
-         Arrays.sort(m);
-         double max = (m[m.length-1])/1000000000;
-        
-        
-                
-        
-        while (!positiveDefined(covariance)){
-                
-                for (int r = 0; r < dimension(covariance); r++)
-                        
-                                covariance[r][r] = covariance[r][r]+max+0.00000000000000001;
-                                        
-        }
+		double[] m = new double[dimension(covariance)];
+		for (int r = 0; r < dimension(covariance); r++) {
+			
+			m[r] = covariance[r][r];
+			
+			
+		}
+		Arrays.sort(m);
+		double max = (m[m.length - 1]) / 1000000000;
+		
+		
+		while (!positiveDefined(covariance)) {
+			
+			for (int r = 0; r < dimension(covariance); r++)
+				
+				covariance[r][r] = covariance[r][r] + max + 0.00000000000000001;
+			
+		}
 	}
-	private boolean positiveDefined(double[][] m){
+	
+	private boolean positiveDefined(double[][] m) {
 		double[][] l = new double[dimension(m)][dimension(m)];
-		for (int j = 0; j < dimension(m); j++)
-		{
+		for (int j = 0; j < dimension(m); j++) {
 			double[] lj = l[j];
 			double d = 0.;
 			
@@ -60,12 +60,13 @@ public class FitRobust {
 				return false;
 			
 			l[j][j] = Math.sqrt(d);
-			for (int k = j+1; k < dimension(m); k++)
+			for (int k = j + 1; k < dimension(m); k++)
 				l[j][k] = 0.;
 		}
 		return true;
 	}
-	private int dimension(double[][] c){
+	
+	private int dimension(double[][] c) {
 		return c[0].length;
 	}
 }

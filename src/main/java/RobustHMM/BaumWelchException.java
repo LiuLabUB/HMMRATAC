@@ -1,4 +1,5 @@
 package RobustHMM;
+
 /*
  * Copyright (C) 2019  Evan Tarbell and Tao Liu
 
@@ -15,14 +16,15 @@ package RobustHMM;
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-public class BaumWelchException extends RuntimeException{
-
+public class BaumWelchException extends RuntimeException {
+	
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	public BaumWelchException(String mes){
+	
+	public BaumWelchException(String mes) {
 		super(mes);
 	}
-
+	
 }
