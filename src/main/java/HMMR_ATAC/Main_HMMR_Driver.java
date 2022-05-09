@@ -51,12 +51,7 @@ import com.beust.jcommander.JCommander;
 
 public class Main_HMMR_Driver {
 
-	private static final boolean stopAfterModel = false;
-	private static final boolean printHMMRTracks = false;
-
-	/*
-	 * Version number. Change as needed
-	 */
+	// Version number. Change as needed
 	private static final String versionNum = "1.2.10";
 	
 	@SuppressWarnings("unchecked")
@@ -72,23 +67,16 @@ public class Main_HMMR_Driver {
 		//For run time calculation
 		long startTime = System.currentTimeMillis();
 		
-		//Declare output name
-		if (parser.output ==null){
-			parser.output = "NA";
-		}
-		PrintStream log = new PrintStream(parser.output +".log");
-		
-		/*
-		 * Report version into log file
-		 */
-		log.println("Version:"+"\t"+versionNum);
-		
-		/*
-		 * Report all input arguments into log file
-		 */
+		// log file
+		PrintStream log = new PrintStream(parser.output + ".log");
+
+		// Report version into log file
+		log.println("Version:\t"+versionNum);
+
+		// Report all input arguments into log file
 		log.println("Arguments Used:");
-		for (int i = 0; i < args.length-1;i+=2){
-			log.println(args[i]+"\t"+args[i+1]);
+		for (int i = 0; i < args.length-1;i+=2) {
+			log.println(args[i]+ "\t"+args[i+1]);
 		}
 		
 		//Read in genome size stats
@@ -97,16 +85,9 @@ public class Main_HMMR_Driver {
 		
 		//Read in blacklisted if inputted
 		ArrayList<TagNode> black = null;
-		if (parser.blacklist != null){
+		if (parser.blacklist != null) {
 			black = new bedFileReader(parser.blacklist).getData();
-			
 		}
-		
-		/*
-		 * Set fragment length distribution parameters. 
-		 * Use inputted values to set initial values, if provided.
-		 * Else use defaults
-		 */
 
 		double[] mode = {0.5, 2, 2, 2};
 		
@@ -116,8 +97,7 @@ public class Main_HMMR_Driver {
 		 Only occurs if EM training occurs, else use the default settings
 		*/
 		
-		
-		if (parser.fragEM){
+		if (parser.fragEM) {
 			pullLargeLengths puller = new pullLargeLengths(parser.bam, parser.index, parser.minMapQ, genomeStats, Arrays.copyOf(parser.means, 4));
 			double[] lengths = puller.getSampledLengths(10);
 			double[] weights = puller.getWeights();
@@ -128,9 +108,9 @@ public class Main_HMMR_Driver {
 			em.learn();
 			double[] tempMeans = em.getMeans();
 			double[] tempLam = em.getLamda();
-			for (int i = 0;i < tempMeans.length;i++){
+			for (int i = 0;i < tempMeans.length;i++) {
 				//This will update the parameters IFF they were updated. If they become NaN, leave as default
-				if(!Double.isNaN(tempMeans[i]) && !Double.isNaN(tempLam[i])){
+				if (!Double.isNaN(tempMeans[i]) && !Double.isNaN(tempLam[i])) {
 					parser.means[i+1] = tempMeans[i];
 					parser.stddevs[i+1] = tempLam[i];
 				}
@@ -138,8 +118,8 @@ public class Main_HMMR_Driver {
 		}
 		
 		log.println("Fragment Expectation Maximum Done");
-		for (int i = 0;i < parser.means.length;i++){
-			log.println("Mean\t"+parser.means[i]+"\tStdDevs\t"+parser.stddevs[i]);
+		for (int i = 0;i < parser.means.length;i++) {
+			log.println("Mean\t"+parser.means[i]+ "\tStdDevs\t"+parser.stddevs[i]);
 		}
 		
 		
@@ -159,8 +139,7 @@ public class Main_HMMR_Driver {
 		 * Find regions with fold change within determined range to use as training sites.
 		 * Find regions with zscore values above certain cutoff to exclude from viterbi.
 		 */
-		Hmm<ObservationVector> hmm=null;
-
+		Hmm<ObservationVector> hmm;
 		
 		pileup pileupData = new pileup(new SplitBed(genomeStats, parser.vitWindow).getResult(), 0, parser.bam, parser.index, 0, parser.rmDup);
 		bedGraphMath fc = new bedGraphMath(pileupData.getBedGraph());
@@ -174,54 +153,50 @@ public class Main_HMMR_Driver {
 		
 		ArrayList<TagNode> train = new MergeBed(fc.getBetweenRanges(parser.upper, parser.lower)).getResults();
 
-		
 		ArrayList<TagNode> newTrain = new ArrayList<>();
-		if (train.size() < parser.maxTrain){
-			parser.maxTrain = train.size();
-		}
+		int maxTrain = Math.min(train.size(), parser.maxTrain);
 		
 		//Shuffle training list before choosing.
 		Collections.shuffle(train, new Random(parser.randomTrainSeed));
-		for (int i = 0; i < parser.maxTrain; i++){
+		for (int i = 0; i < maxTrain; i++) {
 			newTrain.add(train.get(i));
 		}
 		
-		train = newTrain;
-		train = new ExtendBed(train,5000).getResults();
+		train = new ExtendBed(newTrain,5000).getResults();
 		ArrayList<TagNode> exclude = new MergeBed(fc.getAboveZscore(parser.zscore)).getResults();
 		ArrayList<TagNode> addBack = exclude;
 
-		if (parser.blacklist != null){
+		if (parser.blacklist != null) {
 			exclude.addAll(black);
 			exclude = new MergeBed(exclude).getResults();
 		}
-			
-		if(parser.printExclude){
-			PrintStream ex = new PrintStream(parser.output +"_excluded.bed");
+
+		if (parser.printExclude) {
+			PrintStream ex = new PrintStream(parser.output + "_excluded.bed");
 			for (TagNode tagNode : exclude) {
-				ex.println(tagNode.toString() + "\t" + "exclude");
+				ex.println(tagNode.toString() + "\texclude");
 			}
 			ex.close();
 		}
 		
 		
 		newTrain = new ArrayList<>();
-		for (TagNode tagNode : train) {
-			int counter = 0;
+		for (TagNode node1 : train) {
+			boolean add = true;
 			for (TagNode node2 : exclude) {
-				if (SubtractBed.overlap(tagNode, node2).hasHit()) {
-					counter++;
+				if (SubtractBed.overlap(node1, node2).hasHit()) {
+					add = false;
+					break;
 				}
 			}
-			if (counter == 0) {
-				newTrain.add(tagNode);
-
+			if (add) {
+				newTrain.add(node1);
 			}
 		}
 		
 		train = newTrain;
 		// Allows user to use training set for model generation
-		if (parser.trainingRegions != null){
+		if (parser.trainingRegions != null) {
 			bedFileReader trainReader = new bedFileReader(parser.trainingRegions);
 			train = trainReader.getData();
 		}
@@ -232,40 +207,31 @@ public class Main_HMMR_Driver {
 		/*
 		 * Create the fragment pileup tracks using the training set and the fragment distribution parameters
 		 */
-		if (parser.modelFile == null){
-		
+		if (parser.modelFile == null) {
 			
 			if (parser.printTrain) {
 				PrintStream tr = new PrintStream(parser.output + "_training.bed");
 				for (TagNode tagNode : train) {
-					tr.println(tagNode.toString() + "\t" + "training");
+					tr.println(tagNode.toString() + "\ttraining");
 				}
 				tr.close();
 			}
-			FragPileupGen gen = new FragPileupGen(parser.bam, parser.index, train, mode, parser.means, parser.stddevs, parser.minMapQ, parser.rmDup,cpmScale);
+			FragPileupGen gen = new FragPileupGen(parser.bam, parser.index, train, mode, parser.means, parser.stddevs, parser.minMapQ, parser.rmDup, cpmScale);
 			TrackHolder holder = new TrackHolder((gen.transformTracks(gen.scaleTracks(gen.getAverageTracks()))), parser.trim);
 
-			
 			log.println("Training Fragment Pileup completed");
 			
 			/*
 			 * Create the initial model using KMeans and then refine it using Baum-Welch
 			 */
 			
-			KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(), parser.k,Integer.MAX_VALUE,true,true,true);
-			log.println("Kmeans Model:\n"+kmeans.getHMM().toString());
+			KMeansToHMM kmeans = new KMeansToHMM(holder.getDataSet(), parser.k, Integer.MAX_VALUE,true,true,true);
+			log.println("Kmeans Model:\n" + kmeans.getHMM().toString());
 
-			hmm = new BaumWelch(kmeans.getHMM(),holder.getBWObs(),1000).build();
-		
-		}
-		/*
-		 * Use input model if available
-		 */
-		
-		if (parser.modelFile != null){
+			hmm = new BaumWelch(kmeans.getHMM(), holder.getBWObs(),1000).build();
+		} else {	// Use input model if available
 			hmm = (Hmm<ObservationVector>) HmmBinaryReader.read(new FileInputStream(parser.modelFile));
 		}
-
 		
 		/*
 		 * Identify peak state as the state with the highest short read signal.
@@ -274,20 +240,20 @@ public class Main_HMMR_Driver {
 		
 		int peak = -1;
 		double max = 0.0;
-		for (int i = 0; i < hmm.nbStates();i++){
+		for (int i = 0; i < hmm.nbStates(); i++) {
 			OpdfMultiGaussian pdf = (OpdfMultiGaussian) hmm.getOpdf(i);
 			double sh = pdf.mean()[0];
-			if (sh > max){
+			if (sh > max) {
 				peak = i;
 				max = sh;
 			}
 		}
 		max = 0.0;
-		for (int i = 0; i < hmm.nbStates();i++){
-			if (i != peak){
+		for (int i = 0; i < hmm.nbStates(); i++) {
+			if (i != peak) {
 				OpdfMultiGaussian pdf = (OpdfMultiGaussian) hmm.getOpdf(i);
 				double mono = pdf.mean()[1];
-				if (mono > max){
+				if (mono > max) {
 					max = mono;
 				}
 			}
@@ -296,18 +262,18 @@ public class Main_HMMR_Driver {
 		/*
 		 * Output binary model file
 		 */
-		File outputModel = new File(parser.output +".model");
+		File outputModel = new File(parser.output + ".model");
 		FileOutputStream outModel = new FileOutputStream(outputModel);
 		HmmBinaryWriter.write(outModel, hmm);
 		outModel.close();
-		log.println("Model created and refined. See "+ parser.output +".model");
-		log.println("Model:\n"+ hmm);
+		log.println("Model created and refined. See " + parser.output + ".model");
+		log.println("Model:\n" + hmm);
 		
 		/*
 		 * Stop program if only model is desired
 		 */
 		
-		if(stopAfterModel){
+		if (parser.stopAfterModel) {
 			System.exit(0);
 		}
 		
@@ -316,14 +282,11 @@ public class Main_HMMR_Driver {
 		 * Can also split into whatever sized chunks the users prefers
 		 * May be necessary to split into smaller chunks for machines with less memory
 		 */
-		
 		ArrayList<TagNode> split = new SplitBed(genomeStats, parser.vitWindow).getResult();
-		
 		
 		/*
 		 * Subtract excluded regions from the split genome for Viterbi
 		 */
-		
 		ArrayList<TagNode> vitBed = new SubtractBed(split,exclude).getResults();
 
 		log.println("Genome split and subtracted masked regions");
@@ -333,95 +296,91 @@ public class Main_HMMR_Driver {
 		 */
 		PrintStream NFR = null;
 		PrintStream MONO = null;
-		PrintStream DI=null;
-		PrintStream TRI=null;
-		if(printHMMRTracks){
-			 NFR = new PrintStream(parser.output +"_nfr.bedgraph");
-			 MONO = new PrintStream(parser.output +"_mono.bedgraph");
-			 DI = new PrintStream(parser.output +"_di.bedgraph");
-			 TRI = new PrintStream(parser.output +"_tri.bedgraph");
+		PrintStream DI = null;
+		PrintStream TRI = null;
+		if (parser.printHMMRTracks) {
+			 NFR = new PrintStream(parser.output + "_nfr.bedgraph");
+			 MONO = new PrintStream(parser.output + "_mono.bedgraph");
+			 DI = new PrintStream(parser.output + "_di.bedgraph");
+			 TRI = new PrintStream(parser.output + "_tri.bedgraph");
 		}
 		ArrayList<TagNode> genomeAnnotation = new ArrayList<>();
-		for (int i = 0;i < vitBed.size();i++){
-			if (vitBed.get(i).getLength() >= 10){
+		for (int i = 0; i < vitBed.size(); i++) {
+			if (vitBed.get(i).getLength() >= 10) {
 				ArrayList<TagNode> tempBed = new ArrayList<>();
 				tempBed.add(vitBed.get(i));
-				FragPileupGen vGen = new FragPileupGen(parser.bam, parser.index, tempBed, mode, parser.means, parser.stddevs, parser.minMapQ, parser.rmDup,cpmScale);
+				FragPileupGen vGen = new FragPileupGen(parser.bam, parser.index, tempBed, mode, parser.means, parser.stddevs, parser.minMapQ, parser.rmDup, cpmScale);
 				TrackHolder vHolder = new TrackHolder(vGen.transformTracks(vGen.scaleTracks(vGen.getAverageTracks())), parser.trim);
 				
-				if (printHMMRTracks){
-					HMMRTracksToBedgraph tracks = new HMMRTracksToBedgraph(vHolder.getRawData(),vitBed.get(i),10);
+				if (parser.printHMMRTracks) {
+					HMMRTracksToBedgraph tracks = new HMMRTracksToBedgraph(vHolder.getRawData(), vitBed.get(i),10);
 					ArrayList<TagNode> nfr = tracks.getShort();
 					ArrayList<TagNode> mono = tracks.getMono();
 					ArrayList<TagNode> di = tracks.getDi();
 					ArrayList<TagNode> tri = tracks.getTri();
 					
-					
-					if (nfr != null) {
+					if (nfr != null && NFR != null) {
 						for (TagNode tagNode : nfr) {
 							NFR.println(tagNode.toString2());
 						}
 					}
-					if (mono != null) {
+					if (mono != null && MONO != null) {
 						for (TagNode tagNode : mono) {
 							MONO.println(tagNode.toString2());
 						}
 					}
-					if (di != null) {
+					if (di != null && DI != null) {
 						for (TagNode tagNode : di) {
 							DI.println(tagNode.toString2());
 						}
 					}
-					if (tri != null) {
+					if (tri != null && TRI != null) {
 						for (TagNode tagNode : tri) {
 							TRI.println(tagNode.toString2());
 						}
 					}
-					
 				}
 
-				RobustHMM HMM = new RobustHMM(vHolder.getObs(),null,hmm,false,0,"Vector",0);
+				RobustHMM HMM = new RobustHMM(vHolder.getObs(),null, hmm,false,0,"Vector",0);
 				int[] states = HMM.getStates();
 				
 				int start = vitBed.get(i).getStart();
 				int remainder = vitBed.get(i).getLength() % 10;
 				ArrayList<PileupNode2> pile = new ArrayList<>();
 				int a;
-				for (a = 0;a < states.length-1;a++){
-					PileupNode2 pNode = new PileupNode2(start+(a*10),(double)states[a],vitBed.get(i).getChrom());
-					pile.add(pNode);
+				for (a = 0; a < states.length-1; a++) {
+					pile.add(new PileupNode2(start+(a*10), (double)states[a], vitBed.get(i).getChrom()));
 				}
-				PileupNode2 pNode = new PileupNode2(start+(((a)*10)-remainder),(double)states[a],vitBed.get(i).getChrom());
-				pile.add(pNode);
+				pile.add(new PileupNode2(start+(((a)*10)-remainder), (double)states[a], vitBed.get(i).getChrom()));
 				genomeAnnotation.addAll(new PileupToBedGraph(pile,10).getBedGraph());
 				
-				if(i%50 == 0 || i == vitBed.size()-1){
-					log.println(i+" round viterbi done");
+				if (i%50 == 0 || i == vitBed.size()-1) {
+					log.println(i + " round viterbi done");
 				}
 			}
 		}
 		//out.close();
-		if(printHMMRTracks){
+		if (parser.printHMMRTracks) {
 			NFR.close();MONO.close();DI.close();TRI.close();
 		}
 		/*
 		 * Report the final results as peaks, bedgraphs and summits, if desired
 		 */
 		PrintStream bedgraph=null;
-		if (parser.bg){
-			 bedgraph = new PrintStream(parser.output +".bedgraph");
+		if (parser.bg) {
+			 bedgraph = new PrintStream(parser.output + ".bedgraph");
 		}
 		PrintStream pks=null;
 		PrintStream summits=null;
-		if (parser.peaks){
-			 pks = new PrintStream(parser.output +"_peaks.gappedPeak");
-			 summits = new PrintStream(parser.output +"_summits.bed");
+		if (parser.peaks) {
+			 pks = new PrintStream(parser.output + "_peaks.gappedPeak");
+			 summits = new PrintStream(parser.output + "_summits.bed");
 		}
 		HashMap<String,ArrayList<TagNode>> bdg = fc.getMappedBedgraph();
 
 		HashMap<String,ArrayList<TagNode>> hmmrBdg = bedGraphMath.toMap(genomeAnnotation);
-		int counter=1;
-		for (String chr : hmmrBdg.keySet()){
+		int counter = 1;
+		for (String chr : hmmrBdg.keySet()) {
 			ArrayList<TagNode> hmmr = hmmrBdg.get(chr);
 			ArrayList<TagNode> signal = bdg.get(chr);
 			if (signal != null) {
@@ -444,13 +403,10 @@ public class Main_HMMR_Driver {
 									.hasHit()) {
 								overlaps.add(signal.get(a));
 								hasHadOverlap = true;
-							} else {
-								if (hasHadOverlap) {
-									index = a;
-									break;
-								}
+							} else if (hasHadOverlap) {
+								index = a;
+								break;
 							}
-
 						}
 						ScoreNode scores = bedGraphMath.set(temp, overlaps);
 						double MAX = scores.getMax();
@@ -500,7 +456,7 @@ public class Main_HMMR_Driver {
 					/*
 					 * report the bedgraph, is desired
 					 */
-					if (parser.bg) {
+					if (parser.bg && bedgraph != null) {
 						if (!parser.bgScore) {
 							bedgraph.println(temp.toString2());
 						} else {
@@ -513,22 +469,24 @@ public class Main_HMMR_Driver {
 					if (parser.peaks && (int) temp.getScore2() == peak
 							&& temp.getLength() >= parser.minLength &&
 							Double.parseDouble(temp.getScore3()) >= parser.threshold) {
-						if (temp.getSummit() != null) {
+
+						if (temp.getSummit() != null && summits != null) {
 							summits.println(temp.toString_ScoredSummit());
 						}
-						pks.println(temp.toString_gappedPeak());
+						if (pks != null) {
+							pks.println(temp.toString_gappedPeak());
+						}
 					}
 
 				}
 			}
-			
 		}//for loop through chroms
-		if (parser.bg){
+
+		if (parser.bg && bedgraph != null) {
 			bedgraph.close();
 		}
 		
-		
-		if (parser.peaks){
+		if (parser.peaks && pks != null) {
 			counter=0;
 
 			for (TagNode tagNode : addBack) {
@@ -536,7 +494,7 @@ public class Main_HMMR_Driver {
 				int start = tagNode.getStart();
 				int stop = tagNode.getStop();
 
-				pks.println(chrom + "\t" + start + "\t" + stop + "\t" + "HighCoveragePeak_" + counter + "\t.\t.\t0\t0\t255,0,0\t1\t" +
+				pks.println(chrom + "\t" + start + "\t" + stop + "\tHighCoveragePeak_" + counter + "\t.\t.\t0\t0\t255,0,0\t1\t" +
 						tagNode.getLength() + "\t0\t-1\t-1\t-1");
 			}
 			
@@ -546,7 +504,7 @@ public class Main_HMMR_Driver {
 
 		long endTime = System.currentTimeMillis();
 		long total = (endTime - startTime) / 1000;
-		log.println("Total time (seconds)= \t"+total);
+		log.println("Total time (seconds)= \t" + total);
 		log.close();
 	}//main
 }
