@@ -23,27 +23,24 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 public class HMMR_EM {
 	
-	private double[] weights;
-	private double[] mu;
-	private double[] lamda;
-	private double[] data;
-	private double epsilon = 0.0005;
-	private int maxIter = 20;
-	private double jump = 1.5;
+	private final double[] weights;
+	private final double[] mu;
+	private final double[] lambda;
+	private final double[] data;
 	
 	/**
 	 * Constructor for generating new HMMR_EM object
 	 *
-	 * @param w an Array of doubles representing the weights of the distribution
-	 * @param m an Array of doubles representing the means of the distribution
-	 * @param l an Array of doubles representing the standard deviations of the distribution
-	 * @param d an Array of doubles representing the read length data
+	 * @param weights an Array of doubles representing the weights of the distribution
+	 * @param means an Array of doubles representing the means of the distribution
+	 * @param lambda an Array of doubles representing the standard deviations of the distribution
+	 * @param data an Array of doubles representing the read length data
 	 */
-	public HMMR_EM(double[] w, double[] m, double[] l, double[] d) {
-		weights = w;
-		mu = m;
-		lamda = l;
-		data = d;
+	public HMMR_EM(double[] weights, double[] means, double[] lambda, double[] data) {
+		this.weights = weights;
+		this.mu = means;
+		this.lambda = lambda;
+		this.data = data;
 	}
 	
 	/**
@@ -60,8 +57,8 @@ public class HMMR_EM {
 	 *
 	 * @return an Array of doubles representing the standard deviations
 	 */
-	public double[] getLamda() {
-		return lamda;
+	public double[] getLambda() {
+		return lambda;
 	}
 	
 	/**
@@ -78,27 +75,24 @@ public class HMMR_EM {
 			means[i] = new Mean();
 			std[i] = new StandardDeviation();
 		}
-		for (int i = 0; i < data.length; i++) {
-			
+		for (double d : data) {
 			for (int l = 0; l < mu.length; l++) {
-				temp[l] = getWeightedDensity(data[i], mu[l], lamda[l], weights[l]);
-				
+				temp[l] = getWeightedDensity(d, mu[l], lambda[l], weights[l]);
 			}
 			int index = returnGreater(temp);
 			if (index != -1) {
-				means[index].increment(data[i]);
-				std[index].increment(data[i]);
-				counter[index] += 1.0;
-				total += 1.0;
+				means[index].increment(d);
+				std[index].increment(d);
+				counter[index]++;
+				total++;
 			}
 		}
 		for (int i = 0; i < mu.length; i++) {
+			double jump = 1.5;
 			mu[i] = mu[i] + (jump * (means[i].getResult() - mu[i]));
-			lamda[i] = lamda[i] + (jump * (std[i].getResult() - lamda[i]));
+			lambda[i] = lambda[i] + (jump * (std[i].getResult() - lambda[i]));
 			weights[i] = counter[i] / total;
 		}
-		
-		
 	}
 	
 	/**
@@ -115,40 +109,29 @@ public class HMMR_EM {
 			
 			for (int a = 0; a < mu.length; a++) {
 				oldMu[a] = mu[a];
-				oldLam[a] = lamda[a];
+				oldLam[a] = lambda[a];
 				oldWeights[a] = weights[a];
 			}
-			
 			
 			iterate();
 			
 			int counter = 0;
 			for (int a = 0; a < mu.length; a++) {
 				
-				if (converges(oldMu[a], mu[a], epsilon) && converges(oldWeights[a], weights[a], epsilon)
-						&& converges(oldLam[a], lamda[a], epsilon)) {
-					counter += 1;
+				double epsilon = 0.0005;
+				if (converges(oldMu[a], mu[a], epsilon)
+						&& converges(oldWeights[a], weights[a], epsilon)
+						&& converges(oldLam[a], lambda[a], epsilon)) {
+					counter++;
 				}
 			}
-			if (counter == mu.length) {
-				
-				converged = true;
-			}
-			iter += 1;
+			converged = counter == mu.length;
+			
+			iter++;
+			int maxIter = 20;
 			if (iter >= maxIter) {
 				break;
 			}
-			//Output values during iterations
-			/*
-			for (int a = 0;a < mu.length;a++){
-				System.out.println(mu[a]);
-				
-				System.out.println(lamda[a]);
-				System.out.println(weights[a]);
-				System.out.println(iter);
-			}
-			*/
-			//System.out.println(iter);
 		}
 		
 	}
@@ -162,11 +145,7 @@ public class HMMR_EM {
 	 * @return a boolean indicating whether the values have converged
 	 */
 	private boolean converges(double value1, double value2, double epsilon) {
-		if (Math.abs(value1 - value2) <= epsilon) {
-			return true;
-		} else {
-			return false;
-		}
+		return Math.abs(value1 - value2) <= epsilon;
 	}
 	
 	/**
@@ -174,15 +153,13 @@ public class HMMR_EM {
 	 *
 	 * @param x      a double representing the read length
 	 * @param mean   a double representing the distribution mean
-	 * @param lamda  a double representing the distribution standard deviation
+	 * @param lambda  a double representing the distribution standard deviation
 	 * @param weight a double representing the distribution weight
 	 * @return a double representing the weighted density
 	 */
-	private double getWeightedDensity(double x, double mean, double lamda, double weight) {
-		
-		NormalDistribution dis = new NormalDistribution(mean, lamda);
+	private double getWeightedDensity(double x, double mean, double lambda, double weight) {
+		NormalDistribution dis = new NormalDistribution(mean, lambda);
 		return weight * dis.density(x);
-		
 	}
 	
 	/**
@@ -193,22 +170,15 @@ public class HMMR_EM {
 	 */
 	private int returnGreater(double[] data) {
 		int largest = -1;
-		double greatest = -1.0;
+		double greatest = -Double.MAX_VALUE;
 		for (int i = 0; i < data.length; i++) {
-			if (data[i] > greatest) {
+			if (data[i] == greatest) {
+				largest = -1;
+			} else if (data[i] > greatest) {
 				greatest = data[i];
 				largest = i;
 			}
 		}
-		for (int i = 0; i < data.length; i++) {
-			if (i != largest) {
-				if (data[i] == greatest) {
-					largest = -1;
-				}
-			}
-		}
-		
 		return largest;
 	}
-	
 }

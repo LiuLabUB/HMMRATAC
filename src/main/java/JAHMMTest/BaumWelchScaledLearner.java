@@ -29,8 +29,7 @@ public class BaumWelchScaledLearner
 	 */
 	private int scaledConstant = 1;
 	
-	public BaumWelchScaledLearner() {
-	}
+	public BaumWelchScaledLearner() {}
 	
 	public BaumWelchScaledLearner(int i) {
 		scaledConstant = i;
@@ -38,8 +37,7 @@ public class BaumWelchScaledLearner
 	}
 	
 	protected <O extends Observation> ForwardBackwardCalculator_1
-	generateForwardBackwardCalculator(List<? extends O> sequence,
-									  Hmm<O> hmm) {
+	generateForwardBackwardCalculator(List<? extends O> sequence, Hmm<O> hmm) {
 		return new ForwardBackwardScaledCalculator_1(sequence, hmm,
 				EnumSet.allOf(ForwardBackwardCalculator_1.Computation.class), scaledConstant);
 	}
@@ -52,36 +50,26 @@ public class BaumWelchScaledLearner
 	 we assume that the scaling factors are such that their product
 	 is equal to the inverse of the probability of the sequence. */
 	protected <O extends Observation> double[][][]
-	estimateXi(List<? extends O> sequence, ForwardBackwardCalculator fbc,
-			   Hmm<O> hmm) {
-		if (sequence.size() <= 1)
-			throw new IllegalArgumentException("Observation sequence too " +
-					"short");
+	estimateXi(List<? extends O> sequence, ForwardBackwardCalculator fbc, Hmm<O> hmm) {
+		if (sequence.size() <= 1) {
+			throw new IllegalArgumentException("Observation sequence too short");
+		}
 		
-		double xi[][][] =
-				new double[sequence.size() - 1][hmm.nbStates()][hmm.nbStates()];
-		//System.out.println("Scaled Xi method");
+		double[][][] xi = new double[sequence.size() - 1][hmm.nbStates()][hmm.nbStates()];
 		Iterator<? extends O> seqIterator = sequence.iterator();
 		seqIterator.next();
 		
 		for (int t = 0; t < sequence.size() - 1; t++) {
 			O observation = seqIterator.next();
-			//System.out.println("first loop");
+			//
 			for (int i = 0; i < hmm.nbStates(); i++)
 				for (int j = 0; j < hmm.nbStates(); j++) {
 					xi[t][i][j] = fbc.alphaElement(t, i) *
 							hmm.getAij(i, j) *
 							hmm.getOpdf(j).probability(observation) *
 							fbc.betaElement(t + 1, j);
-					//pts.add(xi[t][i][j]);
-					//pts[t][i] = fbc.betaElement(t+1, j);
-					//System.out.println("Second loop");
-					//System.out.println("Alpha\tT\t"+t+"\tI\t"+i+"\t"+fbc.alphaElement(t, i));
-					//System.out.println("Beta\tT\t"+t+"\tJ\t"+i+"\t"+fbc.betaElement(t+1, j));
 				}
-			
 		}
-		
 		return xi;
 	}
 }

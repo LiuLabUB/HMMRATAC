@@ -28,18 +28,17 @@ import java.util.List;
  * <i>Juang</i>'s <i>Fundamentals of speech recognition</i> (Prentice Hall,
  * 1993).
  */
-public class ForwardBackwardScaledCalculator_1
-		extends ForwardBackwardCalculator_1 {
+public class ForwardBackwardScaledCalculator_1 extends ForwardBackwardCalculator_1 {
 	/*
 	 * Warning, the semantic of the alpha and beta elements are changed;
 	 * in this class, they have their value scaled.
 	 */
 	// Scaling factors
-	private double[] ctFactors;
+	private final double[] ctFactors;
 	private double lnProbability;
 	
 	//Scaling constant that i added
-	private int constant;
+	private final int constant;
 	
 	/**
 	 * Computes the probability of occurence of an observation sequence
@@ -53,19 +52,19 @@ public class ForwardBackwardScaledCalculator_1
 	 *              The alpha array is always computed.
 	 */
 	public <O extends Observation>
-	ForwardBackwardScaledCalculator_1(List<? extends O> oseq,
-									  Hmm<O> hmm, EnumSet<Computation> flags, int c) {
-		if (oseq.isEmpty())
+	ForwardBackwardScaledCalculator_1(List<? extends O> oseq, Hmm<O> hmm, EnumSet<Computation> flags, int c) {
+		if (oseq.isEmpty()) {
 			throw new IllegalArgumentException();
+		}
 		
-		//System.out.println("Scaled FB");
 		ctFactors = new double[oseq.size()];
 		Arrays.fill(ctFactors, 0.);
 		constant = c;
 		computeAlpha(hmm, oseq);
 		
-		if (flags.contains(Computation.BETA))
+		if (flags.contains(Computation.BETA)) {
 			computeBeta(hmm, oseq);
+		}
 		
 		computeProbability(oseq, hmm, flags);
 	}
@@ -78,31 +77,31 @@ public class ForwardBackwardScaledCalculator_1
 	 *
 	 * @see #ForwardBackwardScaledCalculator(List, Hmm, EnumSet)
 	 */
-	public <O extends Observation>
-	ForwardBackwardScaledCalculator_1(List<? extends O> oseq, Hmm<O> hmm, int c) {
+	public <O extends Observation> ForwardBackwardScaledCalculator_1(List<? extends O> oseq, Hmm<O> hmm, int c) {
 		this(oseq, hmm, EnumSet.of(Computation.ALPHA), c);
-		
 	}
 	
 	
 	/* Computes the content of the scaled alpha array */
-	protected <O extends Observation> void
-	computeAlpha(Hmm<? super O> hmm, List<O> oseq) {
+	protected <O extends Observation> void computeAlpha(Hmm<? super O> hmm, List<O> oseq) {
 		alpha = new double[oseq.size()][hmm.nbStates()];
 		
-		for (int i = 0; i < hmm.nbStates(); i++)
+		for (int i = 0; i < hmm.nbStates(); i++) {
 			computeAlphaInit(hmm, oseq.get(0), i);
+		}
 		scale(ctFactors, alpha, 0);
 		
 		Iterator<? extends O> seqIterator = oseq.iterator();
-		if (seqIterator.hasNext())
+		if (seqIterator.hasNext()) {
 			seqIterator.next();
+		}
 		
 		for (int t = 1; t < oseq.size(); t++) {
 			O observation = seqIterator.next();
 			
-			for (int i = 0; i < hmm.nbStates(); i++)
+			for (int i = 0; i < hmm.nbStates(); i++) {
 				computeAlphaStep(hmm, observation, t, i);
+			}
 			scale(ctFactors, alpha, t);
 		}
 	}
@@ -114,41 +113,39 @@ public class ForwardBackwardScaledCalculator_1
 	computeBeta(Hmm<? super O> hmm, List<O> oseq) {
 		beta = new double[oseq.size()][hmm.nbStates()];
 		
-		for (int i = 0; i < hmm.nbStates(); i++)
+		for (int i = 0; i < hmm.nbStates(); i++) {
 			beta[oseq.size() - 1][i] = 1. / ctFactors[oseq.size() - 1];
+		}
 		
-		for (int t = oseq.size() - 2; t >= 0; t--)
+		for (int t = oseq.size() - 2; t >= 0; t--) {
 			for (int i = 0; i < hmm.nbStates(); i++) {
 				computeBetaStep(hmm, oseq.get(t + 1), t, i);
 				beta[t][i] /= ctFactors[t];
 			}
+		}
 	}
 	
 	
 	/* Normalize alpha[t] and put the normalization factor in ctFactors[t] */
 	private void scale(double[] ctFactors, double[][] array, int t) {
 		double[] table = array[t];
-		double sum = 0.;
-		
-		for (int i = 0; i < table.length; i++)
-			sum += table[i];
+		double sum = Arrays.stream(table).sum();
 		
 		//added: multiply sum by constant. original code did not multiply sum by constant
 		//to force original method, set constant to one
 		ctFactors[t] = sum * constant;
-		for (int i = 0; i < table.length; i++)
+		for (int i = 0; i < table.length; i++) {
 			table[i] /= sum * constant;
+		}
 	}
 	
-	
 	private <O extends Observation> void
-	computeProbability(List<O> oseq, Hmm<? super O> hmm,
-					   EnumSet<Computation> flags) {
+	computeProbability(List<O> oseq, Hmm<? super O> hmm, EnumSet<Computation> flags) {
 		lnProbability = 0.;
 		
-		for (int t = 0; t < oseq.size(); t++)
+		for (int t = 0; t < oseq.size(); t++) {
 			lnProbability += Math.log(ctFactors[t]);
-		
+		}
 		probability = Math.exp(lnProbability);
 	}
 	

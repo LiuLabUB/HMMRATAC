@@ -14,11 +14,9 @@ public class Slope {
 			double start = data[i - halfWidth];
 			double stop = data[i + halfWidth];
 			double rise = stop - start;
-			double run = 0;
+			double run = window;
 			if (window % 2 == 0) {
-				run = window + 1;
-			} else {
-				run = window;
+				run++;
 			}
 			sloped[i] = rise / run;
 		}

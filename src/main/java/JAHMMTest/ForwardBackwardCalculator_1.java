@@ -36,11 +36,7 @@ public class ForwardBackwardCalculator_1 {
 	protected double probability;
 	
 	
-	protected ForwardBackwardCalculator_1() {
-	}
-	
-	;
-	
+	protected ForwardBackwardCalculator_1() {}
 	
 	/**
 	 * Computes the probability of occurence of an observation sequence
@@ -52,21 +48,19 @@ public class ForwardBackwardCalculator_1 {
 	 *              {@link Computation Computation} enum.
 	 */
 	public <O extends Observation>
-	ForwardBackwardCalculator_1(List<? extends O> oseq,
-								Hmm<O> hmm, EnumSet<Computation> flags) {
+	ForwardBackwardCalculator_1(List<? extends O> oseq, Hmm<O> hmm, EnumSet<Computation> flags) {
 		System.out.println("Unscaled FB");
-		if (oseq.isEmpty())
+		if (oseq.isEmpty()) {
 			throw new IllegalArgumentException("Invalid empty sequence");
-		
-		if (flags.contains(Computation.ALPHA))
+		}
+		if (flags.contains(Computation.ALPHA)) {
 			computeAlpha(hmm, oseq);
-		
-		if (flags.contains(Computation.BETA))
+		}
+		if (flags.contains(Computation.BETA)) {
 			computeBeta(hmm, oseq);
-		
+		}
 		computeProbability(oseq, hmm, flags);
 	}
-	
 	
 	/**
 	 * Computes the probability of occurence of an observation sequence
@@ -78,27 +72,28 @@ public class ForwardBackwardCalculator_1 {
 	public <O extends Observation>
 	ForwardBackwardCalculator_1(List<? extends O> oseq, Hmm<O> hmm) {
 		this(oseq, hmm, EnumSet.of(Computation.ALPHA));
-		
 	}
 	
 	
 	/* Computes the content of the alpha array */
-	protected <O extends Observation> void
-	computeAlpha(Hmm<? super O> hmm, List<O> oseq) {
+	protected <O extends Observation> void computeAlpha(Hmm<? super O> hmm, List<O> oseq) {
 		alpha = new double[oseq.size()][hmm.nbStates()];
 		
-		for (int i = 0; i < hmm.nbStates(); i++)
+		for (int i = 0; i < hmm.nbStates(); i++) {
 			computeAlphaInit(hmm, oseq.get(0), i);
+		}
 		
 		Iterator<O> seqIterator = oseq.iterator();
-		if (seqIterator.hasNext())
+		if (seqIterator.hasNext()) {
 			seqIterator.next();
+		}
 		
 		for (int t = 1; t < oseq.size(); t++) {
 			O observation = seqIterator.next();
 			
-			for (int i = 0; i < hmm.nbStates(); i++)
+			for (int i = 0; i < hmm.nbStates(); i++) {
 				computeAlphaStep(hmm, observation, t, i);
+			}
 		}
 	}
 	
@@ -107,63 +102,51 @@ public class ForwardBackwardCalculator_1 {
 	protected <O extends Observation> void
 	computeAlphaInit(Hmm<? super O> hmm, O o, int i) {
 		alpha[0][i] = hmm.getPi(i) * hmm.getOpdf(i).probability(o);
-		if (alpha[0][i] == Double.NaN) {
+		if (Double.isNaN(alpha[0][i])) {
 			System.out.println(alpha[0][i]);
 		}
-		//TEST OUT STATEMENT
-		//System.out.println(alpha[0][i]);
-		//System.out.println(hmm.getPi(i));
-		//System.out.println(hmm.getOpdf(i).probability(o));
 	}
 	
 	
 	/* Computes alpha[t][j] (t > 0) */
-	protected <O extends Observation> void
-	computeAlphaStep(Hmm<? super O> hmm, O o, int t, int j) {
+	protected <O extends Observation> void computeAlphaStep(Hmm<? super O> hmm, O o, int t, int j) {
 		double sum = 0.;
 		
 		for (int i = 0; i < hmm.nbStates(); i++) {
 			sum += alpha[t - 1][i] * hmm.getAij(i, j);
-			//TEST OUT STATEMENT
-			//System.out.println(hmm.getAij(i, j));
-			//System.out.println(alpha[t-1][i]);
 		}
-		
 		alpha[t][j] = sum * hmm.getOpdf(j).probability(o);
-		//TEST OUT STATEMENT
-		// if (Double.isNaN(alpha[t][j])){System.out.println("Alpha"+"\t"+alpha[t][j]+"\tprobability\t"+hmm.getOpdf(j).probability(o)
-		//	   +"\tstate\t"+j+"\tobservation\t"+o.toString()+"\t"+o);}
-		//System.out.println(hmm.getOpdf(j).probability(o));
-		//System.out.println(sum);
 	}
 	
 	
 	/* Computes the content of the beta array.  Needs a O(1) access time
 	 to the elements of oseq to get a theoretically optimal algorithm. */
-	protected <O extends Observation> void
-	computeBeta(Hmm<? super O> hmm, List<O> oseq) {
+	protected <O extends Observation> void computeBeta(Hmm<? super O> hmm, List<O> oseq) {
 		beta = new double[oseq.size()][hmm.nbStates()];
 		
-		for (int i = 0; i < hmm.nbStates(); i++)
+		for (int i = 0; i < hmm.nbStates(); i++) {
 			beta[oseq.size() - 1][i] = 1.;
+		}
 		
-		for (int t = oseq.size() - 2; t >= 0; t--)
-			for (int i = 0; i < hmm.nbStates(); i++)
+		for (int t = oseq.size() - 2; t >= 0; t--) {
+			for (int i = 0; i < hmm.nbStates(); i++) {
 				computeBetaStep(hmm, oseq.get(t + 1), t, i);
+			}
+		}
 	}
 	
 	
 	/* Computes beta[t][i] (t < obs. seq.le length - 1) */
-	protected <O extends Observation> void
-	computeBetaStep(Hmm<? super O> hmm, O o, int t, int i) {
+	protected <O extends Observation> void computeBetaStep(Hmm<? super O> hmm, O o, int t, int i) {
 		double sum = 0.;
 		
-		for (int j = 0; j < hmm.nbStates(); j++)
+		for (int j = 0; j < hmm.nbStates(); j++) {
 			sum += beta[t + 1][j] * hmm.getAij(i, j) *
 					hmm.getOpdf(j).probability(o);
+		}
 		
 		beta[t][i] = sum;
-		if (beta[t][i] == Double.NaN) {
+		if (Double.isNaN(beta[t][i])) {
 			System.out.println(beta[t][i]);
 		}
 	}
@@ -182,10 +165,9 @@ public class ForwardBackwardCalculator_1 {
 	 *                computed.
 	 */
 	public double alphaElement(int t, int i) {
-		if (alpha == null)
-			throw new UnsupportedOperationException("Alpha array has not " +
-					"been computed");
-		
+		if (alpha == null) {
+			throw new UnsupportedOperationException("Alpha array has not been computed");
+		}
 		return alpha[t][i];
 	}
 	
@@ -202,29 +184,26 @@ public class ForwardBackwardCalculator_1 {
 	 *                computed.
 	 */
 	public double betaElement(int t, int i) {
-		if (beta == null)
-			throw new UnsupportedOperationException("Beta array has not " +
-					"been computed");
-		
+		if (beta == null) {
+			throw new UnsupportedOperationException("Beta array has not been computed");
+		}
 		return beta[t][i];
 	}
 	
 	
 	private <O extends Observation> void
-	computeProbability(List<O> oseq, Hmm<? super O> hmm,
-					   EnumSet<Computation> flags) {
+	computeProbability(List<O> oseq, Hmm<? super O> hmm, EnumSet<Computation> flags) {
 		probability = 0.;
 		
-		if (flags.contains(Computation.ALPHA))
+		if (flags.contains(Computation.ALPHA)) {
 			for (int i = 0; i < hmm.nbStates(); i++) {
 				probability += alpha[oseq.size() - 1][i];
-				// System.out.println(probability);
 			}
-		else
-			for (int i = 0; i < hmm.nbStates(); i++)
-				probability +=
-						hmm.getPi(i) *
-								hmm.getOpdf(i).probability(oseq.get(0)) * beta[0][i];
+		} else {
+			for (int i = 0; i < hmm.nbStates(); i++) {
+				probability += hmm.getPi(i) * hmm.getOpdf(i).probability(oseq.get(0)) * beta[0][i];
+			}
+		}
 	}
 	
 	
@@ -236,8 +215,6 @@ public class ForwardBackwardCalculator_1 {
 	 * @return The probability of the sequence of interest.
 	 */
 	public double probability() {
-		//TEST OUT STATEMENT
-		//System.out.println("Program is using correct ForwardBackward Class!!");
 		return probability;
 	}
 }

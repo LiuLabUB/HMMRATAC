@@ -107,7 +107,7 @@ public class Main_HMMR_Driver {
 			HMMR_EM em = new HMMR_EM(weights, Arrays.copyOfRange(parser.means, 1, 4), Arrays.copyOfRange(parser.stddevs, 1, 4), lengths);
 			em.learn();
 			double[] tempMeans = em.getMeans();
-			double[] tempLam = em.getLamda();
+			double[] tempLam = em.getLambda();
 			for (int i = 0; i < tempMeans.length; i++) {
 				//This will update the parameters IFF they were updated. If they become NaN, leave as default
 				if (!Double.isNaN(tempMeans[i]) && !Double.isNaN(tempLam[i])) {
