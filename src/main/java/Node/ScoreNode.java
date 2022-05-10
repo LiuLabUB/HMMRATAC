@@ -19,16 +19,16 @@ package Node;
 import java.util.ArrayList;
 
 public class ScoreNode {
-	private double ave;
-	private double median;
-	private double max;
-	private ArrayList<Double> val;
+	private final double ave;
+	private final double median;
+	private final double max;
+	private final ArrayList<Double> val;
 	
-	public ScoreNode(double a, double med, double m, ArrayList<Double> v) {
-		ave = a;
-		median = med;
-		max = m;
-		val = v;
+	public ScoreNode(double ave, double med, double max, ArrayList<Double> val) {
+		this.ave = ave;
+		this.median = med;
+		this.max = max;
+		this.val = val;
 	}
 	
 	public double getMean() {

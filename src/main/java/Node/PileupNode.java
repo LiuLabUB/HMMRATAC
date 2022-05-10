@@ -18,7 +18,6 @@ package Node;
  */
 public class PileupNode {
 	
-	
 	private int _base;
 	private double _score;
 	private int _score2;
@@ -30,7 +29,6 @@ public class PileupNode {
 	 * @param score a double representing the base's score
 	 */
 	public PileupNode(int base, double score) {
-		//	_chrom = chr;
 		_base = base;
 		_score = score;
 	}
@@ -38,9 +36,7 @@ public class PileupNode {
 	/**
 	 * Default Constructor
 	 */
-	public PileupNode() {
-		
-	}
+	public PileupNode() {}
 	
 	/**
 	 * Constructor for creating new PileupNode

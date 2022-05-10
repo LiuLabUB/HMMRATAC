@@ -112,7 +112,7 @@ public class bedGraphMath {
 		for (String chr : bedgraph.keySet()) {
 			
 			ArrayList<TagNode> inTemp = bedgraph.get(chr);
-			Collections.sort(inTemp, TagNode.basepairComparator);
+			Collections.sort(inTemp, TagNode.basePairComparator);
 			for (int i = 0; i < inTemp.size(); i++) {
 				
 				results.add(inTemp.get(i));
@@ -203,7 +203,7 @@ public class bedGraphMath {
 		int paddedStart = start - (3 * stdev);
 		int paddedStop = stop + (3 * stdev);
 		double[] data = new double[paddedStop - paddedStart];
-		Collections.sort(overlaps, TagNode.basepairComparator);
+		Collections.sort(overlaps, TagNode.basePairComparator);
 		for (int a = 0; a < overlaps.size(); a++) {
 			TagNode node2 = overlaps.get(a);
 			
@@ -242,7 +242,7 @@ public class bedGraphMath {
 		Max m = new Max();
 		Mean mu = new Mean();
 		ArrayList<Double> values = new ArrayList<Double>();
-		Collections.sort(overlaps, TagNode.basepairComparator);
+		Collections.sort(overlaps, TagNode.basePairComparator);
 		for (int a = 0; a < overlaps.size(); a++) {
 			TagNode node2 = overlaps.get(a);
 			
@@ -279,7 +279,7 @@ public class bedGraphMath {
 		for (String chr : bedgraph.keySet()) {
 			
 			ArrayList<TagNode> inTemp = bedgraph.get(chr);
-			Collections.sort(inTemp, TagNode.basepairComparator);
+			Collections.sort(inTemp, TagNode.basePairComparator);
 			for (int i = 0; i < inTemp.size(); i++) {
 				double value = inTemp.get(i).getScore2();
 				if (((value - mean) / std) >= z) {
@@ -295,7 +295,7 @@ public class bedGraphMath {
 		for (String chr : bedgraph.keySet()) {
 			
 			ArrayList<TagNode> inTemp = bedgraph.get(chr);
-			Collections.sort(inTemp, TagNode.basepairComparator);
+			Collections.sort(inTemp, TagNode.basePairComparator);
 			for (int i = 0; i < inTemp.size(); i++) {
 				double value = inTemp.get(i).getScore2();
 				if ((value / mean) >= lower && (value / mean) <= upper) {
@@ -312,7 +312,7 @@ public class bedGraphMath {
 		for (String chr : bedgraph.keySet()) {
 			
 			ArrayList<TagNode> inTemp = bedgraph.get(chr);
-			Collections.sort(inTemp, TagNode.basepairComparator);
+			Collections.sort(inTemp, TagNode.basePairComparator);
 			for (int i = 0; i < inTemp.size(); i++) {
 				int length = inTemp.get(i).getLength();
 				double value = inTemp.get(i).getScore2();

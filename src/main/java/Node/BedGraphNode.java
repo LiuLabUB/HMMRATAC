@@ -40,9 +40,7 @@ public class BedGraphNode extends Node.TagNode {
 		_score2 = score;
 	}
 	
-	public BedGraphNode() {
-		
-	}
+	public BedGraphNode() {}
 	
 	public BedGraphNode(String chr, int start, int stop, double score, String s) {
 		_chrom = chr;

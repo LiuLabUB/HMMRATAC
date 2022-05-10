@@ -23,8 +23,7 @@ import java.util.Comparator;
 //should re-do this class.  should make one basic class (for 6 arg constructor) and then make other classes that implement this one
 //for other functions - for instance for node with cluster
 
-public class ATACMatrixNode implements Comparable {
-	
+public class ATACMatrixNode implements Comparable<ATACMatrixNode> {
 	
 	private String _chrom;
 	private int _pos;
@@ -37,9 +36,9 @@ public class ATACMatrixNode implements Comparable {
 	private double _windowSum2;
 	private double _windowSum3;
 	
-	private double _lamda1;
-	private double _lamda2;
-	private double _lamda3;
+	private double _lambda1;
+	private double _lambda2;
+	private double _lambda3;
 	
 	private int _index;
 	
@@ -52,7 +51,8 @@ public class ATACMatrixNode implements Comparable {
 		_index = index;
 	}
 	
-	public ATACMatrixNode(String chrom, int pos, double enrich1, double enrich2, double enrich3, double enrich4, int index) {
+	public ATACMatrixNode(String chrom, int pos, 
+						  double enrich1, double enrich2, double enrich3, double enrich4, int index) {
 		_chrom = chrom;
 		_pos = pos;
 		_enrich1 = enrich1;
@@ -62,7 +62,10 @@ public class ATACMatrixNode implements Comparable {
 		_index = index;
 	}
 	
-	public ATACMatrixNode(String chrom, int pos, double enrich1, double enrich2, double enrich3, double winSum1, double winSum2, double winSum3, double lamda1, double lamda2, double lamda3) {
+	public ATACMatrixNode(String chrom, int pos, 
+						  double enrich1, double enrich2, double enrich3, 
+						  double winSum1, double winSum2, double winSum3, 
+						  double lambda1, double lambda2, double lambda3) {
 		_chrom = chrom;
 		_pos = pos;
 		_enrich1 = enrich1;
@@ -73,9 +76,9 @@ public class ATACMatrixNode implements Comparable {
 		_windowSum2 = winSum2;
 		_windowSum3 = winSum3;
 		
-		_lamda1 = lamda1;
-		_lamda2 = lamda2;
-		_lamda3 = lamda3;
+		_lambda1 = lambda1;
+		_lambda2 = lambda2;
+		_lambda3 = lambda3;
 	}
 	
 	public void setIndex(int index) {
@@ -158,48 +161,34 @@ public class ATACMatrixNode implements Comparable {
 		return _windowSum3;
 	}
 	
-	public void setLamda1(double lamda1) {
-		_lamda1 = lamda1;
+	public void setLambda1(double lambda1) {
+		_lambda1 = lambda1;
 	}
 	
-	public double getLamda1() {
-		return _lamda1;
+	public double getLambda1() {
+		return _lambda1;
 	}
 	
-	public void setLamda2(double lamda2) {
-		_lamda2 = lamda2;
+	public void setLambda2(double lambda2) {
+		_lambda2 = lambda2;
 	}
 	
-	public double getLamda2() {
-		return _lamda2;
+	public double getLambda2() {
+		return _lambda2;
 	}
 	
-	public void setLamda3(double local3) {
-		_lamda3 = local3;
+	public void setLambda3(double local3) {
+		_lambda3 = local3;
 	}
 	
-	public double getLamda3() {
-		return _lamda3;
+	public double getLambda3() {
+		return _lambda3;
 	}
 	
-	public static Comparator<ATACMatrixNode> positionComparator = new Comparator<ATACMatrixNode>() {
-		public int compare(ATACMatrixNode node1, ATACMatrixNode node2) {
-			double pos1 = node1.getPos();
-			double pos2 = node2.getPos();
-			if (pos1 < pos2) return -1;
-			else return 1;
-			
-		}
-	};
-	
+	public static Comparator<ATACMatrixNode> positionComparator = Comparator.comparingDouble(ATACMatrixNode::getPos);
 	
 	@Override
-	public int compareTo(Object o) {
-		double pos1 = this.getPos();
-		double pos2 = ((ATACMatrixNode) o).getPos();
-		if (pos1 < pos2) return -1;
-		else if (pos1 > pos2) return 1;
-		else return 0;
+	public int compareTo(ATACMatrixNode other) {
+		return Double.compare(this.getPos(), other.getPos());
 	}
-	
 }

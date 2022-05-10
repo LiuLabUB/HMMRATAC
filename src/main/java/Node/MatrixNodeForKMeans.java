@@ -33,5 +33,4 @@ public class MatrixNodeForKMeans extends ATACMatrixNode {
 	public int getID() {
 		return dataID;
 	}
-	
 }

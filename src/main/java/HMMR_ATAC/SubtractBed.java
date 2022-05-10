@@ -19,7 +19,6 @@ package HMMR_ATAC;
 
 import Node.OverlapNode;
 import Node.TagNode;
-import org.apache.commons.math3.ml.neuralnet.MapUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -131,7 +130,7 @@ public class SubtractBed {
 						for (OverlapNode result : results) {
 							res.add(result.getHit());
 						}
-						res.sort(TagNode.basepairComparator);
+						res.sort(TagNode.basePairComparator);
 						
 						int index;
 						if (res.get(0).getStart() < tagNode.getStart()) {

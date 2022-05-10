@@ -26,14 +26,14 @@ public class OverlapNode {
 	/**
 	 * Constructor for creating OverlapNode object
 	 *
-	 * @param n a TagNode representing the overlaped portion
-	 * @param h a boolean determining if the TagNode had an overlap
-	 * @param c a boolean determining if the TagNode was completely overlapped
+	 * @param node a TagNode representing the overlapped portion
+	 * @param hit a boolean determining if the TagNode had an overlap
+	 * @param consumed a boolean determining if the TagNode was completely overlapped
 	 */
-	public OverlapNode(TagNode n, boolean h, boolean c) {
-		_node = n;
-		_hit = h;
-		_isConsumed = c;
+	public OverlapNode(TagNode node, boolean hit, boolean consumed) {
+		this._node = node;
+		this._hit = hit;
+		this._isConsumed = consumed;
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class OverlapNode {
 	/**
 	 * Set whether the TagNode had any overlap
 	 *
-	 * @param c a boolean determining if the TagNode had any overlap
+	 * @param h a boolean determining if the TagNode had any overlap
 	 */
 	public void setHit(boolean h) {
 		_hit = h;

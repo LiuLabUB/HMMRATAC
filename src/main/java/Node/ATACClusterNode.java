@@ -35,6 +35,4 @@ public class ATACClusterNode extends ATACMatrixNode {
 	public int getCluster() {
 		return _cluster;
 	}
-	
-	
 }

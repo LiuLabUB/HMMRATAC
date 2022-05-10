@@ -18,21 +18,19 @@ package Node;
  */
 public class MinNode {
 	
-	private double Min = 0.0;
+	private double min = 0.0;
 	
-	public MinNode() {
-		
-	}
+	public MinNode() {}
 	
 	public MinNode(double min) {
-		Min = min;
+		this.min = min;
 	}
 	
 	public double getMin() {
-		return Min;
+		return min;
 	}
 	
 	public void setMin(double min) {
-		Min = min;
+		this.min = min;
 	}
 }

@@ -18,20 +18,7 @@ package Node;
  */
 public class PileupNode2 extends PileupNode {
 	
-	
 	private String chrom;
-	
-	/**
-	 * Constructor for creating PileupNode2 object
-	 *
-	 * @param base  an integer representing the base position
-	 * @param score an integer representing the position's score
-	 * @param chr   a String representing the chromosome name
-	 */
-	public PileupNode2(int base, int score, String chr) {
-		super(base, score);
-		chrom = chr;
-	}
 	
 	/**
 	 * Constructor for creating PileupNode2 object
@@ -45,9 +32,8 @@ public class PileupNode2 extends PileupNode {
 		chrom = chr;
 	}
 	
-	
 	/**
-	 * Set the chromsome name
+	 * Set the chromosome name
 	 *
 	 * @param chr a String representing the chromosome name
 	 */
@@ -58,10 +44,9 @@ public class PileupNode2 extends PileupNode {
 	/**
 	 * Access the chromosome name
 	 *
-	 * @return a String representing the chromosome na,e
+	 * @return a String representing the chromosome name
 	 */
 	public String getChrom() {
 		return chrom;
 	}
-	
 }

@@ -221,7 +221,7 @@ public class pileup {
 		HashMap<String, ArrayList<TagNode>> temp = bedGraphMath.toMap(intervals);
 		for (String chr : temp.keySet()) {
 			ArrayList<TagNode> temp1 = temp.get(chr);
-			Collections.sort(temp1, TagNode.basepairComparator);
+			Collections.sort(temp1, TagNode.basePairComparator);
 			for (int i = 0; i < temp1.size(); i++) {
 				bdg.addAll(toBedGraph(temp1.get(i), makeBlock(temp1.get(i))));
 			}

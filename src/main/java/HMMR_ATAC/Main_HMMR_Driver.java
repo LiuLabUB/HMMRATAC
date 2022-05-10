@@ -395,9 +395,9 @@ public class Main_HMMR_Driver {
 			ArrayList<TagNode> hmmr = hmmrBdg.get(chr);
 			ArrayList<TagNode> signal = bdg.get(chr);
 			if (signal != null) {
-				hmmr.sort(TagNode.basepairComparator);
+				hmmr.sort(TagNode.basePairComparator);
 				
-				signal.sort(TagNode.basepairComparator);
+				signal.sort(TagNode.basePairComparator);
 				
 				int index = 0;
 				for (int i = 0; i < hmmr.size(); i++) {

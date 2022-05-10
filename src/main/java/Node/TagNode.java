@@ -28,7 +28,7 @@ public class TagNode {
 	private int BP_STOP = 0;
 	private boolean Fstrand = true;
 	private char strand = '\0';
-	private int Score = 0;
+	private int score = 0;
 	private double score2 = 0.0;
 	private String score3 = "";
 	private TagNode summit = null;
@@ -42,9 +42,7 @@ public class TagNode {
 	/**
 	 * Default constructor
 	 */
-	public TagNode() {
-		
-	}
+	public TagNode() {}
 	
 	/**
 	 * Constructor
@@ -54,16 +52,15 @@ public class TagNode {
 	 * @param stop   an integer representing the stop position
 	 * @param uniqid A String representing a unique ID for the entry
 	 * @param score  an integer representing the score for the entry
-	 * @param str    a Char representing the strand of the entry
+	 * @param strand    a Char representing the strand of the entry
 	 */
-	public TagNode(String chr, int start, int stop, String uniqid, int score, char str) {
-		CHROM = chr;
-		BP_START = start;
-		BP_STOP = stop;
-		uniqID = uniqid;
-		strand = str;
-		Score = score;
-		
+	public TagNode(String chr, int start, int stop, String uniqid, int score, char strand) {
+		this.CHROM = chr;
+		this.BP_START = start;
+		this.BP_STOP = stop;
+		this.uniqID = uniqid;
+		this.strand = strand;
+		this.score = score;
 	}
 	
 	/**
@@ -74,10 +71,9 @@ public class TagNode {
 	 * @param stop  an integer representing the stop position
 	 */
 	public TagNode(String chr, int start, int stop) {
-		
-		CHROM = chr;
-		BP_START = start;
-		BP_STOP = stop;
+		this.CHROM = chr;
+		this.BP_START = start;
+		this.BP_STOP = stop;
 	}
 	
 	/**
@@ -88,13 +84,11 @@ public class TagNode {
 	 * @param stop  an integer representing the stop position
 	 * @param score an integer representing the score for the entry
 	 */
-	
 	public TagNode(String chr, int start, int stop, int score) {
-		CHROM = chr;
-		BP_START = start;
-		BP_STOP = stop;
-		Score = score;
-		
+		this.CHROM = chr;
+		this.BP_START = start;
+		this.BP_STOP = stop;
+		this.score = score;
 	}
 	
 	/**
@@ -181,8 +175,7 @@ public class TagNode {
 	 * @return a String representing textual description of the entry
 	 */
 	public String toString() {
-		String ans = CHROM + "\t" + BP_START + "\t" + BP_STOP;
-		return ans;
+		return CHROM + "\t" + BP_START + "\t" + BP_STOP;
 	}
 	
 	/**
@@ -191,8 +184,7 @@ public class TagNode {
 	 * @return a String representing textual description of the entry
 	 */
 	public String toString2() {
-		String ans = CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + "E" + (int) score2;
-		return ans;
+		return CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + "E" + (int) score2;
 	}
 	
 	/**
@@ -201,8 +193,7 @@ public class TagNode {
 	 * @return a String representing textual description of the entry
 	 */
 	public String toString3() {
-		String ans = CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + score2;
-		return ans;
+		return CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + score2;
 	}
 	
 	/**
@@ -211,8 +202,7 @@ public class TagNode {
 	 * @return a String representing the scored bedgraph entry
 	 */
 	public String toString_ScoredBdg() {
-		String ans = CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + "E" + (int) score2 + "\t" + score3;
-		return ans;
+		return CHROM + "\t" + BP_START + "\t" + BP_STOP + "\t" + "E" + (int) score2 + "\t" + score3;
 	}
 	
 	/**
@@ -222,8 +212,7 @@ public class TagNode {
 	 */
 	public String toString_ScoredSummit() {
 		
-		String ans = CHROM + "\t" + this.getSummit().getStart() + "\t" + this.getSummit().getStop() + "\t" + uniqID + "\t" + score3;
-		return ans;
+		return CHROM + "\t" + this.getSummit().getStart() + "\t" + this.getSummit().getStop() + "\t" + uniqID + "\t" + score3;
 	}
 	
 	/**
@@ -247,10 +236,9 @@ public class TagNode {
 				(getStart() - upstream.getStart()) + "," +
 				((downstream.getStop() - upstream.getStart()) - 1);
 		
-		String ans = CHROM + "\t" + upstream.getStart() + "\t" +
+		return CHROM + "\t" + upstream.getStart() + "\t" +
 				downstream.getStop() + "\t" + uniqID + "\t" + ".\t." + "\t" + BP_START + "\t" +
 				BP_STOP + "\t" + "255,0,0" + "\t" + middleValues + "\t" + score3 + "\t" + "-1\t-1";
-		return ans;
 	}
 	
 	/**
@@ -304,7 +292,7 @@ public class TagNode {
 	 * @return an integer representing the entry's score
 	 */
 	public int getScore() {
-		return Score;
+		return score;
 	}
 	
 	/**
@@ -313,7 +301,7 @@ public class TagNode {
 	 * @param score an integer representing the entry's score
 	 */
 	public void setScore(int score) {
-		Score = score;
+		this.score = score;
 	}
 	
 	/**
@@ -418,7 +406,7 @@ public class TagNode {
 	/**
 	 * Set an upstream tagnode
 	 *
-	 * @param A TagNode representing the upstream feature
+	 * @param u TagNode representing the upstream feature
 	 */
 	public void setUpstream(TagNode u) {
 		upstream = u;
@@ -436,7 +424,7 @@ public class TagNode {
 	/**
 	 * Set an upstream tagnode
 	 *
-	 * @param A TagNode representing the upstream feature
+	 * @param d TagNode representing the upstream feature
 	 */
 	public void setDownstream(TagNode d) {
 		downstream = d;
@@ -454,15 +442,5 @@ public class TagNode {
 	/**
 	 * Method for comparing and sorting TagNode
 	 */
-	public static Comparator<TagNode> basepairComparator = new Comparator<TagNode>() {
-		public int compare(TagNode node1, TagNode node2) {
-			double PeakScore1 = node1.getStart();
-			double PeakScore2 = node2.getStart();
-			if (PeakScore1 < PeakScore2) return -1;
-			else if (PeakScore1 == PeakScore2) return 0;
-			else return 1;
-		}
-	};
-	
-	
+	public static Comparator<TagNode> basePairComparator = Comparator.comparingDouble(TagNode::getStart);
 }

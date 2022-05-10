@@ -22,10 +22,10 @@ public class StateNode {
 	private int pos;
 	private int state;
 	
-	public StateNode(String c, int p, int s) {
-		chr = c;
-		pos = p;
-		state = s;
+	public StateNode(String chr, int pos, int state) {
+		this.chr = chr;
+		this.pos = pos;
+		this.state = state;
 	}
 	
 	public void setChr(String c) {
@@ -51,5 +51,4 @@ public class StateNode {
 	public int getState() {
 		return state;
 	}
-	
 }
