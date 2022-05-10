@@ -80,8 +80,7 @@ public class BaumWelchTrainer {
 		Hmm<?> newHmm = model.getHmm();
 		
 		FileOutputStream out = new FileOutputStream(output);
-		HmmBinaryWriter writer = new HmmBinaryWriter();
-		writer.write(out, newHmm);
+		HmmBinaryWriter.write(out, newHmm);
 		System.out.println(newHmm.toString());
 	}
 	

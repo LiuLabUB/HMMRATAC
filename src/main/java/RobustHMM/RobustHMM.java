@@ -26,18 +26,18 @@ import java.util.List;
 
 public class RobustHMM {
 	//inputs
-	private List<List<?>> train;
-	private List<?> obs;
-	private Hmm<?> hmm;
-	private boolean welch;
-	private int k;
-	private String method;
-	private int numDist;
+	private final List<List<?>> train;
+	private final List<?> obs;
+	private final Hmm<?> hmm;
+	private final boolean welch;
+	private final int k;
+	private final String method;
+	private final int numDist;
 	private int BWIter = 10;
 	//specifics
 	private KMeansLearner<?> kmeans;
-	private BaumWelchLearner bw;
-	private BaumWelchScaledLearner sbw;
+	private final BaumWelchLearner bw;
+	private final BaumWelchScaledLearner sbw;
 	
 	private int[] states;
 	private Hmm<?> outHmm;
@@ -141,16 +141,14 @@ public class RobustHMM {
 		} else {
 			newHmm = formatRealHmm();
 		}
-		if (welch == false) {
-			states = viterbiReal(newHmm, newObs);
-			outHmm = newHmm;
-		} else {
+		if (welch) {
 			for (int x = 0; x < BWIter; x++) {
 				newHmm = bw.iterate(newHmm, newTrain);
 				if (bwConverge(newHmm)) {
 					break;
 				}
 			}
+			assert newHmm != null;
 			if (!bwConverge(newHmm)) {
 				for (int y = 0; y < BWIter; y++) {
 					newHmm = sbw.iterate(newHmm, newTrain);
@@ -163,9 +161,9 @@ public class RobustHMM {
 				System.out.println("Baum-Welch Iterations" + "\t" + BWIter);
 				throw new BaumWelchException("Baum Welch Failed!! Check your training set");
 			}
-			states = viterbiReal(newHmm, newObs);
-			outHmm = newHmm;
 		}
+		states = viterbiReal(newHmm, newObs);
+		outHmm = newHmm;
 	}
 	
 	/**
@@ -181,10 +179,7 @@ public class RobustHMM {
 		} else {
 			newHmm = formatVectorHmm();
 		}
-		if (welch == false) {
-			states = viterbiVector(newHmm, newObs);
-			outHmm = newHmm;
-		} else {
+		if (welch) {
 			
 			for (int x = 0; x < BWIter; x++) {
 				newHmm = sbw.iterate(newHmm, newTrain);
@@ -194,23 +189,9 @@ public class RobustHMM {
 					break;
 				}
 			}
-				
-			/*
-			if (!bwConverge(newHmm)){
-				for (int y = 0;y < BWIter;y++){
-					newHmm = sbw.iterate(newHmm, newTrain);
-					if(bwConverge(newHmm)){
-						break;
-					}
-				}
-			}
-			if (!bwConverge(newHmm)){
-				System.out.println("Baum-Welch Iterations"+"\t"+BWIter);
-				throw new BaumWelchException("Baum Welch Failed!! Check your training set");
-			}*/
-			states = viterbiVector(newHmm, newObs);
-			outHmm = newHmm;
 		}
+		states = viterbiVector(newHmm, newObs);
+		outHmm = newHmm;
 	}
 	
 	/**
@@ -226,16 +207,14 @@ public class RobustHMM {
 		} else {
 			newHmm = formatRealHmm();
 		}
-		if (welch == false) {
-			states = viterbiReal(newHmm, newObs);
-			outHmm = newHmm;
-		} else {
+		if (welch) {
 			for (int x = 0; x < BWIter; x++) {
 				newHmm = bw.iterate(newHmm, newTrain);
 				if (bwConverge(newHmm)) {
 					break;
 				}
 			}
+			assert newHmm != null;
 			if (!bwConverge(newHmm)) {
 				for (int y = 0; y < BWIter; y++) {
 					newHmm = sbw.iterate(newHmm, newTrain);
@@ -248,9 +227,9 @@ public class RobustHMM {
 				System.out.println("Baum-Welch Iterations" + "\t" + BWIter);
 				throw new BaumWelchException("Baum Welch Failed!! Check your training set");
 			}
-			states = viterbiReal(newHmm, newObs);
-			outHmm = newHmm;
 		}
+		states = viterbiReal(newHmm, newObs);
+		outHmm = newHmm;
 	}
 	
 	/**
@@ -266,16 +245,14 @@ public class RobustHMM {
 		} else {
 			newHmm = formatIntHmm();
 		}
-		if (welch == false) {
-			states = viterbiInt(newHmm, newObs);
-			outHmm = newHmm;
-		} else {
+		if (welch) {
 			for (int x = 0; x < BWIter; x++) {
 				newHmm = bw.iterate(newHmm, newTrain);
 				if (bwConverge(newHmm)) {
 					break;
 				}
 			}
+			assert newHmm != null;
 			if (!bwConverge(newHmm)) {
 				for (int y = 0; y < BWIter; y++) {
 					newHmm = sbw.iterate(newHmm, newTrain);
@@ -288,9 +265,9 @@ public class RobustHMM {
 				System.out.println("Baum-Welch Iterations" + "\t" + BWIter);
 				throw new BaumWelchException("Baum Welch Failed!! Check your training set");
 			}
-			states = viterbiInt(newHmm, newObs);
-			outHmm = newHmm;
 		}
+		states = viterbiInt(newHmm, newObs);
+		outHmm = newHmm;
 	}
 	
 	/**
@@ -345,43 +322,38 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationVector>> formatVectorTrain() {
+		List<List<ObservationVector>> newList = new ArrayList<>();
 		if (train != null) {
-			List<List<ObservationVector>> newList = new ArrayList<List<ObservationVector>>();
-			for (int i = 0; i < train.size(); i++) {
-				ArrayList<ObservationVector> tempList = (ArrayList<ObservationVector>) train.get(i);
+			for (List<?> objects : train) {
+				ArrayList<ObservationVector> tempList = (ArrayList<ObservationVector>) objects;
 				newList.add(tempList);
 			}
 			int dim = newList.get(0).get(0).dimension();
 			if (k > 0) {
-				kmeans = new KMeansLearner<ObservationVector>(k, new OpdfMultiGaussianFactory(dim), newList);
+				kmeans = new KMeansLearner<>(k, new OpdfMultiGaussianFactory(dim), newList);
 			}
-			return newList;
 		}
 		/*
 		 * This is a test. If no training set is given, duplicate the observation set and use that.
 		 * Could also attempt to split up the observation set into smaller, random pieces.
 		 * 	Duplicating observation set resulted in out of memory error
-		 * 	Spliting the data into random chunks resulted in non convergence of BW
+		 * 	Splitting the data into random chunks resulted in non convergence of BW
 		 * Try splitting the data into 1000bp chunks (for whole data)
 		 * Note: either of these approaches may not work.
 		 * Update 8/27/15:
 		 * 	Splitting into 1000bp chunks sometimes worked. Problem was that although individual tracks were not
-		 * 	correlated in whole dataset, they sometimes were within the chunks, leading to problems
-		 * 	Try splitting whole dataset in half instead. Less likely for data tracks to be correlated
+		 * 	correlated in entire dataset, they were sometimes within the chunks, leading to problems
+		 * 	Try splitting entire dataset in half instead. Less likely for data tracks to be correlated
 		 * Original approach was simply to return null if train == null
 		 */
 		else {
-			List<List<ObservationVector>> newList = new ArrayList<List<ObservationVector>>();
 			//split the data into 1000bp chunks
 			int a;
 			int i;
 			int halfSize = obs.size() / 2;
-			//System.out.println(halfSize);
 			for (i = 0; i < obs.size() - 1; i += halfSize) {
-				//System.out.println("i is "+"\t"+i);
-				List<ObservationVector> temp = new ArrayList<ObservationVector>();
+				List<ObservationVector> temp = new ArrayList<>();
 				for (a = i; a < i + halfSize - 1; a++) {
-					//System.out.println("A is "+"\t"+a);
 					ObservationVector o = (ObservationVector) obs.get(a);
 					temp.add(o);
 				}
@@ -389,8 +361,8 @@ public class RobustHMM {
 			}
 			
 			
-			return newList;
 		}
+		return newList;
 	}
 	
 	/**
@@ -400,8 +372,7 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationVector> formatVectorObs() {
-		List<ObservationVector> newObs = (ArrayList<ObservationVector>) obs;
-		return newObs;
+		return (List<ObservationVector>) (ArrayList<ObservationVector>) obs;
 	}
 	
 	/**
@@ -412,8 +383,7 @@ public class RobustHMM {
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationVector> formatVectorHmm() {
 		if (hmm != null) {
-			Hmm<ObservationVector> newHmm = (Hmm<ObservationVector>) hmm;
-			return newHmm;
+			return (Hmm<ObservationVector>) hmm;
 		} else {
 			return null;
 		}
@@ -426,69 +396,61 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationReal>> formatMixtureTrain() {
+		List<List<ObservationReal>> newList = new ArrayList<>();
 		if (train != null) {
-			List<List<ObservationReal>> newList = new ArrayList<List<ObservationReal>>();
-			for (int i = 0; i < train.size(); i++) {
-				ArrayList<ObservationReal> tempList = (ArrayList<ObservationReal>) train.get(i);
+			for (List<?> objects : train) {
+				ArrayList<ObservationReal> tempList = (ArrayList<ObservationReal>) objects;
 				newList.add(tempList);
 			}
 			if (k > 0 && numDist > 0) {
-				kmeans = new KMeansLearner<ObservationReal>(k, new OpdfGaussianMixtureFactory(numDist), newList);
+				kmeans = new KMeansLearner<>(k, new OpdfGaussianMixtureFactory(numDist), newList);
 			}
-			return newList;
 		} else {
-			List<List<ObservationReal>> newList = new ArrayList<List<ObservationReal>>();
 			//split the data into 1000bp chunks
 			int a;
 			int i;
 			for (i = 0; i < obs.size() - 1000; i += 1000) {
-				List<ObservationReal> temp = new ArrayList<ObservationReal>();
+				List<ObservationReal> temp = new ArrayList<>();
 				for (a = i; a < i + 1000; a++) {
 					ObservationReal o = (ObservationReal) obs.get(a);
 					temp.add(o);
 				}
 				newList.add(temp);
 			}
-			
-			
-			return newList;
 		}
+		return newList;
 	}
 	
 	/**
 	 * Format the data as double data
 	 *
-	 * @return a List of List of ObservationReal representing the data for baum welch training
+	 * @return a List of Lists of ObservationReal representing the data for baum welch training
 	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationReal>> formatRealTrain() {
+		List<List<ObservationReal>> newList = new ArrayList<>();
 		if (train != null) {
-			List<List<ObservationReal>> newList = new ArrayList<List<ObservationReal>>();
-			for (int i = 0; i < train.size(); i++) {
-				ArrayList<ObservationReal> tempList = (ArrayList<ObservationReal>) train.get(i);
+			for (List<?> objects : train) {
+				ArrayList<ObservationReal> tempList = (ArrayList<ObservationReal>) objects;
 				newList.add(tempList);
 			}
 			if (k > 0) {
-				kmeans = new KMeansLearner<ObservationReal>(k, new OpdfGaussianFactory(), newList);
+				kmeans = new KMeansLearner<>(k, new OpdfGaussianFactory(), newList);
 			}
-			return newList;
 		} else {
-			List<List<ObservationReal>> newList = new ArrayList<List<ObservationReal>>();
 			//split the data into 1000bp chunks
 			int a;
 			int i;
 			for (i = 0; i < obs.size() - 1000; i += 1000) {
-				List<ObservationReal> temp = new ArrayList<ObservationReal>();
+				List<ObservationReal> temp = new ArrayList<>();
 				for (a = i; a < i + 1000; a++) {
 					ObservationReal o = (ObservationReal) obs.get(a);
 					temp.add(o);
 				}
 				newList.add(temp);
 			}
-			
-			
-			return newList;
 		}
+		return newList;
 	}
 	
 	/**
@@ -498,8 +460,7 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationReal> formatRealObs() {
-		List<ObservationReal> newObs = (ArrayList<ObservationReal>) obs;
-		return newObs;
+		return (List<ObservationReal>) (ArrayList<ObservationReal>) obs;
 	}
 	
 	/**
@@ -510,8 +471,7 @@ public class RobustHMM {
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationReal> formatRealHmm() {
 		if (hmm != null) {
-			Hmm<ObservationReal> newHmm = (Hmm<ObservationReal>) hmm;
-			return newHmm;
+			return (Hmm<ObservationReal>) hmm;
 		} else {
 			return null;
 		}
@@ -524,34 +484,30 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<List<ObservationInteger>> formatIntTrain() {
+		List<List<ObservationInteger>> newList = new ArrayList<>();
 		if (train != null) {
-			List<List<ObservationInteger>> newList = new ArrayList<List<ObservationInteger>>();
-			for (int i = 0; i < train.size(); i++) {
+			for (List<?> objects : train) {
 				
-				ArrayList<ObservationInteger> tempList = (ArrayList<ObservationInteger>) train.get(i);
+				ArrayList<ObservationInteger> tempList = (ArrayList<ObservationInteger>) objects;
 				newList.add(tempList);
 			}
 			if (k > 0 && numDist > 0) {
-				kmeans = new KMeansLearner<ObservationInteger>(k, new OpdfIntegerFactory(numDist), newList);
+				kmeans = new KMeansLearner<>(k, new OpdfIntegerFactory(numDist), newList);
 			}
-			return newList;
 		} else {
-			List<List<ObservationInteger>> newList = new ArrayList<List<ObservationInteger>>();
 			//split the data into 1000bp chunks
 			int a;
 			int i;
 			for (i = 0; i < obs.size() - 1000; i += 1000) {
-				List<ObservationInteger> temp = new ArrayList<ObservationInteger>();
+				List<ObservationInteger> temp = new ArrayList<>();
 				for (a = i; a < i + 1000; a++) {
 					ObservationInteger o = (ObservationInteger) obs.get(a);
 					temp.add(o);
 				}
 				newList.add(temp);
 			}
-			
-			
-			return newList;
 		}
+		return newList;
 	}
 	
 	/**
@@ -562,8 +518,7 @@ public class RobustHMM {
 	@SuppressWarnings("unchecked")
 	private Hmm<ObservationInteger> formatIntHmm() {
 		if (hmm != null) {
-			Hmm<ObservationInteger> newHmm = (Hmm<ObservationInteger>) hmm;
-			return newHmm;
+			return (Hmm<ObservationInteger>) hmm;
 		} else {
 			return null;
 		}
@@ -576,8 +531,7 @@ public class RobustHMM {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<ObservationInteger> formatIntObs() {
-		List<ObservationInteger> newObs = (ArrayList<ObservationInteger>) obs;
-		return newObs;
+		return (List<ObservationInteger>) (ArrayList<ObservationInteger>) obs;
 	}
 	
 	/**
@@ -586,11 +540,7 @@ public class RobustHMM {
 	 * @return a boolean to determine if data is in integer form
 	 */
 	private boolean isInt() {
-		if (method.equals("Integer")) {
-			return true;
-		} else {
-			return false;
-		}
+		return method.equals("Integer");
 	}
 	
 	/**
@@ -599,11 +549,7 @@ public class RobustHMM {
 	 * @return a boolean to determine if data is in double form
 	 */
 	private boolean isReal() {
-		if (method.equals("Real")) {
-			return true;
-		} else {
-			return false;
-		}
+		return method.equals("Real");
 	}
 	
 	/**
@@ -612,11 +558,7 @@ public class RobustHMM {
 	 * @return a boolean to determine if data is in multivariate gaussian form
 	 */
 	private boolean isVector() {
-		if (method.equals("Vector")) {
-			return true;
-		} else {
-			return false;
-		}
+		return method.equals("Vector");
 	}
 	
 	/**
@@ -625,11 +567,7 @@ public class RobustHMM {
 	 * @return a boolean to determine if data is in mixture form
 	 */
 	private boolean isMixture() {
-		if (method.equals("Mixture")) {
-			return true;
-		} else {
-			return false;
-		}
+		return method.equals("Mixture");
 	}
 	
 	/**
@@ -640,10 +578,6 @@ public class RobustHMM {
 	 */
 	private boolean bwConverge(Hmm<?> h) {
 		double pi = h.getPi(0);
-		if (Double.isNaN(pi)) {
-			return true;
-		} else {
-			return false;
-		}
+		return Double.isNaN(pi);
 	}
 }

@@ -24,21 +24,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class BinaryModelReader {
 	
 	
 	private static File input = null;
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < args.length; i++) {
 			
-			switch (args[i].charAt((1))) {
-				
-				case 'i':
-					input = new File(args[i + 1]);
-					i++;
-					break;
+			if (args[i].charAt((1)) == 'i') {
+				input = new File(args[i + 1]);
+				i++;
 			}
 		}
 		if (input == null) {
@@ -79,27 +77,10 @@ public class BinaryModelReader {
 			}
 			printCovariance(cov);
 		}
-		/*
-		int numStates = h.nbStates();
-		for (int i = 0;i < numStates;i++){
-			for (int a = 0; a < numStates;a++){
-				System.out.print(h.getAij(i, a)+",");
-			}
-			System.out.println();
-		}
-		*/
 	}
 	
 	public static void printCovariance(double[][] cov) {
-		for (int i = 0; i < cov.length; i++) {
-			for (int a = 0; a < cov[i].length; a++) {
-				if (a < cov[i].length - 1) {
-					System.out.print(cov[i][a] + ",");
-				} else {
-					System.out.println(cov[i][a]);
-				}
-			}
-		}
+		System.out.println(Arrays.deepToString(cov));
 	}
 	
 	private static void printUsage() {

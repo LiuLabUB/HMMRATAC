@@ -63,8 +63,7 @@ public class BinaryModelWriter {
 		ModelFileReader reader = new ModelFileReader(input);
 		Hmm<?> hmm = reader.getHmm();
 		FileOutputStream out = new FileOutputStream(output);
-		HmmBinaryWriter writer = new HmmBinaryWriter();
-		writer.write(out, hmm);
+		HmmBinaryWriter.write(out, hmm);
 		System.out.println(hmm.toString());
 	}
 	

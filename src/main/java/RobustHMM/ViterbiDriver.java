@@ -78,7 +78,7 @@ public class ViterbiDriver {
 			System.exit(0);
 		}
 		
-		TrainingReader trainReader = null;
+		TrainingReader trainReader;
 		List<List<?>> trainList = null;
 		if (train != null) {
 			trainReader = new TrainingReader(train);
@@ -87,19 +87,14 @@ public class ViterbiDriver {
 		ObservationReader obsReader = new ObservationReader(obs);
 		List<?> obsList = obsReader.getObs();
 		String method = obsReader.getMethod();
-		trainReader = null;
-		obsReader = null;
 		Hmm<?> h = null;
 		if (hmm != null) {
 			h = HmmBinaryReader.read(new FileInputStream(hmm));
-			//System.out.println(h.toString());
-			//System.exit(0);
 		}
 		
 		RobustHMM HMM = new RobustHMM(obsList, trainList, h, welch, k, method, numDist);
 		int[] states = HMM.getStates();
 		Hmm<?> outHmm = HMM.getHmm();
-		//System.out.println(outHmm.toString());
 		for (int i = 0; i < states.length; i++) {
 			Observation o = (Observation) obsList.get(i);
 			@SuppressWarnings("unchecked")
@@ -114,8 +109,6 @@ public class ViterbiDriver {
 			double prob = ep + tp;
 			System.out.println(o.toString() + "\t" + states[i] + "\t" + prob);
 		}
-		
-		
 	}
 	
 	private static void printUsage() {

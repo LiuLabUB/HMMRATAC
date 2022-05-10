@@ -22,17 +22,17 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class ModelFileReader {
 	
-	private String input;
+	private final String input;
 	private Hmm<?> hmm;
 	
 	private int numStates = 0;
 	private double[] initial;
 	private double[][] trans;
-	//private List<? extends Opdf> opdf;
 	
 	public ModelFileReader(String file) throws FileNotFoundException {
 		input = file;
@@ -44,7 +44,7 @@ public class ModelFileReader {
 	}
 	
 	private void read() throws FileNotFoundException {
-		Scanner inFile = new Scanner((Readable) new FileReader(input));
+		Scanner inFile = new Scanner(new FileReader(input));
 		
 		int counter = 0;
 		while (inFile.hasNext()) {
@@ -60,16 +60,15 @@ public class ModelFileReader {
 					readMix(inFile);
 				}
 			}
-			
 			counter++;
 		}
 	}
 	
 	private void readMix(Scanner inFile) {
-		List<Opdf<ObservationReal>> opdf = new ArrayList<Opdf<ObservationReal>>();
+		List<Opdf<ObservationReal>> opdf = new ArrayList<>();
 		int counter = 0;
 		int numVar = 0;
-		ArrayList<String[]> t = new ArrayList<String[]>();
+		ArrayList<String[]> t = new ArrayList<>();
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] temp = line.split(",");
@@ -78,7 +77,6 @@ public class ModelFileReader {
 				numVar = temp.length;
 				t.add(temp);
 			}
-			
 			counter++;
 		}
 		
@@ -103,11 +101,11 @@ public class ModelFileReader {
 			OpdfGaussianMixture pdf = new OpdfGaussianMixture(mean, var, prob);
 			opdf.add(pdf);
 		}
-		hmm = new Hmm<ObservationReal>(initial, trans, opdf);
+		hmm = new Hmm<>(initial, trans, opdf);
 	}
 	
 	private void readInt(Scanner inFile) {
-		List<Opdf<ObservationInteger>> opdf = new ArrayList<Opdf<ObservationInteger>>();
+		List<Opdf<ObservationInteger>> opdf = new ArrayList<>();
 		int counter = 0;
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
@@ -118,14 +116,13 @@ public class ModelFileReader {
 			if (pdf != null) {
 				opdf.add(pdf);
 			}
-			
 			counter++;
 		}
-		hmm = new Hmm<ObservationInteger>(initial, trans, opdf);
+		hmm = new Hmm<>(initial, trans, opdf);
 	}
 	
 	private void readReal(Scanner inFile) {
-		List<Opdf<ObservationReal>> opdf = new ArrayList<Opdf<ObservationReal>>();
+		List<Opdf<ObservationReal>> opdf = new ArrayList<>();
 		int counter = 0;
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
@@ -135,18 +132,16 @@ public class ModelFileReader {
 			if (pdf != null) {
 				opdf.add(pdf);
 			}
-			
-			
 			counter++;
 		}
-		hmm = new Hmm<ObservationReal>(initial, trans, opdf);
+		hmm = new Hmm<>(initial, trans, opdf);
 	}
 	
 	private void readVector(Scanner inFile) {
 		int counter = 0;
 		int numVar = 0;
-		ArrayList<String[]> t = new ArrayList<String[]>();
-		List<Opdf<ObservationVector>> opdf = new ArrayList<Opdf<ObservationVector>>();
+		ArrayList<String[]> t = new ArrayList<>();
+		List<Opdf<ObservationVector>> opdf = new ArrayList<>();
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] temp = line.split(",");
@@ -155,8 +150,6 @@ public class ModelFileReader {
 				numVar = temp.length;
 				t.add(temp);
 			}
-			
-			
 			counter++;
 		}
 		for (int i = 0; i < t.size(); i += (numVar + 1)) {
@@ -176,39 +169,23 @@ public class ModelFileReader {
 			OpdfMultiGaussian pdf = new OpdfMultiGaussian(mean, cov);
 			opdf.add(pdf);
 		}
-		hmm = new Hmm<ObservationVector>(initial, trans, opdf);
+		hmm = new Hmm<>(initial, trans, opdf);
 	}
 	
 	private boolean isInt(String line) {
-		if (line.equals("Integer") || line.equals("integer") || line.equals("int")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("integer") || line.equals("int");
 	}
 	
 	private boolean isReal(String line) {
-		if (line.equals("Real") || line.equals("real")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("real");
 	}
 	
 	private boolean isVector(String line) {
-		if (line.equals("Vector") || line.equals("vector")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("vector");
 	}
 	
 	private boolean isMixture(String line) {
-		if (line.equals("Mixture") || line.equals("mixture") || line.equals("mix")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("mixture") || line.equals("mix");
 	}
 	
 	private OpdfInteger readIntPDF(String[] temp, int counter) {
@@ -229,10 +206,8 @@ public class ModelFileReader {
 		if (counter > numStates) {
 			pdf = new OpdfGaussian(Double.parseDouble(temp[0]), Double.parseDouble(temp[1]));
 		}
-		
 		return pdf;
 	}
-	
 	
 	private void readInitialAndTrans(String[] temp, int counter) {
 		if (counter == 0) {
@@ -253,9 +228,7 @@ public class ModelFileReader {
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		ModelFileReader reader = new ModelFileReader("TestBEDFiles/TestMixtureModelFile");
-		//reader.read();
 		Hmm<?> hmm = reader.getHmm();
-		//System.out.println(hmm.toString());
 		Opdf<?> opdf = hmm.getOpdf(0);
 		Observation obs = opdf.generate();
 		System.out.println(obs.toString());

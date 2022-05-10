@@ -35,11 +35,10 @@ public class DistanceTester {
 	private static String train = null;
 	
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws FileNotFoundException, IOException {
+	public static void main(String[] args) throws IOException {
 		for (int i = 0; i < args.length; i++) {
 			
 			switch (args[i].charAt((1))) {
-				
 				
 				case 'm':
 					hmm = new File(args[i + 1]);
@@ -52,9 +51,9 @@ public class DistanceTester {
 				
 			}
 		}
-		Hmm<?> h = null;
+		Hmm<?> h;
 		h = HmmBinaryReader.read(new FileInputStream(hmm));
-		TrainingReader trainReader = null;
+		TrainingReader trainReader;
 		List<List<?>> trainList = null;
 		if (train != null) {
 			trainReader = new TrainingReader(train);
@@ -62,19 +61,16 @@ public class DistanceTester {
 		}
 		BaumWelchScaledLearner bw = new BaumWelchScaledLearner();
 		Hmm<ObservationVector> first = (Hmm<ObservationVector>) h;
-		List<List<ObservationVector>> newList = new ArrayList<List<ObservationVector>>();
-		for (int i = 0; i < trainList.size(); i++) {
-			ArrayList<ObservationVector> tempList = (ArrayList<ObservationVector>) trainList.get(i);
+		List<List<ObservationVector>> newList = new ArrayList<>();
+		assert trainList != null;
+		for (List<?> objects : trainList) {
+			ArrayList<ObservationVector> tempList = (ArrayList<ObservationVector>) objects;
 			newList.add(tempList);
 		}
-		int iter = 1;
 		Hmm<ObservationVector> newHmm = first;
 		newHmm = bw.iterate(newHmm, newList);
 		
-		
-		//System.out.println("Number of iterations"+"\t"+iter);
-		
-		System.out.println("Number of iterations" + "\t" + bw.getNbIterations());
+		System.out.println("Number of iterations\t" + bw.getNbIterations());
 		
 		KullbackLeiblerDistanceCalculator calc = new KullbackLeiblerDistanceCalculator();
 		double dist1 = calc.distance(first, newHmm);
@@ -83,6 +79,6 @@ public class DistanceTester {
 		System.out.println(first.toString());
 		System.out.println("Second HMM");
 		System.out.println(newHmm.toString());
-		System.out.println("distance1 = " + "\t" + dist1 + "\tDistance2 =" + "\t" + dist2);
+		System.out.println("distance1 = \t" + dist1 + "\tDistance2 =\t" + dist2);
 	}
 }

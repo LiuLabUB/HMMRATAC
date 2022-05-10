@@ -23,16 +23,14 @@ import org.apache.commons.math3.stat.descriptive.moment.Variance;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class RandomInitHMM {
 	//class variables
-	private String input;
-	private int numStates;
+	private final String input;
+	private final int numStates;
 	private Hmm<?> hmm;
 	
 	//Main method variables
@@ -58,43 +56,6 @@ public class RandomInitHMM {
 		} else if (method.equals("Real")) {
 			hmm = readReal(reader);
 		}
-		
-	}
-	
-	private void read2() throws FileNotFoundException {
-		Scanner inFile = new Scanner((Readable) new FileReader(input));
-		ArrayList<double[]> data = new ArrayList<double[]>();
-		int numFeat = 0;
-		while (inFile.hasNext()) {
-			String line = inFile.nextLine();
-			String[] features = line.split(",");
-			double[] values = new double[features.length];
-			numFeat = features.length;
-			for (int i = 0; i < features.length; i++) {
-				values[i] = Double.parseDouble(features[i]);
-			}
-			data.add(values);
-		}
-		double[][] values = new double[data.size()][numFeat];
-		for (int i = 0; i < data.size(); i++) {
-			double[] temp = data.get(i);
-			for (int a = 0; a < temp.length; a++) {
-				values[i][a] = temp[a];
-			}
-		}
-		data = null;
-		double[] mu = new double[numFeat];
-		double[] var = new double[numFeat];
-		Mean mean = new Mean();
-		Variance variance = new Variance();
-		for (int i = 0; i < numFeat; i++) {
-			mu[i] = mean.evaluate(values[i]);
-			var[i] = variance.evaluate(values[i]);
-		}
-		List<OpdfMultiGaussian> opdf = new ArrayList<OpdfMultiGaussian>();
-		for (int i = 0; i < numStates; i++) {
-			
-		}
 	}
 	
 	@SuppressWarnings({"unchecked"})
@@ -105,10 +66,7 @@ public class RandomInitHMM {
 		double[][] trans = setTrans();
 		List<OpdfMultiGaussian> opdf = setVectorPDF(obs);
 		
-		Hmm<ObservationVector> h = new Hmm<ObservationVector>(initial, trans, opdf);
-		
-		
-		return h;
+		return new Hmm<>(initial, trans, opdf);
 		
 	}
 	
@@ -127,7 +85,7 @@ public class RandomInitHMM {
 	}
 	
 	private List<OpdfMultiGaussian> setVectorPDF(ArrayList<ObservationVector> obs) {
-		List<OpdfMultiGaussian> opdf = new ArrayList<OpdfMultiGaussian>();
+		List<OpdfMultiGaussian> opdf = new ArrayList<>();
 		ObservationVector o = obs.get(0);
 		int dim = o.dimension();
 		double[] means = new double[dim];
@@ -158,22 +116,15 @@ public class RandomInitHMM {
 			
 			double meanStep = (meanUpper - meanLower) / ((double) numStates - 1);
 			double varStep = (varUpper - varLower) / ((double) numStates - 1);
-			//System.out.println((meanUpper-meanLower)+"\t"+meanStep);
 			for (int a = 0; a < numStates; a++) {
 				Means[a][i] = meanLower + (a * meanStep);
 				Vars[a][i] = varLower + (a * varStep);
-				//System.out.println(Means[a][i]);
-				//System.out.println(Vars[a][i]);
 			}
-			
 		}
 		for (int i = 0; i < Means.length; i++) {
-			//System.out.println(Means.length);
 			double[][] cov = new double[dim][dim];
 			for (int a = 0; a < Means[i].length; a++) {
-				//System.out.println(Means[i].length);
 				cov[a][a] = Vars[i][a];
-				//System.out.println(cov[a][a]);
 			}
 			OpdfMultiGaussian pdf = new OpdfMultiGaussian(Means[i], cov);
 			opdf.add(pdf);
@@ -206,7 +157,6 @@ public class RandomInitHMM {
 			
 			switch (args[i].charAt((1))) {
 				
-				
 				case 'i':
 					file = (args[i + 1]);
 					i++;
@@ -219,7 +169,6 @@ public class RandomInitHMM {
 					output = args[i + 1];
 					i++;
 					break;
-				
 			}
 		}
 		if (file == null || states == 0 || output == null) {
@@ -231,9 +180,7 @@ public class RandomInitHMM {
 		Hmm<?> hmm = init.getHMM();
 		System.out.println(hmm.toString());
 		FileOutputStream out = new FileOutputStream(output);
-		HmmBinaryWriter writer = new HmmBinaryWriter();
-		writer.write(out, hmm);
-		
+		HmmBinaryWriter.write(out, hmm);
 	}
 	
 	private static void printUsage() {

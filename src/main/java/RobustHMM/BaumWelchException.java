@@ -17,14 +17,10 @@ package RobustHMM;
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 public class BaumWelchException extends RuntimeException {
-	
-	/**
-	 *
-	 */
+
 	private static final long serialVersionUID = 1L;
 	
 	public BaumWelchException(String mes) {
 		super(mes);
 	}
-	
 }

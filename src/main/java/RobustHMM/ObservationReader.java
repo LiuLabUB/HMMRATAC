@@ -28,7 +28,7 @@ import java.util.Scanner;
 
 public class ObservationReader {
 	
-	private String input;
+	private final String input;
 	private List<?> obs;
 	private String method;
 	
@@ -46,11 +46,10 @@ public class ObservationReader {
 	}
 	
 	private void read() throws FileNotFoundException {
-		Scanner inFile = new Scanner((Readable) new FileReader(input));
+		Scanner inFile = new Scanner(new FileReader(input));
 		
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
-			//if (line.startsWith(">")){
 			if (isInt(line)) {
 				method = "Integer";
 				obs = readInt(inFile);
@@ -64,13 +63,11 @@ public class ObservationReader {
 				obs = readReal(inFile);
 				method = "Mixture";
 			}
-			//}
-			
 		}
 	}
 	
 	private List<?> readInt(Scanner inFile) {
-		List<ObservationInteger> obseq = new ArrayList<ObservationInteger>();
+		List<ObservationInteger> obseq = new ArrayList<>();
 		while (inFile.hasNext()) {
 			ObservationInteger o = new ObservationInteger(inFile.nextInt());
 			obseq.add(o);
@@ -79,7 +76,7 @@ public class ObservationReader {
 	}
 	
 	private List<?> readReal(Scanner inFile) {
-		List<ObservationReal> obseq = new ArrayList<ObservationReal>();
+		List<ObservationReal> obseq = new ArrayList<>();
 		while (inFile.hasNext()) {
 			ObservationReal o = new ObservationReal(inFile.nextDouble());
 			obseq.add(o);
@@ -88,7 +85,7 @@ public class ObservationReader {
 	}
 	
 	private List<?> readVector(Scanner inFile) {
-		List<ObservationVector> obseq = new ArrayList<ObservationVector>();
+		List<ObservationVector> obseq = new ArrayList<>();
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] temp = line.split(",");
@@ -105,35 +102,19 @@ public class ObservationReader {
 	}
 	
 	private boolean isInt(String line) {
-		if (line.contains("Integer") || line.contains("integer") || line.contains("int") || line.contains("Int")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("integer") || line.equals("int");
 	}
 	
 	private boolean isReal(String line) {
-		if (line.contains("Real") || line.contains("real")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("real");
 	}
 	
 	private boolean isVector(String line) {
-		if (line.contains("Vector") || line.contains("vector")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("vector");
 	}
 	
 	private boolean isMixture(String line) {
-		if (line.contains("Mixture") || line.contains("mixture") || line.contains("mix") || line.contains("Mix")) {
-			return true;
-		} else {
-			return false;
-		}
+		return line.equalsIgnoreCase("mixture") || line.equals("mix");
 	}
 	
 }

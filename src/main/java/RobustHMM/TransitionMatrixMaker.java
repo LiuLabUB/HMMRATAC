@@ -47,7 +47,7 @@ public class TransitionMatrixMaker {
 			printUsage();
 			System.exit(1);
 		}
-		double initial = (double) (1.0 / (double) numStates);
+		double initial = 1.0 / (double) numStates;
 		for (int i = 0; i < numStates; i++) {
 			if (i < numStates - 1) {
 				System.out.print(initial + ",");
@@ -61,7 +61,6 @@ public class TransitionMatrixMaker {
 		double[][] trans = new double[numStates][numStates];
 		for (int i = 0; i < list.size() - 1; i++) {
 			int cluster = list.get(i).getScore();
-			;
 			int cluster2 = list.get(i + 1).getScore();
 			trans[cluster][cluster2]++;
 			
@@ -77,12 +76,12 @@ public class TransitionMatrixMaker {
 			}
 		}
 		
-		for (int i = 0; i < trans.length; i++) {
-			for (int a = 0; a < trans[i].length; a++) {
-				if (a < trans[i].length - 1) {
-					System.out.print(trans[i][a] + ",");
+		for (double[] tran : trans) {
+			for (int a = 0; a < tran.length; a++) {
+				if (a < tran.length - 1) {
+					System.out.print(tran[a] + ",");
 				} else {
-					System.out.println(trans[i][a]);
+					System.out.println(tran[a]);
 				}
 			}
 		}
@@ -97,12 +96,11 @@ public class TransitionMatrixMaker {
 
 class StateReader {
 	
-	private ArrayList<TagNode> list;
+	private final ArrayList<TagNode> list;
 	
 	public StateReader(String input) throws FileNotFoundException {
-		list = new ArrayList<TagNode>();
-		TagNode temp = null;
-		Scanner inFile = new Scanner((Readable) new FileReader(input));
+		list = new ArrayList<>();
+		Scanner inFile = new Scanner(new FileReader(input));
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] feat = line.split("\\s+");
@@ -111,10 +109,8 @@ class StateReader {
 			int stop = Integer.parseInt(feat[2]);
 			int state = Integer.parseInt(feat[3]);
 			for (int i = start; i < stop; i++) {
-				temp = new TagNode(chr, i, i + 1, state);
-				list.add(temp);
+				list.add(new TagNode(chr, i, i + 1, state));
 			}
-			
 		}
 	}
 	

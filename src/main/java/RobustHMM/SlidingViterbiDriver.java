@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SlidingViterbiDriver {
 	
@@ -85,14 +86,14 @@ public class SlidingViterbiDriver {
 			}
 		}
 		if (obs == null || (train == null && hmm == null)
-				|| (train == null && welch == true)
+				|| (train == null && welch)
 				|| (train == null && k > 0)) {
 			printUsage();
 			System.exit(0);
 		}
 		
 		
-		TrainingReader trainReader = null;
+		TrainingReader trainReader;
 		List<List<?>> trainList = null;
 		if (train != null) {
 			trainReader = new TrainingReader(train);
@@ -105,11 +106,8 @@ public class SlidingViterbiDriver {
 		ObservationReader obsReader = new ObservationReader(obs);
 		List<?> obsList = obsReader.getObs();
 		String method = obsReader.getMethod();
-		trainReader = null;
-		obsReader = null;
 		
-		
-		ArrayList<Points> results = new ArrayList<Points>();
+		ArrayList<Points> results = new ArrayList<>();
 		int i;
 		for (i = 0; i < obsList.size() - winSize; i += slideSize) {
 			
@@ -125,54 +123,38 @@ public class SlidingViterbiDriver {
 		double[] initial = new double[results.size()];
 		for (int a = 0; a < results.size(); a++) {
 			initial[a] = results.get(a).getProb();
-			//System.out.println(initial[a]);
 		}
-		/*
-		DescriptiveStatistics ds = new DescriptiveStatistics(initial);
-		double mean = ds.getMean();
-		double sd = ds.getStandardDeviation();
-		NormalDistribution normal = new NormalDistribution(mean,sd);
-		*/
 		
-		//ChiSquaredDistribution normal = new ChiSquaredDistribution(results.size()-1);
-		
-		//double cutoff = 0.05;
-		for (int a = 0; a < results.size(); a++) {
-			//double p = 1.0 - (normal.cumulativeProbability(results.get(a).getProb())) + 
-			//		normal.density(results.get(a).getProb());
-			//if (p <= cutoff){
-			List<?> tempList = run(obsList, method, results.get(a).getStop(),
-					results.get(a).getStart());
+		for (Points result : results) {
+			List<?> tempList = run(obsList, method, result.getStop(),
+					result.getStart());
 			ResultNode node = runViterbi2(trainList, h, method, tempList);
 			int[] states = node.getStates();
 			for (int x = 0; x < states.length; x++) {
 				String obs = tempList.get(x).toString();
-				System.out.println(results.get(a).getStart() + x + "\t" + states[x] + "\t" + results.get(a).getProb() + "\t" + obs);
-				//}
+				System.out.println(result.getStart() + x + "\t" + states[x] + "\t" + result.getProb() + "\t" + obs);
 			}
 		}
-		
-		
 	}
 	
 	
 	private static List<?> run(List<?> obsList, String method, int winSize, int i) {
-		if (method == "Int") {
-			List<ObservationInteger> tempList = new ArrayList<ObservationInteger>();
+		if (Objects.equals(method, "Int")) {
+			List<ObservationInteger> tempList = new ArrayList<>();
 			for (int a = i; a < i + winSize; a++) {
 				ObservationInteger o = (ObservationInteger) obsList.get(a);
 				tempList.add(o);
 			}
 			return tempList;
-		} else if (method == "Real" || method == "Mixture") {
-			List<ObservationReal> tempList = new ArrayList<ObservationReal>();
+		} else if (Objects.equals(method, "Real") || Objects.equals(method, "Mixture")) {
+			List<ObservationReal> tempList = new ArrayList<>();
 			for (int a = i; a < i + winSize; a++) {
 				ObservationReal o = (ObservationReal) obsList.get(a);
 				tempList.add(o);
 			}
 			return tempList;
-		} else if (method == "Vector") {
-			List<ObservationVector> tempList = new ArrayList<ObservationVector>();
+		} else if (Objects.equals(method, "Vector")) {
+			List<ObservationVector> tempList = new ArrayList<>();
 			for (int a = i; a < i + winSize; a++) {
 				ObservationVector o = (ObservationVector) obsList.get(a);
 				tempList.add(o);
@@ -188,7 +170,6 @@ public class SlidingViterbiDriver {
 								   String method, ArrayList<Points> results, int i,
 								   List<?> tempList, int winSize) {
 		RobustHMM HMM = new RobustHMM(tempList, trainList, h, welch, k, method, numDist);
-		//double prob = HMM.getProb(); //this line will give the nepierian log of the prob from viterbiCalculator
 		double prob = HMM.getProb2();
 		Points p = new Points(prob, i, winSize);
 		results.add(p);
@@ -196,19 +177,17 @@ public class SlidingViterbiDriver {
 	
 	private static ResultNode runViterbi2(List<List<?>> trainList, Hmm<?> h, String method, List<?> tempList) {
 		RobustHMM HMM = new RobustHMM(tempList, trainList, h, welch, k, method, numDist);
-		double prob = HMM.getProb(); //this line will give the nepierian log of the prob from viterbiCalculator
-		
+		double prob = HMM.getProb();
 		int[] states = HMM.getStates();
-		ResultNode temp = new ResultNode(prob, states);
-		return temp;
+		return new ResultNode(prob, states);
 	}
 	
 	
 	private static void printUsage() {
 		System.out.println("Usage: java -jar ViterbiDriver.jar");
-		System.out.println("Required Paramters:");
+		System.out.println("Required Parameters:");
 		System.out.println("-o <File> Observation File in specific format");
-		System.out.println("Optional Paramters:");
+		System.out.println("Optional Parameters:");
 		System.out.println("-t <File> Training set file in specific format. Note if -w is true or -h is missing or -k is set, this is required");
 		System.out.println("-m <File> File containing binary representation of HMM. If missing, -t is required");
 		System.out.println("-w <T/F> Whether or not to use Baum Welch. If true, -t is required.");

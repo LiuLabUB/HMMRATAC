@@ -29,7 +29,7 @@ import java.util.Scanner;
 
 public class TrainingReader {
 	
-	private String input;
+	private final String input;
 	private List<List<?>> obs;
 	private String method;
 	
@@ -47,11 +47,10 @@ public class TrainingReader {
 	}
 	
 	private void read() throws FileNotFoundException {
-		Scanner inFile = new Scanner((Readable) new FileReader(input));
-		obs = new ArrayList<List<?>>();
+		Scanner inFile = new Scanner(new FileReader(input));
+		obs = new ArrayList<>();
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
-			//if (line.startsWith(">")){
 			if (isInt(line)) {
 				HashMap<Integer, ArrayList<ObservationInteger>> map = readInt(inFile);
 				for (int index : map.keySet()) {
@@ -71,13 +70,11 @@ public class TrainingReader {
 					obs.add(tempList);
 				}
 			}
-			//}
-			
 		}
 	}
 	
 	private HashMap<Integer, ArrayList<ObservationVector>> readVector(Scanner inFile) {
-		HashMap<Integer, ArrayList<ObservationVector>> map = new HashMap<Integer, ArrayList<ObservationVector>>();
+		HashMap<Integer, ArrayList<ObservationVector>> map = new HashMap<>();
 		while (inFile.hasNext()) {
 			String line = inFile.nextLine();
 			String[] temp = line.split(",");
@@ -87,17 +84,11 @@ public class TrainingReader {
 				tempvalue[i - 1] = Double.parseDouble(temp[i]);
 			}
 			ObservationVector value = new ObservationVector(tempvalue);
-			if (map.containsKey(index)) {
-				ArrayList<ObservationVector> list = map.get(index);
-				list.add(value);
-				map.put(index, list);
-			} else if (!map.containsKey(index)) {
-				ArrayList<ObservationVector> list = new ArrayList<ObservationVector>();
-				list.add(value);
-				map.put(index, list);
-			}
+			ArrayList<ObservationVector> list;
+			list = map.containsKey(index) ? map.get(index) : new ArrayList<>();
+			list.add(value);
+			map.put(index, list);
 		}
-		
 		return map;
 	}
 	
@@ -109,15 +100,10 @@ public class TrainingReader {
 			int index = Integer.parseInt(temp[0]);
 			double tempvalue = Double.parseDouble(temp[1]);
 			ObservationReal value = new ObservationReal(tempvalue);
-			if (map.containsKey(index)) {
-				ArrayList<ObservationReal> list = map.get(index);
-				list.add(value);
-				map.put(index, list);
-			} else if (!map.containsKey(index)) {
-				ArrayList<ObservationReal> list = new ArrayList<ObservationReal>();
-				list.add(value);
-				map.put(index, list);
-			}
+			ArrayList<ObservationReal> list;
+			list = map.containsKey(index) ? map.get(index) : new ArrayList<>();
+			list.add(value);
+			map.put(index, list);
 		}
 		
 		return map;
@@ -132,22 +118,17 @@ public class TrainingReader {
 			int index = Integer.parseInt(temp[0]);
 			int tempvalue = Integer.parseInt(temp[1]);
 			ObservationInteger value = new ObservationInteger(tempvalue);
-			if (map.containsKey(index)) {
-				ArrayList<ObservationInteger> list = map.get(index);
-				list.add(value);
-				map.put(index, list);
-			} else if (!map.containsKey(index)) {
-				ArrayList<ObservationInteger> list = new ArrayList<ObservationInteger>();
-				list.add(value);
-				map.put(index, list);
-			}
+			ArrayList<ObservationInteger> list;
+			list = map.containsKey(index) ? map.get(index) : new ArrayList<>();
+			list.add(value);
+			map.put(index, list);
 		}
 		return map;
 		
 	}
 	
 	private boolean isInt(String line) {
-		if (line.contains("Integer") || line.contains("integer") || line.contains("int") || line.contains("Int")) {
+		if (line.toLowerCase().contains("integer") || line.toLowerCase().contains("int")) {
 			method = "Integer";
 			return true;
 		} else {
@@ -156,7 +137,7 @@ public class TrainingReader {
 	}
 	
 	private boolean isReal(String line) {
-		if (line.contains("Real") || line.contains("real")) {
+		if (line.toLowerCase().contains("real")) {
 			method = "Real";
 			return true;
 		} else {
@@ -165,7 +146,7 @@ public class TrainingReader {
 	}
 	
 	private boolean isVector(String line) {
-		if (line.contains("Vector") || line.contains("vector")) {
+		if (line.toLowerCase().contains("vector")) {
 			method = "Vector";
 			return true;
 		} else {
