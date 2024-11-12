@@ -1,6 +1,6 @@
 # HMMRATAC
 
-**Important, Please note:** 
+**Please note: 
 Java version of HMMRATAC is no longer maintained or supported. Please use ```hmmratac``` subcommand in ```macs3```: https://github.com/macs3-project/MACS**
 
 **Quick Start**
