@@ -1,5 +1,7 @@
 # HMMRATAC
 
+**Please note: java version of HMMRATAC is no longer maintained or supported. Please use hmmratac module in macs3: https://github.com/macs3-project/MACS**
+
 **Quick Start**
 
 Assume that you have a BAM file from aligner such as ```bwa mem``` named ```ATACseq.bam```.
